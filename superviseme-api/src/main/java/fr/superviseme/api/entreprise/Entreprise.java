@@ -95,6 +95,45 @@ public class Entreprise {
         updatedAt = Instant.now();
     }
 
+    /**
+     * Marque l'entreprise active après provisionnement réussi.
+     *
+     * Seul le service de provisionnement devra appeler cette méthode.
+     */
+    public void activer() {
+        verifierStatut(StatutEntreprise.EN_ATTENTE);
+        statut = StatutEntreprise.ACTIVE;
+    }
+
+    /**
+     * Signale un échec pendant le provisionnement.
+     */
+    public void signalerErreur() {
+        verifierStatut(StatutEntreprise.EN_ATTENTE);
+        statut = StatutEntreprise.ERREUR;
+    }
+
+    /**
+     * Autorise une nouvelle tentative après un échec.
+     */
+    public void remettreEnAttente() {
+        verifierStatut(StatutEntreprise.ERREUR);
+        statut = StatutEntreprise.EN_ATTENTE;
+    }
+
+    /**
+     * Empêche une transition depuis un état inattendu.
+     *
+     * @param attendu état requis avant la transition
+     */
+    private void verifierStatut(StatutEntreprise attendu) {
+        if (statut != attendu) {
+            throw new IllegalStateException(
+                    "Transition impossible depuis le statut " + statut
+            );
+        }
+    }
+
     public UUID getId() {
         return id;
     }
