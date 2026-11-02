@@ -123,6 +123,105 @@ class DossierIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+
+    /** Vérifie qu'un dossier peut être associé à un client existant. */
+    @Test
+    void creerDossierAvecClientExistant() throws Exception {
+        String token = obtenirToken();
+
+        String client = mvc.perform(post("/api/clients")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nom\":\"Client associé\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String clientId = json.readTree(client).get("id").asText();
+
+        mvc.perform(post("/api/dossiers")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of(
+                        "titre", "Dossier associé",
+                        "clientId", clientId
+                ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.clientId").value(clientId));
+    }
+
+    /** Vérifie qu'un client inexistant ne peut pas être associé. */
+    @Test
+    void creerDossierAvecClientInexistantRetourne404() throws Exception {
+        String token = obtenirToken();
+
+        mvc.perform(post("/api/dossiers")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of(
+                        "titre", "Dossier invalide",
+                        "clientId", UUID.randomUUID().toString()
+                ))))
+                .andExpect(status().isNotFound());
+    }
+
+
+    /** Vérifie qu'un client peut être dissocié sans suppression des données. */
+    @Test
+    void dissocierClientDuDossierConserveLesDeux() throws Exception {
+        String token = obtenirToken();
+        String auth = "Bearer " + token;
+
+        String client = mvc.perform(post("/api/clients")
+                .header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"nom":"Client à dissocier"}
+                    """))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String clientId = json.readTree(client).get("id").asText();
+
+        String dossier = mvc.perform(post("/api/dossiers")
+                .header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of(
+                        "titre", "Dossier à dissocier",
+                        "clientId", clientId
+                ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.clientId").value(clientId))
+                .andReturn().getResponse().getContentAsString();
+
+        String dossierId = json.readTree(dossier).get("id").asText();
+
+        mvc.perform(put("/api/dossiers/{id}", dossierId)
+                .header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "titre": "Dossier à dissocier",
+                      "statut": "A_TRAITER",
+                      "priorite": "NORMALE",
+                      "clientId": null
+                    }
+                    """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clientId").value(
+                        org.hamcrest.Matchers.nullValue()));
+
+        mvc.perform(get("/api/dossiers/{id}", dossierId)
+                .header("Authorization", auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clientId").value(
+                        org.hamcrest.Matchers.nullValue()));
+
+        mvc.perform(get("/api/clients/{id}", clientId)
+                .header("Authorization", auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nom").value("Client à dissocier"));
+    }
+
     /** Vérifie qu'aucun dossier n'est accessible sans JWT. */
     @Test
     void accesSansJwtRefuse() throws Exception {

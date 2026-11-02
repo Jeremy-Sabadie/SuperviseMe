@@ -1,5 +1,6 @@
 package fr.superviseme.api.dossier;
 
+import fr.superviseme.api.client.ClientRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +16,26 @@ import java.util.UUID;
 public class DossierService {
 
     private final DossierRepository repository;
+    private final ClientRepository clientRepository;
 
-    public DossierService(DossierRepository repository) {
+    public DossierService(
+            DossierRepository repository,
+            ClientRepository clientRepository) {
         this.repository = repository;
+        this.clientRepository = clientRepository;
     }
 
     /** Crée un dossier avec ses valeurs métier par défaut. */
     public Dossier creer(CreerDossierRequest demande) {
-        return repository.save(
-                new Dossier(demande.titre(), demande.description())
+        verifierClientExistant(demande.clientId());
+
+        Dossier dossier = new Dossier(
+                demande.titre(),
+                demande.description()
         );
+        dossier.associerClient(demande.clientId());
+
+        return repository.save(dossier);
     }
 
     /** Retourne les dossiers enregistrés. */
@@ -43,6 +54,7 @@ public class DossierService {
     /** Modifie uniquement les propriétés autorisées par le contrat API. */
     public Dossier modifier(UUID id, ModifierDossierRequest demande) {
         Dossier dossier = consulter(id);
+        verifierClientExistant(demande.clientId());
 
         dossier.modifier(
                 demande.titre(),
@@ -51,8 +63,19 @@ public class DossierService {
                 demande.priorite(),
                 demande.echeance()
         );
+        dossier.associerClient(demande.clientId());
 
         return dossier;
+    }
+
+    /**
+     * Vérifie l'existence d'un client avant de l'associer à un dossier.
+     * Une association absente est autorisée.
+     */
+    private void verifierClientExistant(UUID clientId) {
+        if (clientId != null && !clientRepository.existsById(clientId)) {
+            throw new ClientDossierIntrouvableException(clientId);
+        }
     }
 
     /** Supprime un dossier existant. */

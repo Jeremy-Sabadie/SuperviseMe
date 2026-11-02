@@ -12,6 +12,7 @@ public record DossierResponse(
         StatutDossier statut,
         PrioriteDossier priorite,
         LocalDate echeance,
+        UUID clientId,
         Instant dateCreation,
         Instant dateModification
 ) {
@@ -24,6 +25,7 @@ public record DossierResponse(
                 dossier.getStatut(),
                 dossier.getPriorite(),
                 dossier.getEcheance(),
+                dossier.getClientId(),
                 dossier.getDateCreation(),
                 dossier.getDateModification()
         );
