@@ -80,6 +80,14 @@ public class Dossier {
         dateModification = Instant.now();
     }
 
+    /**
+     * Associe un client au dossier ou retire l'association si l'identifiant est nul.
+     * L'existence du client est vérifiée par le service métier.
+     */
+    public void associerClient(UUID clientId) {
+        this.clientId = clientId;
+    }
+
     public UUID getId() { return id; }
     public String getTitre() { return titre; }
     public String getDescription() { return description; }

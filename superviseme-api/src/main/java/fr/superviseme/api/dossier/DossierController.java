@@ -60,6 +60,13 @@ public class DossierController {
         service.supprimer(id);
     }
 
+    /** Retourne 404 si le client demandé n'existe pas. */
+    @ExceptionHandler(ClientDossierIntrouvableException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void clientIntrouvable(ClientDossierIntrouvableException exception) {
+        // Aucun détail interne n'est exposé.
+    }
+
     /** Convertit une absence de dossier en réponse HTTP 404. */
     @ExceptionHandler(DossierIntrouvableException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

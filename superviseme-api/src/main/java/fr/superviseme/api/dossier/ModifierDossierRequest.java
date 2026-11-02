@@ -11,5 +11,15 @@ public record ModifierDossierRequest(
         String description,
         @NotNull StatutDossier statut,
         @NotNull PrioriteDossier priorite,
-        LocalDate echeance
-) {}
+        LocalDate echeance,
+        java.util.UUID clientId
+) {
+    public ModifierDossierRequest(
+            String titre,
+            String description,
+            StatutDossier statut,
+            PrioriteDossier priorite,
+            LocalDate echeance) {
+        this(titre, description, statut, priorite, echeance, null);
+    }
+}
