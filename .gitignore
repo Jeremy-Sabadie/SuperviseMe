@@ -60,3 +60,5 @@ backups/
 # Docker
 docker-compose.override.yml
 compose.override.yaml
+
+/superviseme-api/.secrets/

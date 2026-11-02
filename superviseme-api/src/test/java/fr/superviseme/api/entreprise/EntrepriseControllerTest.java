@@ -48,6 +48,21 @@ class EntrepriseControllerTest {
     /**
      * Un utilisateur authentifié sans rôle ADMIN ne doit pas créer d'entreprise.
      */
+    /**
+     * Un administrateur client ne peut pas administrer
+     * le registre central des entreprises.
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void administrateurClientNePeutPasCreerEntreprise() throws Exception {
+        mvc.perform(post("/api/admin/entreprises")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"nom":"Entreprise interdite"}
+                    """))
+            .andExpect(status().isForbidden());
+    }
+
     @Test
     @WithMockUser(roles = "USER")
     void creationSansRoleAdminInterdite() throws Exception {
@@ -64,7 +79,7 @@ class EntrepriseControllerTest {
      * au statut EN_ATTENTE.
      */
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "OWNER")
     void adminPeutCreerEntreprise() throws Exception {
         mvc.perform(post("/api/admin/entreprises")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +101,7 @@ class EntrepriseControllerTest {
      * Un nom composé uniquement d'espaces doit être refusé.
      */
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "OWNER")
     void nomVideRefuse() throws Exception {
         mvc.perform(post("/api/admin/entreprises")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +113,7 @@ class EntrepriseControllerTest {
      * Un administrateur peut consulter une entreprise existante.
      */
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "OWNER")
     void consultationEntrepriseExistante() throws Exception {
         Entreprise entreprise = repository.save(
             new Entreprise("Entreprise test", null, null));
@@ -112,7 +127,7 @@ class EntrepriseControllerTest {
      * La consultation d'une entreprise inexistante doit retourner HTTP 404.
      */
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "OWNER")
     void entrepriseInconnueRetourne404() throws Exception {
         mvc.perform(get("/api/admin/entreprises/" + UUID.randomUUID()))
             .andExpect(status().isNotFound());
