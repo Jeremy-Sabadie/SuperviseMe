@@ -53,6 +53,10 @@ backups/
 *.dump
 *.bak
 
+# Les migrations Flyway sont du code source versionné.
+# Cette exception autorise les scripts SQL du backend.
+!superviseme-api/src/main/resources/db/migration/*.sql
+
 # Docker
 docker-compose.override.yml
 compose.override.yaml
