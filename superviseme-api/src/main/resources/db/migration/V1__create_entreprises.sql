@@ -1,0 +1,11 @@
+CREATE TABLE entreprises (
+    id UUID PRIMARY KEY,
+    nom VARCHAR(150) NOT NULL,
+    email VARCHAR(254),
+    telephone VARCHAR(30),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_entreprises_nom_non_vide
+        CHECK (LENGTH(TRIM(nom)) > 0)
+);
