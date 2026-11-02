@@ -2,6 +2,8 @@ package fr.superviseme.api.entreprise;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -11,12 +13,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Représente une entreprise cliente de SuperviseMe.
+ * Représente une entreprise cliente dans le registre central SuperviseMe.
  *
- * Chaque entreprise possède un identifiant unique qui permettra
- * d'isoler ses données de celles des autres entreprises.
+ * Chaque entreprise possède un identifiant unique.
+ * Ses données métier seront hébergées dans une instance dédiée.
  *
- * La gestion des droits d'accès sera assurée séparément.
+ * La gestion des autorisations et le provisionnement sont
+ * assurés par des composants distincts.
  */
 @Entity
 @Table(name = "entreprises")
@@ -34,6 +37,10 @@ public class Entreprise {
     @Column(length = 30)
     private String telephone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatutEntreprise statut;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -47,7 +54,9 @@ public class Entreprise {
     }
 
     /**
-     * Crée une entreprise avec un identifiant UUID.
+     * Crée une entreprise dans l'état EN_ATTENTE.
+     *
+     * L'enregistrement ne déclenche aucun déploiement.
      *
      * @param nom nom obligatoire de l'entreprise
      * @param email adresse électronique facultative
@@ -65,10 +74,11 @@ public class Entreprise {
         this.nom = nom.trim();
         this.email = email;
         this.telephone = telephone;
+        this.statut = StatutEntreprise.EN_ATTENTE;
     }
 
     /**
-     * Initialise les horodatages avant la première insertion.
+     * Initialise les horodatages avant l'insertion.
      */
     @PrePersist
     protected void avantCreation() {
@@ -78,7 +88,7 @@ public class Entreprise {
     }
 
     /**
-     * Actualise la date de modification avant une mise à jour.
+     * Actualise la date de dernière modification.
      */
     @PreUpdate
     protected void avantModification() {
@@ -99,6 +109,10 @@ public class Entreprise {
 
     public String getTelephone() {
         return telephone;
+    }
+
+    public StatutEntreprise getStatut() {
+        return statut;
     }
 
     public Instant getCreatedAt() {
