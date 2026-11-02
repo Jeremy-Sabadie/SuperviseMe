@@ -22,7 +22,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("OWNER")
+                        .requestMatchers("/api/dossiers", "/api/dossiers/**").hasAnyRole("ADMIN", "USER")
+                .requestMatchers("/api/admin/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .anyRequest().denyAll()
                 )
