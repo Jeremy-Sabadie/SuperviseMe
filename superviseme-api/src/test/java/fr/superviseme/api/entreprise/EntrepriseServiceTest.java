@@ -8,6 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Vérifie les règles métier de gestion des entreprises.
+ *
+ * Chaque test est exécuté dans une transaction annulée
+ * afin de ne pas conserver ses données en base.
+ */
 @SpringBootTest
 @Transactional
 class EntrepriseServiceTest {
@@ -34,5 +40,27 @@ class EntrepriseServiceTest {
     void doitRefuserUnNomVide() {
         assertThatThrownBy(() -> service.creer(" ", null, null))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    /**
+     * Une entreprise nouvellement enregistrée ne doit pas
+     * être considérée comme active avant son provisionnement.
+     */
+    @Test
+    void doitCreerUneEntrepriseEnAttente() {
+        Entreprise entreprise = service.creer(
+                "Menuiserie Dupont",
+                "contact@exemple.fr",
+                null
+        );
+
+        assertThat(entreprise.getStatut())
+                .isEqualTo(StatutEntreprise.EN_ATTENTE);
+
+        Entreprise resultat = service.rechercherParId(entreprise.getId())
+                .orElseThrow();
+
+        assertThat(resultat.getStatut())
+                .isEqualTo(StatutEntreprise.EN_ATTENTE);
     }
 }
