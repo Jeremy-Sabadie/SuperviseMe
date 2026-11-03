@@ -54,3 +54,101 @@ h2 { font-size: 19px; margin: 0 0 8px; }
 .cdk-drop-list-dragging .ticket { transition: transform 200ms; }
 @media(max-width:1100px) { .sidebar { display: none; } main { padding: 24px; } }
 @media(max-width:760px) { .stats { grid-template-columns: repeat(2,1fr); } .board { grid-template-columns: 1fr; } .heading { align-items: flex-start; } }
+
+/* US-005.3 — Adaptation Mobile First */
+@media (max-width: 760px) {
+  .topbar {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  .brand { font-size: 18px; }
+  .user { font-size: 0; }
+  .avatar { font-size: 13px; }
+
+  .layout { min-height: calc(100dvh - 60px); }
+
+  main {
+    padding: 24px 16px 90px;
+  }
+
+  .heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  h1 { font-size: 26px; }
+
+  .primary {
+    min-height: 44px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 24px 0 32px;
+  }
+
+  .stat { padding: 16px; }
+  .stat strong { font-size: 25px; }
+
+  .board {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    gap: 12px;
+    padding-bottom: 18px;
+  }
+
+  .column {
+    flex: 0 0 min(82vw, 340px);
+    scroll-snap-align: start;
+  }
+
+  .ticket {
+    min-height: 140px;
+    touch-action: pan-y;
+  }
+
+  .board-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .demo { white-space: nowrap; }
+
+  .sidebar { display: none; }
+}
+
+/* Navigation mobile */
+.mobile-nav { display: none; }
+
+@media (max-width: 760px) {
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 66px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #10192c;
+    border-top: 1px solid #26334c;
+  }
+
+  .mobile-nav span {
+    color: #a5b4cc;
+    font-size: 12px;
+    text-align: center;
+    padding: 12px 8px;
+  }
+
+  .mobile-nav span:first-child {
+    color: #c4b5fd;
+    font-weight: 700;
+  }
+}
