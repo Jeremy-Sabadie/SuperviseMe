@@ -13,6 +13,8 @@ public record DossierResponse(
         PrioriteDossier priorite,
         LocalDate echeance,
         UUID clientId,
+        UUID responsableId,
+        java.util.Set<UUID> participantIds,
         Instant dateCreation,
         Instant dateModification
 ) {
@@ -26,6 +28,8 @@ public record DossierResponse(
                 dossier.getPriorite(),
                 dossier.getEcheance(),
                 dossier.getClientId(),
+                dossier.getResponsableId(),
+                dossier.getParticipantIds(),
                 dossier.getDateCreation(),
                 dossier.getDateModification()
         );

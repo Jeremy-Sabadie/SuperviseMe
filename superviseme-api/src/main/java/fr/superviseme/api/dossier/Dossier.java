@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
 
 @Entity
 @Table(name = "dossiers")
@@ -29,7 +32,16 @@ public class Dossier {
 
     private UUID clientId;
 
+    @Column(name = "responsable_id")
     private UUID responsableId;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "dossier_participants",
+            joinColumns = @JoinColumn(name = "dossier_id")
+    )
+    @Column(name = "utilisateur_id", nullable = false)
+    private Set<UUID> participantIds = new HashSet<>();
 
     private LocalDate echeance;
 
@@ -86,6 +98,33 @@ public class Dossier {
      */
     public void associerClient(UUID clientId) {
         this.clientId = clientId;
+    }
+
+    /**
+     * Affecte le responsable principal.
+     * Son existence est vérifiée dans le service métier.
+     */
+    public void affecterResponsable(UUID responsableId) {
+        this.responsableId = java.util.Objects.requireNonNull(
+                responsableId, "Responsable obligatoire"
+        );
+    }
+
+    /**
+     * Remplace les participants affectés au dossier.
+     * Les identifiants sont validés par le service métier.
+     */
+    public void affecterParticipants(Set<UUID> participants) {
+        java.util.Objects.requireNonNull(participants);
+        this.participantIds.clear();
+        this.participantIds.addAll(participants);
+    }
+
+    /** Retourne une copie non modifiable des participants. */
+    public Set<UUID> getParticipantIds() {
+        return Collections.unmodifiableSet(
+                new HashSet<>(participantIds)
+        );
     }
 
     public UUID getId() { return id; }
