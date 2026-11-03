@@ -1,6 +1,10 @@
 package fr.superviseme.api.dossier;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,6 +45,22 @@ class DossierServiceTest {
     void preparer() {
         dossierId = UUID.randomUUID();
         dossier = new Dossier("Installation atelier", "Préparer le matériel");
+
+        // Simule un ADMIN authentifié pour les opérations métier.
+        var authentification = new UsernamePasswordAuthenticationToken(
+                UUID.randomUUID().toString(),
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+        );
+
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentification);
+    }
+
+    @AfterEach
+    void nettoyerSecurite() {
+        // Évite toute fuite d'authentification entre les tests.
+        SecurityContextHolder.clearContext();
     }
 
     /** La création doit enregistrer un dossier valide. */

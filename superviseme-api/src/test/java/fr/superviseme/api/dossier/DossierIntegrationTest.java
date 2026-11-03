@@ -43,6 +43,15 @@ class DossierIntegrationTest {
     private ObjectMapper json;
 
     /** Crée un utilisateur de test puis récupère son JWT via l'API. */
+    private String responsableId(String token) throws Exception {
+        String reponse = mvc.perform(get("/api/auth/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return json.readTree(reponse).get("id").asText();
+    }
+
     private String obtenirToken() throws Exception {
         String email = "dossier-" + UUID.randomUUID() + "@test.local";
         String motDePasse = "MotDePasseTest123!";
@@ -78,9 +87,10 @@ class DossierIntegrationTest {
                 .content("""
                     {
                       "titre": "Dossier de test",
-                      "description": "Création intégration"
+                      "description": "Création intégration",
+                       "responsableId": "%s"
                     }
-                    """))
+                    """.formatted(responsableId(token))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.statut").value("A_TRAITER"))
                 .andReturn()
@@ -143,6 +153,7 @@ class DossierIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of(
                         "titre", "Dossier associé",
+                        "responsableId", responsableId(token),
                         "clientId", clientId
                 ))))
                 .andExpect(status().isCreated())
@@ -159,6 +170,7 @@ class DossierIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of(
                         "titre", "Dossier invalide",
+                        "responsableId", responsableId(token),
                         "clientId", UUID.randomUUID().toString()
                 ))))
                 .andExpect(status().isNotFound());
@@ -187,6 +199,7 @@ class DossierIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of(
                         "titre", "Dossier à dissocier",
+                        "responsableId", responsableId(token),
                         "clientId", clientId
                 ))))
                 .andExpect(status().isCreated())

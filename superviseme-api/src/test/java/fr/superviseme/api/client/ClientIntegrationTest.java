@@ -169,6 +169,7 @@ class ClientIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of(
                         "titre", "Dossier lié",
+                        "responsableId", responsableId(token),
                         "clientId", clientId
                 ))))
                 .andExpect(status().isCreated());
@@ -191,6 +192,15 @@ class ClientIntegrationTest {
     /**
      * Crée un utilisateur ADMIN puis récupère son JWT par le parcours réel.
      */
+    private String responsableId(String token) throws Exception {
+        String reponse = mvc.perform(get("/api/auth/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        return json.readTree(reponse).get("id").asText();
+    }
+
     private String obtenirToken() throws Exception {
         String email = "client-" + UUID.randomUUID() + "@test.local";
 
