@@ -161,6 +161,28 @@ public class DossierService {
     }
 
     /**
+     * Déplace un dossier dans le Kanban.
+     * ADMIN et responsable peuvent modifier son statut.
+     * Les autres utilisateurs conservent les protections de consultation.
+     */
+    public Dossier changerStatut(UUID id, StatutDossier statut) {
+        Dossier dossier = consulter(id);
+
+        if (!estAdministrateur()) {
+            UUID utilisateurId = utilisateurConnecteId();
+
+            if (!java.util.Objects.equals(
+                    utilisateurId, dossier.getResponsableId())) {
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Déplacement réservé au responsable du dossier");
+            }
+        }
+
+        dossier.changerStatut(statut);
+        return dossier;
+    }
+
+    /**
      * Vérifie l'existence d'un client avant de l'associer à un dossier.
      * Une association absente est autorisée.
      */

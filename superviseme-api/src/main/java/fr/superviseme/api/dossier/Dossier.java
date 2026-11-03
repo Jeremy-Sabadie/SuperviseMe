@@ -81,6 +81,14 @@ public class Dossier {
         this.echeance = echeance;
     }
 
+    /**
+     * Change uniquement le statut du dossier.
+     * Les autres propriétés métier restent inchangées.
+     */
+    public void changerStatut(StatutDossier nouveauStatut) {
+        this.statut = java.util.Objects.requireNonNull(nouveauStatut);
+    }
+
     @PrePersist
     void avantCreation() {
         dateCreation = Instant.now();
