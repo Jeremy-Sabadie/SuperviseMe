@@ -144,12 +144,14 @@ class DossierPermissionsIntegrationTest {
     void utilisateurNePeutPasCreerDossier() throws Exception {
         Compte utilisateur = creerCompte(RoleUtilisateur.USER);
 
+        // Requête valide : le test doit vérifier l'autorisation, pas la validation.
         mvc.perform(post("/api/dossiers")
                         .header("Authorization", utilisateur.authorization())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"titre":"Création interdite"}
-                                """))
+                                {"titre":"Création interdite",
+                                 "responsableId":"%s"}
+                                """.formatted(utilisateur.id())))
                 .andExpect(status().isForbidden());
     }
 
