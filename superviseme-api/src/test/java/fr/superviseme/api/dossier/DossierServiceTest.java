@@ -25,6 +25,12 @@ class DossierServiceTest {
     @Mock
     private DossierRepository repository;
 
+    @Mock
+    private fr.superviseme.api.client.ClientRepository clientRepository;
+
+    @Mock
+    private fr.superviseme.api.auth.UtilisateurRepository utilisateurRepository;
+
     @InjectMocks
     private DossierService service;
 
@@ -40,16 +46,25 @@ class DossierServiceTest {
     /** La création doit enregistrer un dossier valide. */
     @Test
     void creerDossier() {
+        UUID responsableId = UUID.randomUUID();
+
+        // Simule un responsable existant dans l'entreprise.
+        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Dossier resultat = service.creer(
-                new CreerDossierRequest("Installation atelier", "Préparer le matériel")
+                new CreerDossierRequest(
+                        "Installation atelier",
+                        "Préparer le matériel",
+                        null,
+                        responsableId)
         );
 
         assertEquals("Installation atelier", resultat.getTitre());
         assertEquals(StatutDossier.A_TRAITER, resultat.getStatut());
         assertEquals(PrioriteDossier.NORMALE, resultat.getPriorite());
+        assertEquals(responsableId, resultat.getResponsableId());
 
         verify(repository).save(any(Dossier.class));
     }
