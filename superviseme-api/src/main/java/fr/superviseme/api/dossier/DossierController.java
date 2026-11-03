@@ -24,7 +24,11 @@ public class DossierController {
         this.service = service;
     }
 
-    /** POST /api/dossiers : création. */
+    /**
+     * Réserve la création des dossiers aux administrateurs.
+     * Le responsable est ensuite validé par le service métier.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DossierResponse creer(@Valid @RequestBody CreerDossierRequest demande) {
@@ -53,11 +57,28 @@ public class DossierController {
         return DossierResponse.depuis(service.modifier(id, demande));
     }
 
-    /** DELETE /api/dossiers/{id} : suppression. */
+    /**
+     * Réserve la suppression définitive aux administrateurs.
+     * Un responsable ou participant ne peut pas supprimer un dossier.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void supprimer(@PathVariable UUID id) {
         service.supprimer(id);
+    }
+
+    /**
+     * Réserve à ADMIN l'affectation des participants d'un dossier.
+     * Remplace intégralement la liste des participants existants.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/participants")
+    public DossierResponse affecterParticipants(
+            @PathVariable UUID id,
+            @Valid @RequestBody AffecterParticipantsRequest demande) {
+        return DossierResponse.depuis(
+                service.affecterParticipants(id, demande.participantIds()));
     }
 
     /** Retourne 404 si le client demandé n'existe pas. */
@@ -65,6 +86,17 @@ public class DossierController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void clientIntrouvable(ClientDossierIntrouvableException exception) {
         // Aucun détail interne n'est exposé.
+    }
+
+    /**
+     * Masque les détails internes lorsqu'un responsable demandé
+     * n'existe pas dans l'instance cliente.
+     */
+    @ExceptionHandler(ResponsableIntrouvableException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void responsableIntrouvable(
+            ResponsableIntrouvableException exception) {
+        // Ne divulgue aucune information sur les comptes utilisateurs.
     }
 
     /** Convertit une absence de dossier en réponse HTTP 404. */
