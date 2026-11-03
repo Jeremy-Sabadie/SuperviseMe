@@ -58,6 +58,18 @@ public class DossierController {
     }
 
     /**
+     * PATCH /api/dossiers/{id}/statut : déplacement Kanban.
+     * Ne modifie aucune autre propriété du dossier.
+     */
+    @PatchMapping("/{id}/statut")
+    public DossierResponse changerStatut(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangerStatutDossierRequest demande) {
+        return DossierResponse.depuis(
+                service.changerStatut(id, demande.statut()));
+    }
+
+    /**
      * Réserve la suppression définitive aux administrateurs.
      * Un responsable ou participant ne peut pas supprimer un dossier.
      */
