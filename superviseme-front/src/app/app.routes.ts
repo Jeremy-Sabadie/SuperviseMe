@@ -1,7 +1,16 @@
+import { adminGuard } from './core/auth/admin.guard';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'collaborateurs',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/collaborateurs/collaborateurs')
+        .then(m => m.Collaborateurs)
+  },
+
   {
     path: 'login',
     loadComponent: () =>

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { provideRouter } from '@angular/router';
 import { Collaborateurs } from './collaborateurs';
 import { UtilisateurApiService } from '../../core/services/utilisateur-api';
 
@@ -13,6 +14,7 @@ describe('Collaborateurs', () => {
     await TestBed.configureTestingModule({
       imports: [Collaborateurs],
       providers: [
+        provideRouter([]),
         {
           provide: UtilisateurApiService,
           useValue: { creer: vi.fn() }
