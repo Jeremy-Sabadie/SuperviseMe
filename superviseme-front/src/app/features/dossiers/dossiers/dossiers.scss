@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #0b1120;
+  color: #f8fafc;
+  font-family: Arial, sans-serif;
+}
+
+.dossiers-page {
+  max-width: 720px;
+  margin: auto;
+  padding: 48px 24px;
+}
+
+.retour {
+  color: #a5b4fc;
+  text-decoration: none;
+}
+
+h1 { margin-top: 36px; }
+
+.intro { color: #94a3b8; }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+label { font-weight: 600; }
+
+input, textarea, select {
+  padding: 13px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #151d30;
+  color: white;
+  font: inherit;
+}
+
+button {
+  margin-top: 18px;
+  padding: 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #6558f5;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.erreur { color: #fca5a5; }

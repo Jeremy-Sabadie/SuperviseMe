@@ -36,6 +36,11 @@ public class UtilisateurService {
         return creer(email, motDePasse, RoleUtilisateur.USER);
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<Utilisateur> lister() {
+        return repository.findAll();
+    }
+
     private Utilisateur creer(String email, String motDePasse, RoleUtilisateur role) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email obligatoire");

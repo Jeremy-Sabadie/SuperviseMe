@@ -61,6 +61,9 @@ public class DossierService {
     public List<Dossier> lister() {
         List<Dossier> dossiers = repository.findAll();
 
+        // Initialiser les participants avant la fermeture de la transaction.
+        dossiers.forEach(dossier -> dossier.getParticipantIds().size());
+
         if (estAdministrateur()) {
             return dossiers;
         }
@@ -179,6 +182,10 @@ public class DossierService {
         }
 
         dossier.changerStatut(statut);
+
+        // Charger les participants avant la fermeture de la transaction.
+        dossier.getParticipantIds().size();
+
         return dossier;
     }
 
