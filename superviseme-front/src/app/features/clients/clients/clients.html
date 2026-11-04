@@ -1,1 +1,90 @@
-<p>clients works!</p>
+<section class="clients-page">
+  <header class="page-header">
+    <div>
+      <h1>Clients</h1>
+      <p>Gérez vos clients et leurs coordonnées.</p>
+    </div>
+    <button type="button" class="primary" (click)="nouveau()">
+      + Nouveau client
+    </button>
+  </header>
+
+  @if (message()) {
+    <p class="success" role="status">{{ message() }}</p>
+  }
+
+  @if (erreur()) {
+    <p class="error" role="alert">{{ erreur() }}</p>
+  }
+
+  @if (edition()) {
+    <form class="client-form" (ngSubmit)="enregistrer()">
+      <h2>{{ clientId ? 'Modifier le client' : 'Nouveau client' }}</h2>
+
+      <div class="form-grid">
+        <label>
+          Nom *
+          <input name="nom" [(ngModel)]="formulaire.nom"
+                 required maxlength="150" />
+        </label>
+
+        <label>
+          Entreprise
+          <input name="entreprise" [(ngModel)]="formulaire.entreprise"
+                 maxlength="150" />
+        </label>
+
+        <label>
+          Email
+          <input name="email" type="email"
+                 [(ngModel)]="formulaire.email" maxlength="254" />
+        </label>
+
+        <label>
+          Téléphone
+          <input name="telephone" type="tel"
+                 [(ngModel)]="formulaire.telephone" maxlength="30" />
+        </label>
+
+        <label class="full-width">
+          Adresse
+          <textarea name="adresse" rows="3"
+                    [(ngModel)]="formulaire.adresse"></textarea>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" (click)="annuler()">Annuler</button>
+        <button type="submit" class="primary"
+                [disabled]="enregistrement() || !formulaire.nom.trim()">
+          {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (chargement()) {
+    <p>Chargement des clients...</p>
+  } @else if (clients().length === 0) {
+    <div class="empty-state">
+      <h2>Aucun client enregistré</h2>
+      <p>Créez votre premier client pour pouvoir lui associer des dossiers.</p>
+    </div>
+  } @else {
+    <div class="clients-list">
+      @for (client of clients(); track client.id) {
+        <article class="client-card">
+          <div>
+            <h2>{{ client.nom }}</h2>
+            <p>{{ client.entreprise || 'Particulier' }}</p>
+            <p>{{ client.email || 'Aucun email' }}</p>
+            <p>{{ client.telephone || 'Aucun téléphone' }}</p>
+          </div>
+          <button type="button" (click)="modifier(client)">
+            Consulter / Modifier
+          </button>
+        </article>
+      }
+    </div>
+  }
+</section>
