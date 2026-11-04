@@ -5,6 +5,7 @@ describe('SessionService', () => {
   let session: SessionService;
 
   beforeEach(() => {
+    sessionStorage.clear();
     TestBed.configureTestingModule({});
     session = TestBed.inject(SessionService);
   });
@@ -12,6 +13,12 @@ describe('SessionService', () => {
   it('conserve le JWT en mémoire', () => {
     session.definirToken('jwt-test');
     expect(session.token()).toBe('jwt-test');
+  });
+
+  it('conserve le JWT dans sessionStorage', () => {
+    session.definirToken('jwt-test');
+    expect(sessionStorage.getItem('superviseme_access_token'))
+      .toBe('jwt-test');
   });
 
   it('supprime le JWT à la déconnexion', () => {
