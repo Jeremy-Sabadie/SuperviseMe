@@ -1,0 +1,93 @@
+<div class="page">
+  <header class="topbar">
+    <div class="brand"><span class="logo">S</span> Supervise<span>Me</span></div>
+    <div class="user">Espace entreprise <span class="avatar">R</span></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section-label">ESPACE DE TRAVAIL</div>
+      <div class="nav active">▦ &nbsp; Tableau de bord</div>
+      <div class="nav">▤ &nbsp; Mes dossiers</div>
+      <div class="nav">◷ &nbsp; Calendrier</div>
+      <div class="nav">♙ &nbsp; Clients</div>
+      <div class="separator"></div>
+      <div class="section-label">GESTION</div>
+      <div class="nav">⚙ &nbsp; Paramètres</div>
+    </aside>
+
+    <main>
+      <div class="heading">
+        <div>
+          <div class="eyebrow">VUE D'ENSEMBLE</div>
+          <h1>Tableau de bord</h1>
+          <p>Pilotez votre activité et suivez vos dossiers en temps réel.</p>
+        </div>
+        <button class="primary" type="button" disabled>+ Nouveau dossier</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span>Dossiers actifs</span><strong>{{ dossiersParStatut('A_TRAITER').length + dossiersParStatut('EN_COURS').length }}</strong></div>
+        <div class="stat"><span>À traiter</span><strong>{{ dossiersParStatut('A_TRAITER').length }}</strong></div>
+        <div class="stat"><span>En cours</span><strong>{{ dossiersParStatut('EN_COURS').length }}</strong></div>
+        <div class="stat"><span>Terminés</span><strong>{{ dossiersParStatut('TERMINE').length }}</strong></div>
+      </div>
+
+      <div class="board-heading">
+        <div>
+          <h2>Suivi des dossiers</h2>
+          <p>Glissez les cartes pour modifier leur statut.</p>
+        </div>
+        <span class="demo">Mode démonstration</span>
+      </div>
+
+      <div class="board" cdkDropListGroup>
+        @for (colonne of colonnes; track colonne.id) {
+          <section class="column">
+            <div class="column-heading">
+              <div class="column-title">
+                <span class="dot" [style.background]="colonne.couleur"></span>
+                {{ colonne.titre }}
+                <span class="count">{{ dossiersParStatut(colonne.id).length }}</span>
+              </div>
+              <span class="dots">•••</span>
+            </div>
+
+            <div class="dropzone"
+                 cdkDropList
+                 [cdkDropListData]="dossiersParStatut(colonne.id)"
+                 (cdkDropListDropped)="deplacer($event, colonne.id)">
+              @for (dossier of dossiersParStatut(colonne.id); track dossier.id) {
+                <article class="ticket" cdkDrag>
+                  <div class="ticket-top">
+                    <span class="priority" [class.high]="dossier.priorite === 'Haute'">
+                      {{ dossier.priorite }}
+                    </span>
+                    <span class="ticket-id">#{{ dossier.id }}</span>
+                  </div>
+                  <h3>{{ dossier.titre }}</h3>
+                  <p>{{ dossier.client }}</p>
+                  <div class="ticket-footer">
+                    <span class="assignee">{{ dossier.responsable.charAt(0) }}</span>
+                    <span>{{ dossier.responsable }}</span>
+                    <span class="drag-hint">⠿</span>
+                  </div>
+                </article>
+              }
+              @if (dossiersParStatut(colonne.id).length === 0) {
+                <div class="empty">Déposez un dossier ici</div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    </main>
+  </div>
+</div>
+
+<nav class="mobile-nav" aria-label="Navigation mobile">
+  <span>▦ Tableau</span>
+  <span>▤ Dossiers</span>
+  <span>◷ Agenda</span>
+  <span>♙ Clients</span>
+</nav>
