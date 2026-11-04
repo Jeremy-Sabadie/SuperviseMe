@@ -3,6 +3,8 @@ import { vi } from 'vitest';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Login } from './login';
+import { SessionService } from '../../../core/auth/session';
+import { Router, provideRouter } from '@angular/router';
 
 describe('Login', () => {
   let component: Login;
@@ -11,6 +13,7 @@ describe('Login', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Login);
@@ -49,6 +52,26 @@ describe('Login', () => {
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(spy).toHaveBeenCalledWith('test@example.com', 'secret');
+  });
+
+
+  it('enregistre le JWT et redirige vers le Kanban après connexion', () => {
+    const auth = TestBed.inject(AuthApiService);
+    const session = TestBed.inject(SessionService);
+    const router = TestBed.inject(Router);
+
+    vi.spyOn(auth, 'connecter')
+      .mockReturnValue(of({ accessToken: 'jwt-test' }));
+
+    const navigation = vi.spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+
+    component.email = 'test@example.com';
+    component.motDePasse = 'secret';
+    component.connecter();
+
+    expect(session.token()).toBe('jwt-test');
+    expect(navigation).toHaveBeenCalledWith('/');
   });
 
 });
