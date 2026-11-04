@@ -4,6 +4,12 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'dossiers',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./features/dossiers/dossiers/dossiers')
+      .then(m => m.Dossiers)
+  },
+  {
     path: 'clients',
     canActivate: [authGuard],
     loadComponent: () =>

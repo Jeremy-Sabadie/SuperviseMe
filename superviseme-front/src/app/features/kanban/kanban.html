@@ -12,7 +12,7 @@
     <aside class="sidebar">
       <div class="section-label">ESPACE DE TRAVAIL</div>
       <div class="nav active">▦ &nbsp; Tableau de bord</div>
-      <div class="nav">▤ &nbsp; Mes dossiers</div>
+      <a class="nav nav-link" routerLink="/dossiers">▤ &nbsp; Mes dossiers</a>
       <div class="nav">◷ &nbsp; Calendrier</div>
       <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
       <div class="separator"></div>
@@ -30,7 +30,7 @@
           <h1>Tableau de bord</h1>
           <p>Pilotez votre activité et suivez vos dossiers en temps réel.</p>
         </div>
-        <button class="primary" type="button" disabled>+ Nouveau dossier</button>
+        @if (estAdmin()) { <a class="primary" routerLink="/dossiers">+ Nouveau dossier</a> }
       </div>
 
       <div class="stats">
@@ -45,7 +45,7 @@
           <h2>Suivi des dossiers</h2>
           <p>Glissez les cartes pour modifier leur statut.</p>
         </div>
-        <span class="demo">Mode démonstration</span>
+        @if (chargement()) { <span class="demo">Chargement...</span> }
       </div>
 
       <div class="board" cdkDropListGroup>
@@ -70,7 +70,7 @@
                     <span class="priority" [class.high]="dossier.priorite === 'Haute'">
                       {{ dossier.priorite }}
                     </span>
-                    <span class="ticket-id">#{{ dossier.id }}</span>
+                    <span class="ticket-id">#{{ dossier.id.slice(0, 8) }}</span>
                   </div>
                   <h3>{{ dossier.titre }}</h3>
                   <p>{{ dossier.client }}</p>

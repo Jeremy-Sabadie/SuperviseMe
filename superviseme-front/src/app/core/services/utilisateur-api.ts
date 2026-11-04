@@ -14,6 +14,10 @@ export interface CollaborateurResponse {
 export class UtilisateurApiService {
   private readonly http = inject(HttpClient);
 
+  lister(): Observable<CollaborateurResponse[]> {
+    return this.http.get<CollaborateurResponse[]>('/api/utilisateurs');
+  }
+
   creer(email: string, motDePasse: string): Observable<CollaborateurResponse> {
     return this.http.post<CollaborateurResponse>('/api/utilisateurs', {
       email,

@@ -62,6 +62,20 @@ public class UtilisateurController {
         );
     }
 
+
+    /** Liste les comptes pouvant être responsables d'un dossier. */
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public java.util.List<CollaborateurResponse> lister() {
+        return service.lister().stream()
+                .map(utilisateur -> new CollaborateurResponse(
+                        utilisateur.getId(),
+                        utilisateur.getEmail(),
+                        utilisateur.getRole()
+                ))
+                .toList();
+    }
+
     private String texte(JsonNode body, String champ) {
         JsonNode valeur = body.get(champ);
 

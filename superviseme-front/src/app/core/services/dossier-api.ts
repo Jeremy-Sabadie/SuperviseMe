@@ -24,10 +24,21 @@ export interface DossierApi {
   dateModification: string;
 }
 
+export interface CreerDossierRequest {
+  titre: string;
+  description: string;
+  clientId: string | null;
+  responsableId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DossierApiService {
   private readonly http = inject(HttpClient);
   private readonly url = '/api/dossiers';
+
+  creer(dossier: CreerDossierRequest): Observable<DossierApi> {
+    return this.http.post<DossierApi>(this.url, dossier);
+  }
 
   lister(): Observable<DossierApi[]> {
     return this.http.get<DossierApi[]>(this.url);
