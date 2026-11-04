@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 import { Client, ClientApiService, ClientRequest } from '../../../core/services/client-api';
 
 @Component({
@@ -77,8 +78,26 @@ export class Clients implements OnInit {
     this.edition.set(false);
   }
 
-  enregistrer(): void {
+  async enregistrer(): Promise<void> {
     if (!this.formulaire.nom.trim() || this.enregistrement()) return;
+
+    const modification = !!this.clientId;
+
+    if (modification) {
+      const confirmation = await Swal.fire({
+        title: 'Modifier ce client ?',
+        text: 'Les nouvelles informations seront enregistrées.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmer',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#6558f5',
+        background: '#151d30',
+        color: '#ffffff'
+      });
+
+      if (!confirmation.isConfirmed) return;
+    }
 
     this.enregistrement.set(true);
     this.erreur.set('');
@@ -91,12 +110,30 @@ export class Clients implements OnInit {
       next: () => {
         this.enregistrement.set(false);
         this.edition.set(false);
-        this.message.set('Client enregistré avec succès.');
+        this.message.set('');
         this.charger();
+
+        void Swal.fire({
+          icon: 'success',
+          title: modification ? 'Client modifié' : 'Client créé',
+          text: 'Enregistrement effectué avec succès.',
+          timer: 1800,
+          showConfirmButton: false,
+          background: '#151d30',
+          color: '#ffffff'
+        });
       },
       error: () => {
         this.enregistrement.set(false);
-        this.erreur.set("Impossible d'enregistrer le client.");
+
+        void Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: "Impossible d'enregistrer le client.",
+          confirmButtonColor: '#6558f5',
+          background: '#151d30',
+          color: '#ffffff'
+        });
       }
     });
   }
