@@ -52,4 +52,20 @@ describe('AuthApiService', () => {
 
     expect(token).toBe('jwt-test');
   });
+
+  it('récupère les rôles de l’utilisateur connecté', () => {
+    let utilisateur: { id: string; roles: string[] } | undefined;
+
+    service.moi().subscribe(response => utilisateur = response);
+
+    const req = http.expectOne('/api/auth/me');
+    expect(req.request.method).toBe('GET');
+
+    req.flush({ id: 'uuid-test', roles: ['ADMIN'] });
+
+    expect(utilisateur).toEqual({
+      id: 'uuid-test',
+      roles: ['ADMIN']
+    });
+  });
 });
