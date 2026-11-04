@@ -14,7 +14,7 @@
       <div class="nav active">▦ &nbsp; Tableau de bord</div>
       <div class="nav">▤ &nbsp; Mes dossiers</div>
       <div class="nav">◷ &nbsp; Calendrier</div>
-      <div class="nav">♙ &nbsp; Clients</div>
+      <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
       <div class="separator"></div>
       <div class="section-label">GESTION</div>
       @if (estAdmin()) {
@@ -96,7 +96,7 @@
   <span>▦ Tableau</span>
   <span>▤ Dossiers</span>
   <span>◷ Agenda</span>
-  <span>♙ Clients</span>
+  <a class="mobile-link" routerLink="/clients">♙ Clients</a>
   @if (estAdmin()) {
     <a class="mobile-link" routerLink="/collaborateurs">♙ Collaborateurs</a>
   }

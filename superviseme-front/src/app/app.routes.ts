@@ -4,6 +4,14 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'clients',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/clients/clients/clients')
+        .then(m => m.Clients)
+  },
+
+  {
     path: 'collaborateurs',
     canActivate: [adminGuard],
     loadComponent: () =>
