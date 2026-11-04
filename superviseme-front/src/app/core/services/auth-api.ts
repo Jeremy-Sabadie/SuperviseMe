@@ -6,6 +6,11 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export interface UtilisateurConnecte {
+  id: string;
+  roles: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,4 +23,9 @@ export class AuthApiService {
       motDePasse
     });
   }
+
+  moi(): Observable<UtilisateurConnecte> {
+    return this.http.get<UtilisateurConnecte>('/api/auth/me');
+  }
+
 }
