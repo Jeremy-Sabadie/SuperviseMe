@@ -1,4 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { SessionService } from '../../core/auth/session';
+import { AuthApiService } from '../../core/services/auth-api';
 import { CdkDragDrop, DragDropModule, transferArrayItem } from '@angular/cdk/drag-drop';
 
 type Statut = 'A_TRAITER' | 'EN_COURS' | 'TERMINE';
@@ -15,11 +18,31 @@ interface Dossier {
 @Component({
   selector: 'app-kanban',
   standalone: true,
-  imports: [DragDropModule],
+  imports: [DragDropModule, RouterLink],
   templateUrl: './kanban.html',
   styleUrl: './kanban.scss'
 })
 export class Kanban {
+  private readonly session = inject(SessionService);
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthApiService);
+  readonly estAdmin = signal(false);
+
+  constructor() {
+    if (this.session.token()) {
+      this.auth.moi().subscribe({
+        next: utilisateur =>
+          this.estAdmin.set(utilisateur.roles.includes('ADMIN')),
+        error: () => this.estAdmin.set(false)
+      });
+    }
+  }
+
+  deconnecter(): void {
+    this.session.deconnecter();
+    this.router.navigateByUrl('/login');
+  }
+
   readonly colonnes = [
     { id: 'A_TRAITER', titre: 'À traiter', couleur: '#a78bfa' },
     { id: 'EN_COURS', titre: 'En cours', couleur: '#38bdf8' },

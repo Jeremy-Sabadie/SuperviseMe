@@ -1,7 +1,11 @@
 <div class="page">
   <header class="topbar">
     <div class="brand"><span class="logo">S</span> Supervise<span>Me</span></div>
-    <div class="user">Espace entreprise <span class="avatar">R</span></div>
+    <div class="user">
+  <span class="user-label">Espace entreprise</span>
+  <span class="avatar">R</span>
+  <button type="button" class="logout" (click)="deconnecter()">Déconnexion</button>
+</div>
   </header>
 
   <div class="layout">
@@ -13,6 +17,9 @@
       <div class="nav">♙ &nbsp; Clients</div>
       <div class="separator"></div>
       <div class="section-label">GESTION</div>
+      @if (estAdmin()) {
+        <a class="nav nav-link" routerLink="/collaborateurs">♙ &nbsp; Collaborateurs</a>
+      }
       <div class="nav">⚙ &nbsp; Paramètres</div>
     </aside>
 
@@ -90,4 +97,7 @@
   <span>▤ Dossiers</span>
   <span>◷ Agenda</span>
   <span>♙ Clients</span>
+  @if (estAdmin()) {
+    <a class="mobile-link" routerLink="/collaborateurs">♙ Collaborateurs</a>
+  }
 </nav>

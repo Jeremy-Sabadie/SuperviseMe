@@ -152,3 +152,47 @@ h2 { font-size: 19px; margin: 0 0 8px; }
     font-weight: 700;
   }
 }
+
+
+/* Navigation et déconnexion */
+.nav-link {
+  display: block;
+  text-decoration: none;
+  color: #98a6bf;
+}
+
+.nav-link:hover {
+  background: #1c2940;
+  color: #e8edf8;
+}
+
+.logout {
+  padding: 9px 13px;
+  border: 1px solid #544786;
+  border-radius: 9px;
+  background: transparent;
+  color: #c4b5fd;
+  font: inherit;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background: #29264d;
+}
+
+.mobile-link {
+  color: #a5b4cc;
+  text-decoration: none;
+  font-size: 12px;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.mobile-link:hover {
+  color: #c4b5fd;
+}
+
+@media (max-width: 760px) {
+  .user-label { display: none; }
+  .logout { font-size: 12px; padding: 8px; }
+}
