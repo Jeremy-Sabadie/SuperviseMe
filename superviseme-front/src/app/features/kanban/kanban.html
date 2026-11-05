@@ -72,7 +72,14 @@
                     </span>
                     <span class="ticket-id">#{{ dossier.id.slice(0, 8) }}</span>
                   </div>
-                  <h3>{{ dossier.titre }}</h3>
+                  <h3>
+                      <a [routerLink]="['/dossiers', dossier.id]"
+                         class="dossier-link"
+                         (mousedown)="$event.stopPropagation()"
+                         (click)="$event.stopPropagation()">
+                        {{ dossier.titre }}
+                      </a>
+                    </h3>
                   <p>{{ dossier.client }}</p>
                   <div class="ticket-footer">
                     <span class="assignee">{{ dossier.responsable.charAt(0) }}</span>

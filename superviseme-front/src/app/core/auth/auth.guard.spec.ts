@@ -14,6 +14,7 @@ describe('authGuard', () => {
 
     session = TestBed.inject(SessionService);
     router = TestBed.inject(Router);
+    session.deconnecter();
   });
 
   it('redirige vers login sans JWT', () => {
