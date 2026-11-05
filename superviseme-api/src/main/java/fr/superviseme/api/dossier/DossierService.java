@@ -90,6 +90,9 @@ public class DossierService {
         Dossier dossier = repository.findById(id)
                 .orElseThrow(() -> new DossierIntrouvableException(id));
 
+        // Initialiser les participants avant la fermeture de la transaction.
+        dossier.getParticipantIds().size();
+
         if (estAdministrateur()) {
             return dossier;
         }
