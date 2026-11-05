@@ -39,11 +39,11 @@
         <input type="date" name="echeance" [(ngModel)]="formulaire.echeance">
       </label>
 
-      <p class="reference">Client : {{ dossier()!.clientId || 'Non renseigné' }}</p>
-      <p class="reference">Responsable : {{ dossier()!.responsableId || 'Non assigné' }}</p>
+      <p class="reference">Client : {{ nomClient(dossier()!.clientId) }}</p>
+      <p class="reference">Responsable : {{ nomResponsable(dossier()!.responsableId) }}</p>
       <p class="reference">Participants : {{ dossier()!.participantIds.length }}</p>
 
-      <button type="submit" [disabled]="enregistrement() || !formulaire.titre.trim()">
+      <button type="submit" [disabled]="enregistrement() || !formulaire.titre.trim() || !estModifie()">
         {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
       </button>
     </form>

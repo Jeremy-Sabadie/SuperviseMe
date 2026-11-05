@@ -1,6 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { Client, ClientApiService } from '../../../core/services/client-api';
+import { CollaborateurResponse, UtilisateurApiService } from '../../../core/services/utilisateur-api';
 import { DossierApi, DossierApiService, PrioriteDossier, StatutDossier } from '../../../core/services/dossier-api';
 
 @Component({
@@ -12,6 +15,11 @@ import { DossierApi, DossierApiService, PrioriteDossier, StatutDossier } from '.
 export class FicheDossier implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(DossierApiService);
+  private readonly clientsApi = inject(ClientApiService);
+  private readonly utilisateursApi = inject(UtilisateurApiService);
+
+  readonly clients = signal<Client[]>([]);
+  readonly responsables = signal<CollaborateurResponse[]>([]);
 
   readonly dossier = signal<DossierApi | null>(null);
   readonly erreur = signal('');
@@ -36,8 +44,14 @@ export class FicheDossier implements OnInit {
       return;
     }
 
-    this.api.consulter(id).subscribe({
-      next: dossier => {
+    forkJoin({
+      dossier: this.api.consulter(id),
+      clients: this.clientsApi.lister(),
+      responsables: this.utilisateursApi.lister()
+    }).subscribe({
+      next: ({ dossier, clients, responsables }) => {
+        this.clients.set(clients);
+        this.responsables.set(responsables);
         this.dossier.set(dossier);
         this.formulaire = {
           titre: dossier.titre,
@@ -56,9 +70,33 @@ export class FicheDossier implements OnInit {
     });
   }
 
+  nomClient(id: string | null): string {
+    if (!id) return 'Non renseigné';
+    const client = this.clients().find(c => c.id === id);
+    return client ? (client.entreprise || client.nom) : 'Client indisponible';
+  }
+
+  nomResponsable(id: string | null): string {
+    if (!id) return 'Non assigné';
+    return this.responsables().find(r => r.id === id)?.email
+      ?? 'Responsable indisponible';
+  }
+
+  estModifie(): boolean {
+    const original = this.dossier();
+    if (!original) return false;
+
+    return this.formulaire.titre.trim() !== original.titre
+      || this.formulaire.description !== (original.description ?? '')
+      || this.formulaire.statut !== original.statut
+      || this.formulaire.priorite !== original.priorite
+      || this.formulaire.echeance !== (original.echeance ?? '')
+      || this.formulaire.clientId !== (original.clientId ?? '');
+  }
+
   enregistrer(): void {
     const dossier = this.dossier();
-    if (!dossier || !this.formulaire.titre.trim() || this.enregistrement()) return;
+    if (!dossier || !this.formulaire.titre.trim() || !this.estModifie() || this.enregistrement()) return;
 
     this.enregistrement.set(true);
     this.erreur.set('');
