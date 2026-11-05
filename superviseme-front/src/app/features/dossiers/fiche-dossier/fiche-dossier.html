@@ -1,0 +1,55 @@
+<main class="fiche">
+  <a routerLink="/" class="retour">← Retour au tableau de bord</a>
+
+  @if (chargement()) {
+    <p>Chargement du dossier...</p>
+  } @else if (dossier()) {
+    <h1>Fiche dossier</h1>
+    <p class="reference">Référence : {{ dossier()!.id.slice(0, 8) }}</p>
+
+    <form (ngSubmit)="enregistrer()">
+      <label>Titre
+        <input name="titre" [(ngModel)]="formulaire.titre" required maxlength="200">
+      </label>
+
+      <label>Description
+        <textarea name="description" [(ngModel)]="formulaire.description" rows="5"></textarea>
+      </label>
+
+      <div class="deux-colonnes">
+        <label>Statut
+          <select name="statut" [(ngModel)]="formulaire.statut">
+            <option value="A_TRAITER">À traiter</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ARCHIVE">Archivé</option>
+          </select>
+        </label>
+
+        <label>Priorité
+          <select name="priorite" [(ngModel)]="formulaire.priorite">
+            <option value="BASSE">Basse</option>
+            <option value="NORMALE">Normale</option>
+            <option value="HAUTE">Haute</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Échéance
+        <input type="date" name="echeance" [(ngModel)]="formulaire.echeance">
+      </label>
+
+      <p class="reference">Client : {{ dossier()!.clientId || 'Non renseigné' }}</p>
+      <p class="reference">Responsable : {{ dossier()!.responsableId || 'Non assigné' }}</p>
+      <p class="reference">Participants : {{ dossier()!.participantIds.length }}</p>
+
+      <button type="submit" [disabled]="enregistrement() || !formulaire.titre.trim()">
+        {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+      </button>
+    </form>
+
+    @if (succes()) { <p class="succes">Modifications enregistrées.</p> }
+  }
+
+  @if (erreur()) { <p class="erreur">{{ erreur() }}</p> }
+</main>

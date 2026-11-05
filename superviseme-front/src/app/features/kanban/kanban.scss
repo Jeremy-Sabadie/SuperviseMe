@@ -196,3 +196,13 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   .user-label { display: none; }
   .logout { font-size: 12px; padding: 8px; }
 }
+
+.dossier-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dossier-link:hover {
+  color: #a78bfa;
+  text-decoration: underline;
+}

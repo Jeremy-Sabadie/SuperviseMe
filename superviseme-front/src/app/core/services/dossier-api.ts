@@ -44,6 +44,21 @@ export class DossierApiService {
     return this.http.get<DossierApi[]>(this.url);
   }
 
+  consulter(id: string): Observable<DossierApi> {
+    return this.http.get<DossierApi>(`${this.url}/${id}`);
+  }
+
+  modifier(id: string, dossier: {
+    titre: string;
+    description: string;
+    statut: StatutDossier;
+    priorite: PrioriteDossier;
+    echeance: string | null;
+    clientId: string | null;
+  }): Observable<DossierApi> {
+    return this.http.put<DossierApi>(`${this.url}/${id}`, dossier);
+  }
+
   changerStatut(id: string, statut: StatutDossier): Observable<DossierApi> {
     return this.http.patch<DossierApi>(
       `${this.url}/${id}/statut`,
