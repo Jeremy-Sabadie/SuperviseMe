@@ -72,7 +72,13 @@ class DossierServiceTest {
 
         when(clientRepository.existsById(clientId)).thenReturn(true);
         // Simule un responsable existant dans l'entreprise.
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -194,7 +200,13 @@ class DossierServiceTest {
         LocalDate echeance = LocalDate.of(2027, 1, 15);
 
         when(clientRepository.existsById(clientId)).thenReturn(true);
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -216,7 +228,13 @@ class DossierServiceTest {
         UUID responsableId = UUID.randomUUID();
 
         when(clientRepository.existsById(clientId)).thenReturn(true);
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -239,7 +257,13 @@ class DossierServiceTest {
         UUID responsableId = UUID.randomUUID();
 
         when(clientRepository.existsById(clientId)).thenReturn(true);
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
 
         assertThrows(IllegalArgumentException.class, () ->
                 service.creer(new CreerDossierRequest(
@@ -260,7 +284,13 @@ class DossierServiceTest {
         UUID responsableId = UUID.randomUUID();
 
         when(clientRepository.existsById(clientId)).thenReturn(true);
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -334,4 +364,37 @@ class DossierServiceTest {
 
         assertFalse(dossier.getParticipantIds().contains(participantId));
     }
+
+    /**
+     * Un participant déjà affecté doit rester présent dans son dossier
+     * après désactivation, même lors d'une mise à jour des affectations.
+     */
+    @Test
+    void conserverParticipantHistoriqueDesactive() {
+        UUID participantId = UUID.randomUUID();
+
+        var participant = new fr.superviseme.api.auth.Utilisateur(
+                "historique@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        participant.desactiver();
+
+        // Cette affectation existait avant la désactivation.
+        dossier.affecterParticipants(java.util.Set.of(participantId));
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+        when(utilisateurRepository.findById(participantId))
+                .thenReturn(Optional.of(participant));
+
+        service.affecterParticipants(
+                dossierId,
+                java.util.Set.of(participantId)
+        );
+
+        assertTrue(dossier.getParticipantIds().contains(participantId),
+                "L'affectation historique doit être conservée");
+    }
+
 }
