@@ -1,47 +1,87 @@
 <main class="collaborateurs-page">
-  <section class="collaborateurs-card">
-    <a class="retour" routerLink="/">← Retour au Kanban</a>
+  <header class="page-header">
+    <div>
+      <h1>Collaborateurs</h1>
+      <p>Gérez les membres de votre équipe.</p>
+    </div>
+    <button type="button" class="primary" (click)="ouvrirCreation()">
+      + Nouveau collaborateur
+    </button>
+  </header>
 
-    <h1>Gestion des collaborateurs</h1>
-    <p class="description">
-      Ajoutez un membre à votre équipe.
-      Son compte disposera du rôle Collaborateur.
-    </p>
+  @if (erreur()) {
+    <p class="message erreur" role="alert">{{ erreur() }}</p>
+  }
 
-    <form (ngSubmit)="ajouter()">
+  @if (succes()) {
+    <p class="message succes" role="status">{{ succes() }}</p>
+  }
+
+  @if (edition()) {
+    <form class="creation-form" (ngSubmit)="ajouter()">
+      <h2>Nouveau collaborateur</h2>
+      <p>Le compte créé disposera du rôle Collaborateur.</p>
+
       <label for="email">Adresse e-mail</label>
-      <input
-        id="email"
-        type="email"
-        name="email"
-        [(ngModel)]="email"
-        autocomplete="off"
-        placeholder="collaborateur@entreprise.fr"
-        required
-      />
+      <input id="email" type="email" name="email"
+             [(ngModel)]="email" required autocomplete="off">
 
       <label for="motDePasse">Mot de passe</label>
-      <input
-        id="motDePasse"
-        type="password"
-        name="motDePasse"
-        [(ngModel)]="motDePasse"
-        autocomplete="new-password"
-        required
-        minlength="8"
-      />
+      <input id="motDePasse" type="password" name="motDePasse"
+             [(ngModel)]="motDePasse" required minlength="8"
+             autocomplete="new-password">
 
-      @if (erreur()) {
-        <p class="message erreur" role="alert">{{ erreur() }}</p>
-      }
-
-      @if (succes()) {
-        <p class="message succes" role="status">{{ succes() }}</p>
-      }
-
-      <button type="submit" [disabled]="chargement()">
-        {{ chargement() ? 'Création...' : 'Ajouter le collaborateur' }}
-      </button>
+      <div class="actions">
+        <button type="button" (click)="annulerCreation()">Annuler</button>
+        <button type="submit" class="primary" [disabled]="chargement()">
+          {{ chargement() ? 'Création...' : 'Ajouter le collaborateur' }}
+        </button>
+      </div>
     </form>
-  </section>
+  }
+
+  @if (chargementListe()) {
+    <p>Chargement des collaborateurs...</p>
+  } @else {
+    <div class="master-detail" [class.detail-ouvert]="selection()">
+      <section class="master">
+        <input type="search"
+               aria-label="Rechercher un collaborateur"
+               placeholder="Rechercher un collaborateur..."
+               [ngModel]="recherche()"
+               (ngModelChange)="recherche.set($event)">
+
+        <div class="collaborateurs-list">
+          @for (collaborateur of collaborateursFiltres(); track collaborateur.id) {
+            <button type="button" class="collaborateur-card"
+                    [class.actif]="selection()?.id === collaborateur.id"
+                    (click)="selectionner(collaborateur)">
+              <strong>{{ collaborateur.email }}</strong>
+              <span>{{ collaborateur.role === 'ADMIN' ? 'Administrateur' : 'Collaborateur' }}</span>
+            </button>
+          } @empty {
+            <p>Aucun collaborateur trouvé.</p>
+          }
+        </div>
+      </section>
+
+      <section class="detail">
+        @if (selection(); as collaborateur) {
+          <button type="button" class="retour"
+                  (click)="fermerFiche()">← Retour aux collaborateurs</button>
+          <h2>Fiche collaborateur</h2>
+          <div class="section-detail">
+            <h3>Adresse e-mail</h3>
+            <p>{{ collaborateur.email }}</p>
+            <h3>Rôle</h3>
+            <p>{{ collaborateur.role === 'ADMIN' ? 'Administrateur' : 'Collaborateur' }}</p>
+          </div>
+        } @else {
+          <div class="empty-detail">
+            Sélectionnez un collaborateur pour consulter sa fiche.
+          </div>
+        }
+      </section>
+    </div>
+  }
 </main>
