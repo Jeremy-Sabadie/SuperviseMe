@@ -68,6 +68,9 @@ class DossierServiceTest {
     void creerDossier() {
         UUID responsableId = UUID.randomUUID();
 
+        UUID clientId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
         // Simule un responsable existant dans l'entreprise.
         when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
         when(repository.save(any(Dossier.class)))
@@ -77,16 +80,28 @@ class DossierServiceTest {
                 new CreerDossierRequest(
                         "Installation atelier",
                         "Préparer le matériel",
-                        null,
+                        clientId,
                         responsableId)
         );
 
         assertEquals("Installation atelier", resultat.getTitre());
         assertEquals(StatutDossier.A_TRAITER, resultat.getStatut());
         assertEquals(PrioriteDossier.NORMALE, resultat.getPriorite());
+        assertEquals(clientId, resultat.getClientId());
         assertEquals(responsableId, resultat.getResponsableId());
 
         verify(repository).save(any(Dossier.class));
+    }
+
+    @Test
+    void creerDossierSansClientRefuse() {
+        UUID responsableId = UUID.randomUUID();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Installation atelier", null, null, responsableId)));
+
+        verify(repository, never()).save(any());
     }
 
     /** La liste doit retourner les dossiers enregistrés. */

@@ -76,6 +76,20 @@ class DossierControllerTest {
         verifyNoInteractions(service);
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void creationSansClientRetourne400() throws Exception {
+        mvc.perform(post("/api/dossiers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"titre":"Installation atelier",
+                     "responsableId":"00000000-0000-0000-0000-000000000001"}
+                    """))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(service);
+    }
+
     /** Un dossier inexistant doit produire une réponse 404. */
     @Test
     @WithMockUser(roles = "ADMIN")
