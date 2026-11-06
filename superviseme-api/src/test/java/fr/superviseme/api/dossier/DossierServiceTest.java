@@ -186,4 +186,50 @@ class DossierServiceTest {
                 "La modification classique ne doit pas changer le client");
     }
 
+
+    @Test
+    void creerDossierAvecEcheance() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+        LocalDate echeance = LocalDate.of(2027, 1, 15);
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Rénovation escalier",
+                "Travaux prévus",
+                clientId,
+                responsableId,
+                echeance
+        ));
+
+        assertEquals(echeance, resultat.getEcheance());
+        verify(repository).save(any(Dossier.class));
+    }
+
+    @Test
+    void creerDossierSansEcheance() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Rénovation escalier",
+                null,
+                clientId,
+                responsableId,
+                null
+        ));
+
+        assertNull(resultat.getEcheance());
+        verify(repository).save(any(Dossier.class));
+    }
+
 }
