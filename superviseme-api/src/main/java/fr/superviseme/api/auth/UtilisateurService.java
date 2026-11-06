@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
+import java.util.UUID;
+import org.springframework.security.access.AccessDeniedException;
 
 /** Gestion sécurisée des comptes d'une instance cliente. */
 @Service
@@ -39,6 +41,35 @@ public class UtilisateurService {
     @Transactional(readOnly = true)
     public java.util.List<Utilisateur> lister() {
         return repository.findAll();
+    }
+
+    /**
+     * Désactive un collaborateur sans supprimer ses données historiques.
+     * L'administrateur ne peut pas désactiver son propre compte.
+     */
+    @Transactional
+    public Utilisateur desactiver(UUID cibleId, UUID administrateurId) {
+        if (cibleId.equals(administrateurId)) {
+            throw new AccessDeniedException("Auto-désactivation interdite");
+        }
+
+        Utilisateur cible = repository.findById(cibleId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Collaborateur introuvable"));
+
+        cible.desactiver();
+        return cible;
+    }
+
+    /** Réactive un compte existant en conservant son historique. */
+    @Transactional
+    public Utilisateur reactiver(UUID cibleId) {
+        Utilisateur cible = repository.findById(cibleId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Collaborateur introuvable"));
+
+        cible.reactiver();
+        return cible;
     }
 
     private Utilisateur creer(String email, String motDePasse, RoleUtilisateur role) {

@@ -59,9 +59,9 @@
             <input
               type="checkbox"
               [checked]="participantSelectionne(collaborateur.id)"
-              [disabled]="enregistrementParticipants()"
+              [disabled]="enregistrementParticipants() || !collaborateur.actif"
               (change)="basculerParticipant(collaborateur.id, $any($event.target).checked)">
-            {{ collaborateur.email }}
+            {{ collaborateur.email }} @if (!collaborateur.actif) { (Compte désactivé) }
           </label>
         }
 

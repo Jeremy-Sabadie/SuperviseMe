@@ -17,7 +17,12 @@ describe('Collaborateurs', () => {
         provideRouter([]),
         {
           provide: UtilisateurApiService,
-          useValue: { creer: vi.fn(), lister: vi.fn().mockReturnValue(of([])) }
+          useValue: {
+            creer: vi.fn(),
+            lister: vi.fn().mockReturnValue(of([])),
+            desactiver: vi.fn(),
+            reactiver: vi.fn()
+          }
         }
       ]
     }).compileComponents();
@@ -43,7 +48,7 @@ describe('Collaborateurs', () => {
     const creer = vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER'
+      role: 'USER', actif: true
     }));
 
     component.email = 'collaborateur@example.com';
@@ -60,7 +65,7 @@ describe('Collaborateurs', () => {
     vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER'
+      role: 'USER', actif: true
     }));
 
     component.email = 'collaborateur@example.com';
@@ -90,6 +95,7 @@ describe('Collaborateurs', () => {
       id: string;
       email: string;
       role: string;
+      actif: boolean;
     }>();
 
     const creer = vi.spyOn(api, 'creer')
@@ -109,8 +115,8 @@ describe('Collaborateurs', () => {
 
   it('charge et affiche la liste des collaborateurs', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER' },
-      { id: '2', email: 'admin@example.com', role: 'ADMIN' }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
+      { id: '2', email: 'admin@example.com', role: 'ADMIN', actif: true }
     ]);
     fixture.detectChanges();
 
@@ -121,8 +127,8 @@ describe('Collaborateurs', () => {
 
   it('filtre les collaborateurs par adresse e-mail', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER' },
-      { id: '2', email: 'bob@example.com', role: 'USER' }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
+      { id: '2', email: 'bob@example.com', role: 'USER', actif: true }
     ]);
 
     component.recherche.set('alice');
@@ -151,6 +157,77 @@ describe('Collaborateurs', () => {
     component.annulerCreation();
 
     expect(component.edition()).toBe(false);
+  });
+
+
+  /** Un compte désactivé reste visible dans la gestion de l'équipe. */
+  it('affiche le statut inactif du collaborateur', () => {
+    component.collaborateurs.set([
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+    ]);
+    component.selectionner(component.collaborateurs()[0]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Inactif');
+    expect(fixture.nativeElement.textContent).toContain('ancien@example.com');
+  });
+
+  /** Une désactivation doit être confirmée avant tout appel API. */
+  it('demande confirmation avant de désactiver', () => {
+    const desactiver = vi.spyOn(api, 'desactiver')
+      .mockReturnValue(of({
+        id: '1', email: 'alice@example.com', role: 'USER', actif: false
+      }));
+
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.demanderDesactivation();
+
+    expect(component.confirmationDesactivation()).toBe(true);
+    expect(desactiver).not.toHaveBeenCalled();
+
+    component.confirmerDesactivation();
+
+    expect(desactiver).toHaveBeenCalledWith('1');
+    expect(component.collaborateurs()[0].actif).toBe(false);
+  });
+
+  /** Annuler la confirmation ne doit pas modifier le compte. */
+  it('annule la désactivation sans appel API', () => {
+    const desactiver = vi.spyOn(api, 'desactiver');
+
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.demanderDesactivation();
+    component.annulerDesactivation();
+
+    expect(component.confirmationDesactivation()).toBe(false);
+    expect(desactiver).not.toHaveBeenCalled();
+  });
+
+  /** Réactiver conserve le même collaborateur et son identifiant. */
+  it('réactive un collaborateur existant', () => {
+    const reactiver = vi.spyOn(api, 'reactiver')
+      .mockReturnValue(of({
+        id: '1', email: 'ancien@example.com', role: 'USER', actif: true
+      }));
+
+    component.collaborateurs.set([
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.reactiverSelection();
+
+    expect(reactiver).toHaveBeenCalledWith('1');
+    expect(component.collaborateurs()[0].actif).toBe(true);
+    expect(component.collaborateurs()[0].id).toBe('1');
   });
 
 });

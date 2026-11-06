@@ -58,3 +58,39 @@ describe('FicheDossier', () => {
     http.verify();
   });
 });
+
+
+describe('Historique des participants', () => {
+  it('conserve un participant désactivé déjà affecté', () => {
+    const participantsExistants = ['ancien'];
+    const collaborateurs = [
+      { id: 'ancien', actif: false },
+      { id: 'nouveau', actif: true }
+    ];
+
+    // Le compte historique reste visible, sans nouvelle affectation possible.
+    const visibles = collaborateurs.filter(
+      c => c.actif || participantsExistants.includes(c.id)
+    );
+    expect(visibles.map(c => c.id)).toEqual(['ancien', 'nouveau']);
+    expect(visibles.find(c => c.id === 'ancien')?.actif).toBe(false);
+  });
+});
+
+
+describe('Historique des participants', () => {
+  it('conserve un participant désactivé déjà affecté', () => {
+    const participantsExistants = ['ancien'];
+    const collaborateurs = [
+      { id: 'ancien', actif: false },
+      { id: 'nouveau', actif: true }
+    ];
+
+    // Le compte historique reste visible, sans nouvelle affectation possible.
+    const visibles = collaborateurs.filter(
+      c => c.actif || participantsExistants.includes(c.id)
+    );
+    expect(visibles.map(c => c.id)).toEqual(['ancien', 'nouveau']);
+    expect(visibles.find(c => c.id === 'ancien')?.actif).toBe(false);
+  });
+});

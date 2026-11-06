@@ -42,8 +42,13 @@ public class DossierService {
         if (responsableId == null) {
             throw new IllegalArgumentException("Responsable obligatoire");
         }
-        if (!utilisateurRepository.existsById(responsableId)) {
-            throw new ResponsableIntrouvableException(responsableId);
+        // Un responsable désactivé ne peut recevoir de nouveau dossier.
+        var responsable = utilisateurRepository.findById(responsableId)
+                .orElseThrow(() ->
+                        new ResponsableIntrouvableException(responsableId));
+
+        if (!responsable.isActif()) {
+            throw new IllegalArgumentException("Responsable désactivé");
         }
 
         Dossier dossier = new Dossier(
@@ -222,13 +227,26 @@ public class DossierService {
 
         Dossier dossier = consulter(id);
 
-        if (participantIds == null || participantIds.contains(null)) {
+        if (participantIds == null
+                || participantIds.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException("Participants invalides");
         }
 
         for (UUID participantId : participantIds) {
-            if (!utilisateurRepository.existsById(participantId)) {
-                throw new ResponsableIntrouvableException(participantId);
+            var participant = utilisateurRepository.findById(participantId)
+                    .orElseThrow(() ->
+                            new ResponsableIntrouvableException(participantId));
+
+            /*
+             * Une affectation historique reste autorisée.
+             * Seules les nouvelles affectations sont interdites
+             * pour les collaborateurs désactivés.
+             */
+            boolean dejaAffecte = dossier.getParticipantIds()
+                    .contains(participantId);
+
+            if (!participant.isActif() && !dejaAffecte) {
+                throw new IllegalArgumentException("Participant désactivé");
             }
         }
 

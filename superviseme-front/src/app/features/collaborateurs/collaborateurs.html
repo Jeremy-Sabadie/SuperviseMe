@@ -58,6 +58,10 @@
                     (click)="selectionner(collaborateur)">
               <strong>{{ collaborateur.email }}</strong>
               <span>{{ collaborateur.role === 'ADMIN' ? 'Administrateur' : 'Collaborateur' }}</span>
+              <span class="statut-compte"
+                    [class.statut-inactif]="!collaborateur.actif">
+                {{ collaborateur.actif ? 'Actif' : 'Inactif' }}
+              </span>
             </button>
           } @empty {
             <p>Aucun collaborateur trouvé.</p>
@@ -75,6 +79,46 @@
             <p>{{ collaborateur.email }}</p>
             <h3>Rôle</h3>
             <p>{{ collaborateur.role === 'ADMIN' ? 'Administrateur' : 'Collaborateur' }}</p>
+            <h3>Statut du compte</h3>
+            <p>{{ collaborateur.actif ? 'Actif' : 'Inactif' }}</p>
+
+            @if (collaborateur.role !== 'ADMIN') {
+              <div class="actions">
+                @if (collaborateur.actif) {
+                  <button type="button"
+                          [disabled]="modificationStatut()"
+                          (click)="demanderDesactivation()">
+                    Désactiver le collaborateur
+                  </button>
+                } @else {
+                  <button type="button" class="primary"
+                          [disabled]="modificationStatut()"
+                          (click)="reactiverSelection()">
+                    Réactiver le collaborateur
+                  </button>
+                }
+              </div>
+            }
+
+            @if (confirmationDesactivation()) {
+              <div class="confirmation-desactivation" role="group"
+                   aria-label="Confirmation de désactivation">
+                <p>
+                  Confirmer la désactivation de {{ collaborateur.email }} ?
+                  Son accès sera immédiatement bloqué.
+                  Ses dossiers et son historique seront conservés.
+                </p>
+                <div class="actions">
+                  <button type="button"
+                          (click)="annulerDesactivation()">Annuler</button>
+                  <button type="button"
+                          [disabled]="modificationStatut()"
+                          (click)="confirmerDesactivation()">
+                    Confirmer la désactivation
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         } @else {
           <div class="empty-detail">

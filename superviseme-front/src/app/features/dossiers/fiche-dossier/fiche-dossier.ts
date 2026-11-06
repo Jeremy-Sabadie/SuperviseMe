@@ -84,6 +84,8 @@ export class FicheDossier implements OnInit {
   }
 
   basculerParticipant(id: string, selectionne: boolean): void {
+    // Ne jamais ajouter un compte désactivé, même par appel direct de la méthode.
+    if (selectionne && !this.responsables().some(c => c.id === id && c.actif)) return;
     this.participantsSelectionnes.update(ids =>
       selectionne ? [...ids.filter(item => item !== id), id] : ids.filter(item => item !== id)
     );

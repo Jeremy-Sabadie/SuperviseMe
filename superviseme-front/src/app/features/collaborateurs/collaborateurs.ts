@@ -27,6 +27,9 @@ export class Collaborateurs implements OnInit {
   readonly erreur = signal('');
   readonly succes = signal('');
 
+  readonly confirmationDesactivation = signal(false);
+  readonly modificationStatut = signal(false);
+
   readonly collaborateursFiltres = computed(() => {
     const terme = this.recherche().trim().toLowerCase();
     return this.collaborateurs().filter(c =>
@@ -68,11 +71,80 @@ export class Collaborateurs implements OnInit {
   }
 
   selectionner(collaborateur: CollaborateurResponse): void {
+    // Une confirmation ouverte ne doit jamais concerner une autre fiche.
+    this.confirmationDesactivation.set(false);
     this.selection.set(collaborateur);
   }
 
   fermerFiche(): void {
+    this.confirmationDesactivation.set(false);
     this.selection.set(null);
+  }
+
+  /** Ouvre une confirmation sans modifier le compte. */
+  demanderDesactivation(): void {
+    if (!this.selection()?.actif || this.selection()?.role === 'ADMIN' || this.modificationStatut()) return;
+    this.confirmationDesactivation.set(true);
+  }
+
+  /** Annuler ne déclenche aucun appel au serveur. */
+  annulerDesactivation(): void {
+    this.confirmationDesactivation.set(false);
+  }
+
+  /** La désactivation n'est appliquée qu'après confirmation du serveur. */
+  confirmerDesactivation(): void {
+    const collaborateur = this.selection();
+    if (!collaborateur?.actif || collaborateur.role === 'ADMIN' || !this.confirmationDesactivation()
+        || this.modificationStatut()) return;
+
+    this.modificationStatut.set(true);
+    this.erreur.set('');
+    this.confirmationDesactivation.set(false);
+
+    this.api.desactiver(collaborateur.id).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.succes.set('Le collaborateur a été désactivé.');
+        this.modificationStatut.set(false);
+      },
+      error: () => {
+        this.erreur.set('Impossible de désactiver ce collaborateur.');
+        this.modificationStatut.set(false);
+      }
+    });
+  }
+
+  /** Réactive le compte sans recréer le collaborateur. */
+  reactiverSelection(): void {
+    const collaborateur = this.selection();
+    if (!collaborateur || collaborateur.actif || this.modificationStatut()) return;
+
+    this.modificationStatut.set(true);
+    this.erreur.set('');
+
+    this.api.reactiver(collaborateur.id).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.succes.set('Le collaborateur a été réactivé.');
+        this.modificationStatut.set(false);
+      },
+      error: () => {
+        this.erreur.set('Impossible de réactiver ce collaborateur.');
+        this.modificationStatut.set(false);
+      }
+    });
+  }
+
+  /** Conserve la sélection et remplace uniquement les données actualisées. */
+  private actualiserCollaborateur(resultat: CollaborateurResponse): void {
+    this.collaborateurs.update(liste =>
+      liste.map(c => c.id === resultat.id ? resultat : c)
+    );
+
+    if (this.selection()?.id === resultat.id) {
+      this.selection.set(resultat);
+    }
   }
 
   ajouter(): void {
