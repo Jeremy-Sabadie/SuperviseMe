@@ -17,7 +17,12 @@ describe('Collaborateurs', () => {
         provideRouter([]),
         {
           provide: UtilisateurApiService,
-          useValue: { creer: vi.fn(), lister: vi.fn().mockReturnValue(of([])) }
+          useValue: {
+            creer: vi.fn(),
+            lister: vi.fn().mockReturnValue(of([])),
+            desactiver: vi.fn(),
+            reactiver: vi.fn()
+          }
         }
       ]
     }).compileComponents();
@@ -43,7 +48,7 @@ describe('Collaborateurs', () => {
     const creer = vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER'
+      role: 'USER', actif: true
     }));
 
     component.email = 'collaborateur@example.com';
@@ -60,7 +65,7 @@ describe('Collaborateurs', () => {
     vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER'
+      role: 'USER', actif: true
     }));
 
     component.email = 'collaborateur@example.com';
@@ -90,6 +95,7 @@ describe('Collaborateurs', () => {
       id: string;
       email: string;
       role: string;
+      actif: boolean;
     }>();
 
     const creer = vi.spyOn(api, 'creer')
@@ -109,8 +115,8 @@ describe('Collaborateurs', () => {
 
   it('charge et affiche la liste des collaborateurs', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER' },
-      { id: '2', email: 'admin@example.com', role: 'ADMIN' }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
+      { id: '2', email: 'admin@example.com', role: 'ADMIN', actif: true }
     ]);
     fixture.detectChanges();
 
@@ -121,8 +127,8 @@ describe('Collaborateurs', () => {
 
   it('filtre les collaborateurs par adresse e-mail', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER' },
-      { id: '2', email: 'bob@example.com', role: 'USER' }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
+      { id: '2', email: 'bob@example.com', role: 'USER', actif: true }
     ]);
 
     component.recherche.set('alice');
