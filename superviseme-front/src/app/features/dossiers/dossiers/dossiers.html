@@ -36,6 +36,10 @@
         </select>
       }
 
+      <label for="echeance">Date d'échéance (facultative)</label>
+      <input type="date" id="echeance" name="echeance"
+             [(ngModel)]="formulaire.echeance" [min]="dateMinimum">
+
       <label for="responsable">Responsable *</label>
       <select id="responsable" name="responsable"
               [(ngModel)]="formulaire.responsableId" required>
@@ -46,7 +50,7 @@
       </select>
 
       <button type="submit"
-              [disabled]="enregistrement() || !formulaire.titre.trim() || !formulaire.clientId || !formulaire.responsableId">
+              [disabled]="enregistrement() || !formulaire.titre.trim() || !formulaire.clientId || !formulaire.responsableId || echeanceInvalide">
         {{ enregistrement() ? 'Enregistrement...' : 'Créer le dossier' }}
       </button>
     </form>

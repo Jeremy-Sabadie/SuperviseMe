@@ -27,11 +27,25 @@ export class Dossiers implements OnInit {
   readonly enregistrement = signal(false);
   readonly erreur = signal('');
 
+  get dateMinimum(): string {
+    const maintenant = new Date();
+    const annee = maintenant.getFullYear();
+    const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
+    const jour = String(maintenant.getDate()).padStart(2, '0');
+    return `${annee}-${mois}-${jour}`;
+  }
+
+  get echeanceInvalide(): boolean {
+    return !!this.formulaire.echeance
+      && this.formulaire.echeance < this.dateMinimum;
+  }
+
   formulaire = {
     titre: '',
     description: '',
     clientId: '',
-    responsableId: ''
+    responsableId: '',
+    echeance: ''
   };
 
   ngOnInit(): void {
@@ -64,7 +78,8 @@ export class Dossiers implements OnInit {
       !this.formulaire.titre.trim() ||
       !this.formulaire.clientId ||
       !this.formulaire.responsableId ||
-      this.enregistrement()
+      this.enregistrement() ||
+      this.echeanceInvalide
     ) return;
 
     this.enregistrement.set(true);
@@ -73,7 +88,8 @@ export class Dossiers implements OnInit {
       titre: this.formulaire.titre.trim(),
       description: this.formulaire.description,
       clientId: this.formulaire.clientId,
-      responsableId: this.formulaire.responsableId
+      responsableId: this.formulaire.responsableId,
+      echeance: this.formulaire.echeance || null
     }).subscribe({
       next: () => {
         this.enregistrement.set(false);

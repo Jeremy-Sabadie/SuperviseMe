@@ -142,6 +142,10 @@ public class Dossier {
     public PrioriteDossier getPriorite() { return priorite; }
     public UUID getClientId() { return clientId; }
     public UUID getResponsableId() { return responsableId; }
+    public void definirEcheance(LocalDate echeance) {
+        this.echeance = echeance;
+    }
+
     public LocalDate getEcheance() { return echeance; }
     public Instant getDateCreation() { return dateCreation; }
     public Instant getDateModification() { return dateModification; }
