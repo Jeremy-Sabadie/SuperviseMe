@@ -77,6 +77,16 @@ class DossierPermissionsIntegrationTest {
         return new Compte(utilisateur.getId(), token);
     }
 
+    private String creerClient(Compte admin) throws Exception {
+        String reponse = mvc.perform(post("/api/clients")
+                .header("Authorization", admin.authorization())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nom\":\"Client permissions\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        return json.readTree(reponse).get("id").asText();
+    }
+
     private record Compte(UUID id, String token) {
 
         String authorization() {
@@ -97,6 +107,7 @@ class DossierPermissionsIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(Map.of(
                                 "titre", "Dossier sécurisé",
+                                "clientId", creerClient(admin),
                                 "responsableId", responsable.id().toString()
                         ))))
                 .andExpect(status().isCreated())
@@ -132,6 +143,7 @@ class DossierPermissionsIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(Map.of(
                                 "titre", "Dossier invalide",
+                                "clientId", creerClient(admin),
                                 "responsableId", UUID.randomUUID().toString()
                         ))))
                 .andExpect(status().isNotFound());
@@ -143,6 +155,8 @@ class DossierPermissionsIntegrationTest {
     @Test
     void utilisateurNePeutPasCreerDossier() throws Exception {
         Compte utilisateur = creerCompte(RoleUtilisateur.USER);
+        Compte admin = creerCompte(RoleUtilisateur.ADMIN);
+        String clientId = creerClient(admin);
 
         // Requête valide : le test doit vérifier l'autorisation, pas la validation.
         mvc.perform(post("/api/dossiers")
@@ -150,8 +164,9 @@ class DossierPermissionsIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"titre":"Création interdite",
-                                 "responsableId":"%s"}
-                                """.formatted(utilisateur.id())))
+                                 "responsableId":"%s",
+                                 "clientId":"%s"}
+                                """.formatted(utilisateur.id(), clientId)))
                 .andExpect(status().isForbidden());
     }
 
@@ -340,9 +355,9 @@ class DossierPermissionsIntegrationTest {
     void adminPeutConsulterAncienDossierSansResponsable() throws Exception {
         Compte admin = creerCompte(RoleUtilisateur.ADMIN);
 
-        Dossier ancien = dossiers.save(
-                new Dossier("Ancien dossier", "Créé avant US-005.1")
-        );
+        Dossier ancien = new Dossier("Ancien dossier", "Créé avant US-005.1");
+        ancien.associerClient(UUID.fromString(creerClient(admin)));
+        dossiers.save(ancien);
 
         mvc.perform(get("/api/dossiers/{id}", ancien.getId())
                         .header("Authorization", admin.authorization()))
@@ -361,6 +376,7 @@ class DossierPermissionsIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(Map.of(
                                 "titre", "Dossier affecté",
+                                "clientId", creerClient(admin),
                                 "responsableId", responsableId.toString()
                         ))))
                 .andExpect(status().isCreated())

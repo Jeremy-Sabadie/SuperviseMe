@@ -4,6 +4,12 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'dossiers/nouveau',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./features/dossiers/dossiers/dossiers')
+      .then(m => m.Dossiers)
+  },
+  {
     path: 'dossiers/:id',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -12,9 +18,9 @@ export const routes: Routes = [
   },
   {
     path: 'dossiers',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () => import('./features/dossiers/dossiers/dossiers')
-      .then(m => m.Dossiers)
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/dossiers/liste-dossiers')
+      .then(m => m.ListeDossiers)
   },
   {
     path: 'clients',

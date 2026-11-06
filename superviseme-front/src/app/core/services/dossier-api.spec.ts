@@ -55,17 +55,6 @@ describe('DossierApiService', () => {
     req.flush({ id, statut: 'EN_COURS' });
   });
 
-  it('associe un client à un dossier via PATCH', () => {
-    service.associerClient('d1', 'c1').subscribe();
-
-    const req = http.expectOne('/api/dossiers/d1/client');
-    expect(req.request.method).toBe('PATCH');
-    expect(req.request.body).toEqual({ clientId: 'c1' });
-
-    req.flush({ id: 'd1', clientId: 'c1' });
-  });
-
-
   it('transmet plusieurs participants via PUT', () => {
     const id = 'dossier-1';
     const participantIds = ['user-1', 'user-2'];

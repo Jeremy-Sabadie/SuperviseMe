@@ -59,13 +59,6 @@ export class DossierApiService {
     return this.http.put<DossierApi>(`${this.url}/${id}`, dossier);
   }
 
-  associerClient(id: string, clientId: string): Observable<DossierApi> {
-    return this.http.patch<DossierApi>(
-      `${this.url}/${id}/client`,
-      { clientId }
-    );
-  }
-
   affecterParticipants(id: string, participantIds: string[]): Observable<DossierApi> {
     return this.http.put<DossierApi>(
       `${this.url}/${id}/participants`,

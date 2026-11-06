@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 public record CreerDossierRequest(
         @NotBlank @Size(max = 200) String titre,
         String description,
-        java.util.UUID clientId,
+        @jakarta.validation.constraints.NotNull java.util.UUID clientId,
         @jakarta.validation.constraints.NotNull java.util.UUID responsableId
 ) {
     public CreerDossierRequest(

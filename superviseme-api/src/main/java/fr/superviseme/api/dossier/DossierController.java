@@ -50,6 +50,7 @@ public class DossierController {
     }
 
     /** PUT /api/dossiers/{id} : modification complète. */
+
     @PutMapping("/{id}")
     public DossierResponse modifier(
             @PathVariable UUID id,

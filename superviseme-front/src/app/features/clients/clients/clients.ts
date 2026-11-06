@@ -1,18 +1,37 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { DossierApi, DossierApiService } from '../../../core/services/dossier-api';
 import { Client, ClientApiService, ClientRequest } from '../../../core/services/client-api';
 
 @Component({
   selector: 'app-clients',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './clients.html',
   styleUrl: './clients.scss'
 })
 export class Clients implements OnInit {
   private readonly api = inject(ClientApiService);
+  private readonly dossiersApi = inject(DossierApiService);
 
   readonly clients = signal<Client[]>([]);
+  readonly dossiers = signal<DossierApi[]>([]);
+  readonly clientSelectionne = signal<Client | null>(null);
+  readonly dossiersClient = computed(() =>
+    this.dossiers().filter(d =>
+      d.clientId === this.clientSelectionne()?.id
+    )
+  );
+  readonly recherche = signal('');
+  readonly clientsFiltres = computed(() => {
+    const terme = this.recherche().trim().toLocaleLowerCase();
+    return this.clients().filter(client =>
+      [client.nom, client.entreprise, client.email, client.telephone]
+        .some(valeur => (valeur ?? '').toLocaleLowerCase().includes(terme))
+    );
+  });
   readonly chargement = signal(false);
   readonly enregistrement = signal(false);
   readonly erreur = signal('');
@@ -40,9 +59,17 @@ export class Clients implements OnInit {
     this.chargement.set(true);
     this.erreur.set('');
 
-    this.api.lister().subscribe({
-      next: clients => {
+    forkJoin({
+      clients: this.api.lister(),
+      dossiers: this.dossiersApi.lister()
+    }).subscribe({
+      next: ({ clients, dossiers }) => {
         this.clients.set(clients);
+        this.dossiers.set(dossiers);
+        const id = this.clientSelectionne()?.id;
+        this.clientSelectionne.set(
+          clients.find(c => c.id === id) ?? null
+        );
         this.chargement.set(false);
       },
       error: () => {
@@ -50,6 +77,16 @@ export class Clients implements OnInit {
         this.chargement.set(false);
       }
     });
+  }
+
+  selectionner(client: Client): void {
+    this.clientSelectionne.set(client);
+    this.edition.set(false);
+  }
+
+  fermerFiche(): void {
+    this.clientSelectionne.set(null);
+    this.edition.set(false);
   }
 
   nouveau(): void {

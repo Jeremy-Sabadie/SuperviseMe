@@ -64,12 +64,21 @@ class DossierKanbanIntegrationTest {
     /** Crée un dossier initialement dans la colonne A_TRAITER. */
     private String creerDossier(Compte admin, Compte responsable)
             throws Exception {
+        String client = mvc.perform(post("/api/clients")
+                        .header("Authorization", admin.authorization())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nom\":\"Client Kanban\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String clientId = json.readTree(client).get("id").asText();
+
         String reponse = mvc.perform(post("/api/dossiers")
                         .header("Authorization", admin.authorization())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(Map.of(
                                 "titre", "Dossier Kanban",
                                 "description", "Description conservée",
+                                "clientId", clientId,
                                 "responsableId", responsable.id().toString()))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.statut").value("A_TRAITER"))

@@ -33,6 +33,9 @@ public class DossierService {
 
     /** Crée un dossier avec ses valeurs métier par défaut. */
     public Dossier creer(CreerDossierRequest demande) {
+        if (demande.clientId() == null) {
+            throw new IllegalArgumentException("Client obligatoire");
+        }
         verifierClientExistant(demande.clientId());
 
         UUID responsableId = demande.responsableId();
@@ -152,7 +155,6 @@ public class DossierService {
             }
         }
 
-        verifierClientExistant(demande.clientId());
 
         dossier.modifier(
                 demande.titre(),
@@ -161,7 +163,6 @@ public class DossierService {
                 demande.priorite(),
                 demande.echeance()
         );
-        dossier.associerClient(demande.clientId());
 
         return dossier;
     }

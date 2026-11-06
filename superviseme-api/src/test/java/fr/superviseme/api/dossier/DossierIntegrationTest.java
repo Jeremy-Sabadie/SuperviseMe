@@ -80,6 +80,13 @@ class DossierIntegrationTest {
     @Test
     void parcoursCrudComplet() throws Exception {
         String token = obtenirToken();
+        String client = mvc.perform(post("/api/clients")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nom\":\"Client CRUD\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String clientId = json.readTree(client).get("id").asText();
 
         String creation = mvc.perform(post("/api/dossiers")
                 .header("Authorization", "Bearer " + token)
@@ -88,9 +95,10 @@ class DossierIntegrationTest {
                     {
                       "titre": "Dossier de test",
                       "description": "Création intégration",
+                      "clientId": "%s",
                        "responsableId": "%s"
                     }
-                    """.formatted(responsableId(token))))
+                    """.formatted(clientId, responsableId(token))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.statut").value("A_TRAITER"))
                 .andReturn()
@@ -177,9 +185,9 @@ class DossierIntegrationTest {
     }
 
 
-    /** Vérifie qu'un client peut être dissocié sans suppression des données. */
+    /** Vérifie que PUT ne peut pas supprimer l'association client. */
     @Test
-    void dissocierClientDuDossierConserveLesDeux() throws Exception {
+    void modifierDossierConserveAssociationClient() throws Exception {
         String token = obtenirToken();
         String auth = "Bearer " + token;
 
@@ -221,13 +229,13 @@ class DossierIntegrationTest {
                     """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(
-                        org.hamcrest.Matchers.nullValue()));
+                        clientId));
 
         mvc.perform(get("/api/dossiers/{id}", dossierId)
                 .header("Authorization", auth))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(
-                        org.hamcrest.Matchers.nullValue()));
+                        clientId));
 
         mvc.perform(get("/api/clients/{id}", clientId)
                 .header("Authorization", auth))

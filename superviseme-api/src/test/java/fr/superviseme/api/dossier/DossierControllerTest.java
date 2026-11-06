@@ -1,6 +1,7 @@
 package fr.superviseme.api.dossier;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -27,6 +28,10 @@ class DossierControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
 
     @MockitoBean
     private DossierService service;
@@ -71,6 +76,20 @@ class DossierControllerTest {
         verifyNoInteractions(service);
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void creationSansClientRetourne400() throws Exception {
+        mvc.perform(post("/api/dossiers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"titre":"Installation atelier",
+                     "responsableId":"00000000-0000-0000-0000-000000000001"}
+                    """))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(service);
+    }
+
     /** Un dossier inexistant doit produire une réponse 404. */
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -83,4 +102,5 @@ class DossierControllerTest {
         mvc.perform(get("/api/dossiers/{id}", id))
                 .andExpect(status().isNotFound());
     }
+
 }

@@ -81,7 +81,7 @@ export class Kanban implements OnInit {
                 .map(d => ({
                   id: d.id,
                   titre: d.titre,
-                  client: noms.get(d.clientId) ?? 'Client non renseigné',
+                  client: (d.clientId ? noms.get(d.clientId) : null) ?? 'Client non renseigné',
                   priorite: d.priorite === 'HAUTE'
                     ? 'Haute'
                     : d.priorite === 'BASSE' ? 'Basse' : 'Normale',
