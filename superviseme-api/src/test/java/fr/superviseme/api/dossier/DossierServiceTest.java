@@ -304,6 +304,11 @@ class DossierServiceTest {
         verify(repository, never()).save(any());
     }
 
+    /**
+     * Un collaborateur désactivé ne doit plus recevoir de nouvelles
+     * affectations, même si son compte existe toujours en base.
+     * Cette vérification backend empêche le contournement par l'API.
+     */
     @Test
     void refuserParticipantDesactive() {
         UUID participantId = UUID.randomUUID();
