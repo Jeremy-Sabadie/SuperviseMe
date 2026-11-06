@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
+import Swal from 'sweetalert2';
 import { provideRouter } from '@angular/router';
 import { Collaborateurs } from './collaborateurs';
 import { UtilisateurApiService } from '../../core/services/utilisateur-api';
@@ -168,46 +169,42 @@ describe('Collaborateurs', () => {
     component.selectionner(component.collaborateurs()[0]);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Inactif');
+    expect(fixture.nativeElement.textContent).toContain('Compte désactivé');
     expect(fixture.nativeElement.textContent).toContain('ancien@example.com');
   });
 
-  /** Une désactivation doit être confirmée avant tout appel API. */
-  it('demande confirmation avant de désactiver', () => {
-    const desactiver = vi.spyOn(api, 'desactiver')
-      .mockReturnValue(of({
-        id: '1', email: 'alice@example.com', role: 'USER', actif: false
-      }));
+  it('confirme la désactivation avec SweetAlert2', async () => {
+    const desactiver = vi.spyOn(api, 'desactiver').mockReturnValue(of({
+      id: '1', email: 'alice@example.com', role: 'USER', actif: false
+    }));
+    vi.spyOn(Swal, 'fire').mockResolvedValue({
+      isConfirmed: true, isDenied: false, isDismissed: false, value: true
+    });
 
     component.collaborateurs.set([
       { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
     ]);
-
     component.selectionner(component.collaborateurs()[0]);
-    component.demanderDesactivation();
 
-    expect(component.confirmationDesactivation()).toBe(true);
-    expect(desactiver).not.toHaveBeenCalled();
-
-    component.confirmerDesactivation();
+    await component.demanderDesactivation();
 
     expect(desactiver).toHaveBeenCalledWith('1');
     expect(component.collaborateurs()[0].actif).toBe(false);
   });
 
-  /** Annuler la confirmation ne doit pas modifier le compte. */
-  it('annule la désactivation sans appel API', () => {
+  it('annule SweetAlert2 sans appel API', async () => {
     const desactiver = vi.spyOn(api, 'desactiver');
+    vi.spyOn(Swal, 'fire').mockResolvedValue({
+      isConfirmed: false, isDenied: false, isDismissed: true
+    });
 
     component.collaborateurs.set([
       { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
     ]);
-
     component.selectionner(component.collaborateurs()[0]);
-    component.demanderDesactivation();
-    component.annulerDesactivation();
 
-    expect(component.confirmationDesactivation()).toBe(false);
+    await component.demanderDesactivation();
+
     expect(desactiver).not.toHaveBeenCalled();
   });
 
