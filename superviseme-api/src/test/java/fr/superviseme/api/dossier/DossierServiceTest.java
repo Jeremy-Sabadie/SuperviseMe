@@ -232,4 +232,47 @@ class DossierServiceTest {
         verify(repository).save(any(Dossier.class));
     }
 
+
+    @Test
+    void creerDossierAvecEcheancePasseeRefuse() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Dossier en retard",
+                        null,
+                        clientId,
+                        responsableId,
+                        LocalDate.now().minusDays(1)
+                ))
+        );
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void creerDossierAvecEcheanceAujourdhuiAutorise() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Dossier du jour",
+                null,
+                clientId,
+                responsableId,
+                LocalDate.now()
+        ));
+
+        assertEquals(LocalDate.now(), resultat.getEcheance());
+    }
+
 }
