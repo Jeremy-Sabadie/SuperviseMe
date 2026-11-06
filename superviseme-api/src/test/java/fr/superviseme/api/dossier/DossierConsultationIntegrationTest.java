@@ -50,11 +50,20 @@ class DossierConsultationIntegrationTest {
         String token = json.readTree(connexion).get("accessToken").asText();
         String authorization = "Bearer " + token;
 
+        String client = mvc.perform(post("/api/clients")
+                .header("Authorization", authorization)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nom\":\"Client consultation\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String clientId = json.readTree(client).get("id").asText();
+
         String creation = mvc.perform(post("/api/dossiers")
                 .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of(
                         "titre", "Test consultation",
+                        "clientId", clientId,
                         "responsableId", admin.getId().toString()
                 ))))
                 .andExpect(status().isCreated())

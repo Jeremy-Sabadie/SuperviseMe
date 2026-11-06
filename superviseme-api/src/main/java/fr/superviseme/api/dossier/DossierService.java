@@ -114,30 +114,6 @@ public class DossierService {
         return dossier;
     }
 
-    /**
-     * Associe exclusivement un dossier sans client.
-     * Le verrou est conservé jusqu'à la fin de la transaction.
-     */
-    public Dossier associerClientLibre(UUID dossierId, UUID clientId) {
-        if (!estAdministrateur()) {
-            throw new org.springframework.security.access.AccessDeniedException(
-                    "Association réservée aux administrateurs");
-        }
-
-        java.util.Objects.requireNonNull(clientId, "Client obligatoire");
-
-        Dossier dossier = repository.findByIdForUpdate(dossierId)
-                .orElseThrow(() -> new DossierIntrouvableException(dossierId));
-
-        if (dossier.getClientId() != null) {
-            throw new DossierDejaAssocieException();
-        }
-
-        verifierClientExistant(clientId);
-        dossier.associerClient(clientId);
-        return dossier;
-    }
-
     /** Vérifie si l'identité authentifiée possède le rôle ADMIN. */
     private boolean estAdministrateur() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
