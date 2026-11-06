@@ -275,4 +275,32 @@ class DossierServiceTest {
         assertEquals(LocalDate.now(), resultat.getEcheance());
     }
 
+
+    @Test
+    void refuserResponsableDesactivePourNouveauDossier() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        var responsable = new fr.superviseme.api.auth.Utilisateur(
+                "ancien@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        responsable.desactiver();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(responsable));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Nouveau chantier",
+                        null,
+                        clientId,
+                        responsableId
+                ))
+        );
+
+        verify(repository, never()).save(any());
+    }
 }
