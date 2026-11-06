@@ -153,4 +153,75 @@ describe('Collaborateurs', () => {
     expect(component.edition()).toBe(false);
   });
 
+
+  /** Un compte désactivé reste visible dans la gestion de l'équipe. */
+  it('affiche le statut inactif du collaborateur', () => {
+    component.collaborateurs.set([
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+    ]);
+    component.selectionner(component.collaborateurs()[0]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Inactif');
+    expect(fixture.nativeElement.textContent).toContain('ancien@example.com');
+  });
+
+  /** Une désactivation doit être confirmée avant tout appel API. */
+  it('demande confirmation avant de désactiver', () => {
+    const desactiver = vi.spyOn(api, 'desactiver')
+      .mockReturnValue(of({
+        id: '1', email: 'alice@example.com', role: 'USER', actif: false
+      }));
+
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.demanderDesactivation();
+
+    expect(component.confirmationDesactivation()).toBe(true);
+    expect(desactiver).not.toHaveBeenCalled();
+
+    component.confirmerDesactivation();
+
+    expect(desactiver).toHaveBeenCalledWith('1');
+    expect(component.collaborateurs()[0].actif).toBe(false);
+  });
+
+  /** Annuler la confirmation ne doit pas modifier le compte. */
+  it('annule la désactivation sans appel API', () => {
+    const desactiver = vi.spyOn(api, 'desactiver');
+
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.demanderDesactivation();
+    component.annulerDesactivation();
+
+    expect(component.confirmationDesactivation()).toBe(false);
+    expect(desactiver).not.toHaveBeenCalled();
+  });
+
+  /** Réactiver conserve le même collaborateur et son identifiant. */
+  it('réactive un collaborateur existant', () => {
+    const reactiver = vi.spyOn(api, 'reactiver')
+      .mockReturnValue(of({
+        id: '1', email: 'ancien@example.com', role: 'USER', actif: true
+      }));
+
+    component.collaborateurs.set([
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+    ]);
+
+    component.selectionner(component.collaborateurs()[0]);
+    component.reactiverSelection();
+
+    expect(reactiver).toHaveBeenCalledWith('1');
+    expect(component.collaborateurs()[0].actif).toBe(true);
+    expect(component.collaborateurs()[0].id).toBe('1');
+  });
+
 });
