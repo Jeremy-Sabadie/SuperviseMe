@@ -29,6 +29,7 @@ export interface CreerDossierRequest {
   description: string;
   clientId: string | null;
   responsableId: string;
+  echeance: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

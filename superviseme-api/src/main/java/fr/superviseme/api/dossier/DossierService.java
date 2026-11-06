@@ -52,6 +52,12 @@ public class DossierService {
         );
         dossier.associerClient(demande.clientId());
         dossier.affecterResponsable(responsableId);
+        if (demande.echeance() != null
+                && demande.echeance().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException(
+                    "La date d'échéance ne peut pas être antérieure à aujourd'hui");
+        }
+        dossier.definirEcheance(demande.echeance());
 
         return repository.save(dossier);
     }
