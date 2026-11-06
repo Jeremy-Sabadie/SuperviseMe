@@ -61,7 +61,8 @@ export class Dossiers implements OnInit {
           this.clientImpose.set(client);
           this.formulaire.clientId = client.id;
         }
-        this.responsables.set(responsables);
+        // Un compte désactivé ne peut recevoir de nouveau dossier.
+        this.responsables.set(responsables.filter(c => c.actif));
         this.chargement.set(false);
       },
       error: () => {
