@@ -1,1 +1,46 @@
-<p>dossiers works!</p>
+<div class="dossiers-page">
+  <a routerLink="/" class="retour">← Retour au tableau de bord</a>
+
+  <h1>Nouveau dossier</h1>
+  <p class="intro">Créez un dossier et attribuez-le à un responsable.</p>
+
+  @if (chargement()) {
+    <p>Chargement des clients et des responsables...</p>
+  } @else if (erreur()) {
+    <p class="erreur">{{ erreur() }}</p>
+  } @else {
+    <form (ngSubmit)="enregistrer()">
+      <label for="titre">Titre du dossier *</label>
+      <input id="titre" name="titre" [(ngModel)]="formulaire.titre"
+             maxlength="200" required placeholder="Ex. Rénovation escalier">
+
+      <label for="description">Description</label>
+      <textarea id="description" name="description"
+                [(ngModel)]="formulaire.description" rows="4"></textarea>
+
+      <label for="client">Client *</label>
+      <select id="client" name="client" [(ngModel)]="formulaire.clientId" required>
+        <option value="" disabled>Sélectionner un client</option>
+        @for (client of clients(); track client.id) {
+          <option [value]="client.id">
+            {{ client.entreprise || client.nom }}
+          </option>
+        }
+      </select>
+
+      <label for="responsable">Responsable *</label>
+      <select id="responsable" name="responsable"
+              [(ngModel)]="formulaire.responsableId" required>
+        <option value="" disabled>Sélectionner un responsable</option>
+        @for (responsable of responsables(); track responsable.id) {
+          <option [value]="responsable.id">{{ responsable.email }}</option>
+        }
+      </select>
+
+      <button type="submit"
+              [disabled]="enregistrement() || !formulaire.titre.trim() || !formulaire.clientId || !formulaire.responsableId">
+        {{ enregistrement() ? 'Enregistrement...' : 'Créer le dossier' }}
+      </button>
+    </form>
+  }
+</div>
