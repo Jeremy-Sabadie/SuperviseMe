@@ -146,4 +146,62 @@ class DossierServiceTest {
                 () -> service.consulter(dossierId)
         );
     }
+
+    /** Un dossier sans client peut être associé à un client existant. */
+    @Test
+    void associerClientLibre() {
+        UUID clientId = UUID.randomUUID();
+
+        when(repository.findByIdForUpdate(dossierId))
+                .thenReturn(Optional.of(dossier));
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+
+        Dossier resultat = service.associerClientLibre(dossierId, clientId);
+
+        assertEquals(clientId, resultat.getClientId());
+        verify(repository).findByIdForUpdate(dossierId);
+    }
+
+    /** Une association existante ne doit jamais être remplacée. */
+    @Test
+    void refuserAssociationDejaExistante() {
+        UUID premierClient = UUID.randomUUID();
+        UUID secondClient = UUID.randomUUID();
+        dossier.associerClient(premierClient);
+
+        when(repository.findByIdForUpdate(dossierId))
+                .thenReturn(Optional.of(dossier));
+
+        assertThrows(
+                DossierDejaAssocieException.class,
+                () -> service.associerClientLibre(dossierId, secondClient)
+        );
+
+        assertEquals(premierClient, dossier.getClientId());
+        verify(clientRepository, never()).existsById(secondClient);
+    }
+
+
+    @Test
+    void modifierNeDoitPasChangerLeClient() {
+        UUID clientInitial = UUID.randomUUID();
+        dossier.associerClient(clientInitial);
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+
+        ModifierDossierRequest demande = new ModifierDossierRequest(
+                "Nouveau titre",
+                "Nouvelle description",
+                StatutDossier.EN_COURS,
+                PrioriteDossier.HAUTE,
+                null
+        );
+
+        service.modifier(dossierId, demande);
+
+        assertEquals(clientInitial, dossier.getClientId(),
+                "La modification classique ne doit pas changer le client");
+    }
+
 }

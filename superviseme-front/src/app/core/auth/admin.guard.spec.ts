@@ -12,6 +12,7 @@ describe('adminGuard', () => {
   let erreurApi: boolean;
 
   beforeEach(() => {
+    sessionStorage.removeItem('superviseme_access_token');
     roles = [];
     erreurApi = false;
 

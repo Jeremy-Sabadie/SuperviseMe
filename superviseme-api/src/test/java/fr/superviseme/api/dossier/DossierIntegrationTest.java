@@ -177,9 +177,9 @@ class DossierIntegrationTest {
     }
 
 
-    /** Vérifie qu'un client peut être dissocié sans suppression des données. */
+    /** Vérifie que PUT ne peut pas supprimer l'association client. */
     @Test
-    void dissocierClientDuDossierConserveLesDeux() throws Exception {
+    void modifierDossierConserveAssociationClient() throws Exception {
         String token = obtenirToken();
         String auth = "Bearer " + token;
 
@@ -221,13 +221,13 @@ class DossierIntegrationTest {
                     """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(
-                        org.hamcrest.Matchers.nullValue()));
+                        clientId));
 
         mvc.perform(get("/api/dossiers/{id}", dossierId)
                 .header("Authorization", auth))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clientId").value(
-                        org.hamcrest.Matchers.nullValue()));
+                        clientId));
 
         mvc.perform(get("/api/clients/{id}", clientId)
                 .header("Authorization", auth))

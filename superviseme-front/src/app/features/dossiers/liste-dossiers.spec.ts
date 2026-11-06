@@ -5,6 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { DossierApiService } from '../../core/services/dossier-api';
 import { ClientApiService } from '../../core/services/client-api';
+import { AuthApiService } from '../../core/services/auth-api';
 import { ListeDossiers } from './liste-dossiers';
 
 describe('ListeDossiers', () => {
@@ -15,6 +16,12 @@ describe('ListeDossiers', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
+        {
+          provide: AuthApiService,
+          useValue: {
+            moi: () => of({ roles: ['ADMIN'] })
+          }
+        },
         {
           provide: DossierApiService,
           useValue: {
@@ -78,4 +85,20 @@ describe('ListeDossiers', () => {
 
     expect(lien).toBeTruthy();
   });
+
+  it('masque la création aux collaborateurs', () => {
+    TestBed.overrideProvider(AuthApiService, {
+      useValue: { moi: () => of({ roles: ['USER'] }) }
+    });
+
+    const fixture = TestBed.createComponent(ListeDossiers);
+    fixture.detectChanges();
+
+    const lien = fixture.nativeElement.querySelector(
+      'a[href="/dossiers/nouveau"]'
+    );
+
+    expect(lien).toBeNull();
+  });
+
 });

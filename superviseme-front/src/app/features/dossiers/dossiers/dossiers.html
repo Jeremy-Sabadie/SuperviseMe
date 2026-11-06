@@ -18,15 +18,23 @@
       <textarea id="description" name="description"
                 [(ngModel)]="formulaire.description" rows="4"></textarea>
 
-      <label for="client">Client *</label>
-      <select id="client" name="client" [(ngModel)]="formulaire.clientId" required>
-        <option value="" disabled>Sélectionner un client</option>
-        @for (client of clients(); track client.id) {
-          <option [value]="client.id">
-            {{ client.entreprise || client.nom }}
-          </option>
-        }
-      </select>
+      @if (clientImpose(); as client) {
+        <label>Client associé</label>
+        <div class="client-associe">
+          {{ client.entreprise || client.nom }}
+        </div>
+      } @else {
+        <label for="client">Client *</label>
+        <select id="client" name="client"
+                [(ngModel)]="formulaire.clientId" required>
+          <option value="" disabled>Sélectionner un client</option>
+          @for (client of clients(); track client.id) {
+            <option [value]="client.id">
+              {{ client.entreprise || client.nom }}
+            </option>
+          }
+        </select>
+      }
 
       <label for="responsable">Responsable *</label>
       <select id="responsable" name="responsable"

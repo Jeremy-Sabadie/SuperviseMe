@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { forkJoin } from 'rxjs';
 import { Client, ClientApiService } from '../../../core/services/client-api';
@@ -18,6 +18,8 @@ export class Dossiers implements OnInit {
   private readonly utilisateursApi = inject(UtilisateurApiService);
   private readonly dossiersApi = inject(DossierApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly clientImpose = signal<Client | null>(null);
 
   readonly clients = signal<Client[]>([]);
   readonly responsables = signal<CollaborateurResponse[]>([]);
@@ -39,6 +41,12 @@ export class Dossiers implements OnInit {
     }).subscribe({
       next: ({ clients, responsables }) => {
         this.clients.set(clients);
+        const clientId = this.route.snapshot.queryParamMap.get('clientId');
+        const client = clients.find(c => c.id === clientId);
+        if (client) {
+          this.clientImpose.set(client);
+          this.formulaire.clientId = client.id;
+        }
         this.responsables.set(responsables);
         this.chargement.set(false);
       },

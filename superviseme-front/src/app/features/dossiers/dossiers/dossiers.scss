@@ -56,3 +56,33 @@ button:disabled {
 }
 
 .erreur { color: #fca5a5; }
+
+.dossiers-page {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+form, input, textarea, select {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+input, textarea, select {
+  width: 100%;
+}
+
+.client-associe {
+  padding: 13px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #e5e7eb;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 650px) {
+  .dossiers-page {
+    padding: 24px 16px;
+  }
+}

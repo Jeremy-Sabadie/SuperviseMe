@@ -1,6 +1,7 @@
 package fr.superviseme.api.dossier;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -27,6 +28,10 @@ class DossierControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
 
     @MockitoBean
     private DossierService service;
@@ -83,4 +88,54 @@ class DossierControllerTest {
         mvc.perform(get("/api/dossiers/{id}", id))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void administrateurPeutAssocierClient() throws Exception {
+        UUID dossierId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        Dossier dossier = new Dossier("Escalier", "Fabrication");
+        dossier.associerClient(clientId);
+
+        when(service.associerClientLibre(dossierId, clientId))
+                .thenReturn(dossier);
+
+        mvc.perform(patch("/api/dossiers/{id}/client", dossierId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"clientId\":\"" + clientId + "\"}"))
+                .andExpect(status().isOk());
+
+        verify(service).associerClientLibre(dossierId, clientId);
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void utilisateurNePeutPasAssocierClient() throws Exception {
+        UUID dossierId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        mvc.perform(patch("/api/dossiers/{id}/client", dossierId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"clientId\":\"" + clientId + "\"}"))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(service);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void dossierDejaAssocieRetourne409() throws Exception {
+        UUID dossierId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+
+        when(service.associerClientLibre(dossierId, clientId))
+                .thenThrow(new DossierDejaAssocieException());
+
+        mvc.perform(patch("/api/dossiers/{id}/client", dossierId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"clientId\":\"" + clientId + "\"}"))
+                .andExpect(status().isConflict());
+    }
+
 }

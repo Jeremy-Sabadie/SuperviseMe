@@ -50,6 +50,24 @@ public class DossierController {
     }
 
     /** PUT /api/dossiers/{id} : modification complète. */
+
+    /** Associe un dossier libre à un client, sans réaffectation possible. */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/client")
+    public DossierResponse associerClient(
+            @PathVariable UUID id,
+            @Valid @RequestBody AssocierClientRequest demande) {
+        return DossierResponse.depuis(
+                service.associerClientLibre(id, demande.clientId())
+        );
+    }
+
+    /** Un dossier déjà associé ne peut pas être réaffecté. */
+    @ExceptionHandler(DossierDejaAssocieException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public void dossierDejaAssocie(DossierDejaAssocieException exception) {
+    }
+
     @PutMapping("/{id}")
     public DossierResponse modifier(
             @PathVariable UUID id,
