@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { AuthApiService } from '../../../core/services/auth-api';
 import { Client, ClientApiService } from '../../../core/services/client-api';
 import { CollaborateurResponse, UtilisateurApiService } from '../../../core/services/utilisateur-api';
 import { DossierApi, DossierApiService, PrioriteDossier, StatutDossier } from '../../../core/services/dossier-api';
@@ -17,9 +18,14 @@ export class FicheDossier implements OnInit {
   private readonly api = inject(DossierApiService);
   private readonly clientsApi = inject(ClientApiService);
   private readonly utilisateursApi = inject(UtilisateurApiService);
+  private readonly authApi = inject(AuthApiService);
 
   readonly clients = signal<Client[]>([]);
   readonly responsables = signal<CollaborateurResponse[]>([]);
+  readonly estAdmin = signal(false);
+  readonly participantsSelectionnes = signal<string[]>([]);
+  readonly enregistrementParticipants = signal(false);
+  readonly succesParticipants = signal(false);
 
   readonly dossier = signal<DossierApi | null>(null);
   readonly erreur = signal('');
@@ -47,11 +53,14 @@ export class FicheDossier implements OnInit {
     forkJoin({
       dossier: this.api.consulter(id),
       clients: this.clientsApi.lister(),
-      responsables: this.utilisateursApi.lister()
+      responsables: this.utilisateursApi.lister(),
+      utilisateur: this.authApi.moi()
     }).subscribe({
-      next: ({ dossier, clients, responsables }) => {
+      next: ({ dossier, clients, responsables, utilisateur }) => {
         this.clients.set(clients);
         this.responsables.set(responsables);
+        this.estAdmin.set(utilisateur.roles.includes('ADMIN'));
+        this.participantsSelectionnes.set([...dossier.participantIds]);
         this.dossier.set(dossier);
         this.formulaire = {
           titre: dossier.titre,
@@ -66,6 +75,49 @@ export class FicheDossier implements OnInit {
       error: () => {
         this.erreur.set('Impossible de charger ce dossier.');
         this.chargement.set(false);
+      }
+    });
+  }
+
+  participantSelectionne(id: string): boolean {
+    return this.participantsSelectionnes().includes(id);
+  }
+
+  basculerParticipant(id: string, selectionne: boolean): void {
+    this.participantsSelectionnes.update(ids =>
+      selectionne ? [...ids.filter(item => item !== id), id] : ids.filter(item => item !== id)
+    );
+    this.succesParticipants.set(false);
+  }
+
+  participantsModifies(): boolean {
+    const dossier = this.dossier();
+    if (!dossier) return false;
+
+    const selection = this.participantsSelectionnes();
+    return selection.length !== dossier.participantIds.length
+      || selection.some(id => !dossier.participantIds.includes(id));
+  }
+
+  enregistrerParticipants(): void {
+    const dossier = this.dossier();
+    if (!dossier || !this.estAdmin() || !this.participantsModifies()
+        || this.enregistrementParticipants()) return;
+
+    this.enregistrementParticipants.set(true);
+    this.erreur.set('');
+    this.succesParticipants.set(false);
+
+    this.api.affecterParticipants(dossier.id, this.participantsSelectionnes()).subscribe({
+      next: resultat => {
+        this.dossier.set(resultat);
+        this.participantsSelectionnes.set([...resultat.participantIds]);
+        this.enregistrementParticipants.set(false);
+        this.succesParticipants.set(true);
+      },
+      error: () => {
+        this.enregistrementParticipants.set(false);
+        this.erreur.set("Impossible d'attribuer les participants.");
       }
     });
   }

@@ -48,6 +48,36 @@
       </button>
     </form>
 
+    @if (estAdmin()) {
+      <!-- Attribution indépendante des modifications générales du dossier. -->
+      <section class="attribution" aria-labelledby="titre-participants">
+        <h2 id="titre-participants">Collaborateurs du dossier</h2>
+        <p>Sélectionnez les collaborateurs participant à ce dossier.</p>
+
+        @for (collaborateur of responsables(); track collaborateur.id) {
+          <label class="participant">
+            <input
+              type="checkbox"
+              [checked]="participantSelectionne(collaborateur.id)"
+              [disabled]="enregistrementParticipants()"
+              (change)="basculerParticipant(collaborateur.id, $any($event.target).checked)">
+            {{ collaborateur.email }}
+          </label>
+        }
+
+        <button
+          type="button"
+          [disabled]="enregistrementParticipants() || !participantsModifies()"
+          (click)="enregistrerParticipants()">
+          {{ enregistrementParticipants() ? 'Enregistrement...' : 'Enregistrer les participants' }}
+        </button>
+
+        @if (succesParticipants()) {
+          <p class="succes">Participants enregistrés.</p>
+        }
+      </section>
+    }
+
     @if (succes()) { <p class="succes">Modifications enregistrées.</p> }
   }
 

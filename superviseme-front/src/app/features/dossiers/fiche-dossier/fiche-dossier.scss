@@ -49,3 +49,51 @@ button:disabled { opacity: .5; }
 @media(max-width: 600px) {
   .deux-colonnes { grid-template-columns: 1fr; gap: 0; }
 }
+
+// Attribution des collaborateurs : cases alignées et libellés lisibles.
+.attribution {
+  margin-top: 32px;
+
+  .participant {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .participant input[type="checkbox"] {
+    display: inline-block;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: #7658dc;
+  }
+}
+
+// Attribution des collaborateurs : cases alignées et libellés lisibles.
+.attribution {
+  margin-top: 32px;
+
+  .participant {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .participant input[type="checkbox"] {
+    display: inline-block;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    accent-color: #7658dc;
+  }
+}

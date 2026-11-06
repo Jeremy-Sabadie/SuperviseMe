@@ -17,7 +17,7 @@ export interface DossierApi {
   statut: StatutDossier;
   priorite: PrioriteDossier;
   echeance: string | null;
-  clientId: string;
+  clientId: string | null;
   responsableId: string | null;
   participantIds: string[];
   dateCreation: string;
@@ -57,6 +57,20 @@ export class DossierApiService {
     clientId: string | null;
   }): Observable<DossierApi> {
     return this.http.put<DossierApi>(`${this.url}/${id}`, dossier);
+  }
+
+  associerClient(id: string, clientId: string): Observable<DossierApi> {
+    return this.http.patch<DossierApi>(
+      `${this.url}/${id}/client`,
+      { clientId }
+    );
+  }
+
+  affecterParticipants(id: string, participantIds: string[]): Observable<DossierApi> {
+    return this.http.put<DossierApi>(
+      `${this.url}/${id}/participants`,
+      { participantIds }
+    );
   }
 
   changerStatut(id: string, statut: StatutDossier): Observable<DossierApi> {
