@@ -2,7 +2,6 @@ import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Dossiers } from './dossiers';
 import { CollaborateurResponse } from '../../../core/services/utilisateur-api';
-import { CollaborateurResponse } from '../../../core/services/utilisateur-api';
 
 describe('Dossiers', () => {
   let component: Dossiers;

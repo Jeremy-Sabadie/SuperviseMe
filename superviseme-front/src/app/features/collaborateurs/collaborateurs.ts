@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -27,7 +28,6 @@ export class Collaborateurs implements OnInit {
   readonly erreur = signal('');
   readonly succes = signal('');
 
-  readonly confirmationDesactivation = signal(false);
   readonly modificationStatut = signal(false);
 
   readonly collaborateursFiltres = computed(() => {
@@ -72,35 +72,38 @@ export class Collaborateurs implements OnInit {
 
   selectionner(collaborateur: CollaborateurResponse): void {
     // Une confirmation ouverte ne doit jamais concerner une autre fiche.
-    this.confirmationDesactivation.set(false);
     this.selection.set(collaborateur);
   }
 
   fermerFiche(): void {
-    this.confirmationDesactivation.set(false);
     this.selection.set(null);
   }
 
-  /** Ouvre une confirmation sans modifier le compte. */
-  demanderDesactivation(): void {
-    if (!this.selection()?.actif || this.selection()?.role === 'ADMIN' || this.modificationStatut()) return;
-    this.confirmationDesactivation.set(true);
-  }
-
-  /** Annuler ne déclenche aucun appel au serveur. */
-  annulerDesactivation(): void {
-    this.confirmationDesactivation.set(false);
-  }
-
-  /** La désactivation n'est appliquée qu'après confirmation du serveur. */
-  confirmerDesactivation(): void {
+  /** Confirmation explicite avant toute désactivation. */
+  async demanderDesactivation(): Promise<void> {
     const collaborateur = this.selection();
-    if (!collaborateur?.actif || collaborateur.role === 'ADMIN' || !this.confirmationDesactivation()
+    if (!collaborateur?.actif || collaborateur.role === 'ADMIN'
+        || this.modificationStatut()) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Désactiver ce collaborateur ?',
+      text: `${collaborateur.email} perdra immédiatement son accès. Ses dossiers et son historique seront conservés.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Désactiver',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#dc3545',
+      background: '#151d30',
+      color: '#ffffff',
+      width: 'min(420px, 95vw)',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed || this.selection()?.id !== collaborateur.id
         || this.modificationStatut()) return;
 
     this.modificationStatut.set(true);
     this.erreur.set('');
-    this.confirmationDesactivation.set(false);
 
     this.api.desactiver(collaborateur.id).subscribe({
       next: resultat => {
