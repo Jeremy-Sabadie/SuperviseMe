@@ -54,4 +54,54 @@ describe('DossierApiService', () => {
 
     req.flush({ id, statut: 'EN_COURS' });
   });
+
+  it('associe un client à un dossier via PATCH', () => {
+    service.associerClient('d1', 'c1').subscribe();
+
+    const req = http.expectOne('/api/dossiers/d1/client');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ clientId: 'c1' });
+
+    req.flush({ id: 'd1', clientId: 'c1' });
+  });
+
+
+  it('transmet plusieurs participants via PUT', () => {
+    const id = 'dossier-1';
+    const participantIds = ['user-1', 'user-2'];
+
+    service.affecterParticipants(id, participantIds).subscribe(dossier => {
+      expect(dossier.participantIds).toEqual(participantIds);
+    });
+
+    const requete = http.expectOne(`/api/dossiers/${id}/participants`);
+
+    expect(requete.request.method).toBe('PUT');
+    expect(requete.request.body).toEqual({ participantIds });
+
+    requete.flush({ id, participantIds });
+  });
+
+  it('propage une erreur HTTP lors de l’attribution', () => {
+    let codeErreur: number | undefined;
+
+    service.affecterParticipants('dossier-1', ['user-1']).subscribe({
+      next: () => { throw new Error('La requête devait échouer'); },
+      error: erreur => {
+        codeErreur = erreur.status;
+      }
+    });
+
+    const requete = http.expectOne('/api/dossiers/dossier-1/participants');
+
+    // Le backend refuse l'attribution à un utilisateur non autorisé.
+    requete.flush(
+      { message: 'Accès refusé' },
+      { status: 403, statusText: 'Forbidden' }
+    );
+
+    expect(codeErreur).toBe(403);
+  });
+
+
 });
