@@ -85,4 +85,37 @@ class UtilisateurDesactivationAutorisationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.actif").value(false));
     }
+
+    /**
+     * Un administrateur peut réactiver un ancien collaborateur.
+     * Le compte est conservé avec son identité et son historique.
+     */
+    @Test
+    void administrateurPeutReactiverUnCollaborateur() throws Exception {
+        Utilisateur admin = creer(RoleUtilisateur.ADMIN);
+        Utilisateur cible = creer(RoleUtilisateur.USER);
+        cible.desactiver();
+        repository.saveAndFlush(cible);
+
+        mvc.perform(patch("/api/utilisateurs/{id}/reactiver", cible.getId())
+                .header("Authorization", "Bearer " + token(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.actif").value(true));
+    }
+
+    /**
+     * Un collaborateur standard ne peut pas réactiver un compte,
+     * même s'il connaît son identifiant.
+     */
+    @Test
+    void collaborateurNePeutPasReactiverUnCompte() throws Exception {
+        Utilisateur acteur = creer(RoleUtilisateur.USER);
+        Utilisateur cible = creer(RoleUtilisateur.USER);
+        cible.desactiver();
+        repository.saveAndFlush(cible);
+
+        mvc.perform(patch("/api/utilisateurs/{id}/reactiver", cible.getId())
+                .header("Authorization", "Bearer " + token(acteur)))
+                .andExpect(status().isForbidden());
+    }
 }
