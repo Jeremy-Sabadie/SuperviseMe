@@ -17,7 +17,7 @@ describe('Collaborateurs', () => {
         provideRouter([]),
         {
           provide: UtilisateurApiService,
-          useValue: { creer: vi.fn() }
+          useValue: { creer: vi.fn(), lister: vi.fn().mockReturnValue(of([])) }
         }
       ]
     }).compileComponents();
@@ -30,6 +30,9 @@ describe('Collaborateurs', () => {
 
   it('affiche le formulaire de création', () => {
     const element = fixture.nativeElement as HTMLElement;
+
+    component.ouvrirCreation();
+    fixture.detectChanges();
 
     expect(element.querySelector('input[type="email"]')).not.toBeNull();
     expect(element.querySelector('input[type="password"]')).not.toBeNull();
@@ -103,4 +106,51 @@ describe('Collaborateurs', () => {
 
     attente.complete();
   });
+
+  it('charge et affiche la liste des collaborateurs', () => {
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER' },
+      { id: '2', email: 'admin@example.com', role: 'ADMIN' }
+    ]);
+    fixture.detectChanges();
+
+    const texte = fixture.nativeElement.textContent;
+    expect(texte).toContain('alice@example.com');
+    expect(texte).toContain('admin@example.com');
+  });
+
+  it('filtre les collaborateurs par adresse e-mail', () => {
+    component.collaborateurs.set([
+      { id: '1', email: 'alice@example.com', role: 'USER' },
+      { id: '2', email: 'bob@example.com', role: 'USER' }
+    ]);
+
+    component.recherche.set('alice');
+
+    expect(component.collaborateursFiltres().map(c => c.email))
+      .toEqual(['alice@example.com']);
+  });
+
+  it('ouvre le formulaire depuis le bouton Nouveau collaborateur', () => {
+    fixture.detectChanges();
+
+    const bouton = Array.from(
+      fixture.nativeElement.querySelectorAll('button')
+    ).find((b: any) => b.textContent.includes('Nouveau collaborateur')) as HTMLButtonElement;
+
+    expect(bouton).toBeDefined();
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('input[type="password"]'))
+      .not.toBeNull();
+  });
+
+  it('permet de revenir à la liste depuis le formulaire', () => {
+    component.ouvrirCreation();
+    component.annulerCreation();
+
+    expect(component.edition()).toBe(false);
+  });
+
 });
