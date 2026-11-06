@@ -303,4 +303,30 @@ class DossierServiceTest {
 
         verify(repository, never()).save(any());
     }
+
+    @Test
+    void refuserParticipantDesactive() {
+        UUID participantId = UUID.randomUUID();
+
+        var participant = new fr.superviseme.api.auth.Utilisateur(
+                "ancien@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        participant.desactiver();
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+        when(utilisateurRepository.findById(participantId))
+                .thenReturn(Optional.of(participant));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.affecterParticipants(
+                        dossierId,
+                        java.util.Set.of(participantId)
+                )
+        );
+
+        assertFalse(dossier.getParticipantIds().contains(participantId));
+    }
 }
