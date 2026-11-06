@@ -1,198 +1,221 @@
-# SuperviseMe — User Stories
 
-## Vision du produit
+# SuperviseMe — User Stories (mise à jour au 6 novembre 2026)
 
-SuperviseMe est une application SaaS permettant aux dirigeants de TPE et PME de piloter leur activité depuis une interface centralisée.
+> Source : cadrage initial transmis dans la conversation, enrichi des besoins apparus pendant le développement. Les statuts sont fondés sur les travaux connus, **sans audit exhaustif du dépôt**. « Partiel » ne signifie pas que tous les critères sont satisfaits.
 
-L'application utilise le terme générique « dossier » pour s'adapter à différents secteurs professionnels.
+## Vision
 
-## Rôles
+SuperviseMe est un SaaS de pilotage d'activité pour TPE/PME. Le terme générique **dossier** permet une utilisation dans différents secteurs.
 
-- ADMIN : dirigeant ou administrateur de l'entreprise.
-- UTILISATEUR : collaborateur invité par un administrateur.
-- VISITEUR : personne non authentifiée utilisant le formulaire public.
+**Rôles :** ADMIN (dirigeant), UTILISATEUR (collaborateur), VISITEUR (formulaire public).
 
 ## P0 — Fondations et sécurité
 
-### US-001 — Gestion des entreprises
-**En tant qu'** administrateur,
-**je veux** disposer d'un espace propre à mon entreprise,
-**afin de** gérer mon activité indépendamment des autres entreprises.
+### US-001 — Gestion des entreprises — EN COURS
 
-Critères d'acceptation :
-- Chaque entreprise possède un identifiant UUID unique.
-- Une entreprise possède un nom obligatoire.
-- Les coordonnées de contact sont facultatives.
-- Les dates de création et de modification sont conservées.
-- Les données de deux entreprises sont isolées.
+**En tant qu'** administrateur, je veux un espace propre à mon entreprise pour isoler mon activité.
 
-Statut : EN COURS
+Critères : UUID unique ; nom obligatoire ; coordonnées facultatives ; dates de création et modification ; isolation des données entre entreprises.
 
-### US-002 — Authentification
-**En tant qu'** utilisateur,
-**je veux** me connecter de manière sécurisée,
-**afin d'** accéder uniquement aux données autorisées.
+**À vérifier :** modèle entreprise, rattachement des données et tests d'isolation interentreprises.
 
-Critères d'acceptation :
-- Connexion et déconnexion.
-- Mot de passe stocké sous forme de hachage sécurisé.
-- Réinitialisation du mot de passe.
-- Protection des routes privées.
+### US-002 — Authentification — PARTIEL
 
-Statut : À FAIRE
+**En tant qu'** utilisateur, je veux me connecter de manière sécurisée.
 
-### US-003 — Gestion des utilisateurs et des rôles
-**En tant qu'** administrateur,
-**je veux** inviter et gérer mes collaborateurs,
-**afin de** contrôler leurs accès.
+Critères : connexion/déconnexion ; mots de passe hachés ; réinitialisation du mot de passe ; routes privées protégées.
 
-Critères d'acceptation :
-- Deux rôles initiaux : ADMIN et UTILISATEUR.
-- L'inscription publique ne donne jamais le rôle ADMIN.
-- Seul un ADMIN peut inviter un collaborateur.
-- Les autorisations sont vérifiées côté serveur.
+**Acquis connu :** authentification et contrôle JWT utilisés. **À vérifier :** déconnexion, réinitialisation, couverture complète des protections.
 
-Statut : À FAIRE
+### US-003 — Gestion des utilisateurs et rôles — PARTIEL, largement réalisé
+
+**En tant qu'** ADMIN, je veux inviter et gérer mes collaborateurs.
+
+Critères : rôles ADMIN/UTILISATEUR ; aucune inscription publique ADMIN ; invitation réservée à ADMIN ; autorisations côté serveur.
+
+#### US-003.1 [AJOUT] — Création et recherche de collaborateurs — RÉALISÉ
+
+Création d'un collaborateur par ADMIN, liste et recherche en interface ; vérification exhaustive des autorisations encore à auditer.
+
+#### US-003.2 [AJOUT] — Désactivation et réactivation — VALIDÉ
+
+ADMIN peut désactiver/réactiver ; compte désactivé bloqué à la connexion et avec un ancien JWT ; nouvelles affectations refusées ; historique et affectations existantes conservés.
+
+**PR #13 fusionnée ; migration Flyway V8 ; test IHM concluant le 06/11.**
+
+#### US-003.3 [AJOUT] — Confirmation de désactivation SweetAlert2 — VALIDÉ
+
+Confirmation explicite, annulation sans effet, message de conséquences, interface adaptée au mobile et libellé « Compte désactivé ».
+
+**PR #14 fusionnée ; 67 tests Angular et build validés ; vérification IHM le 06/11.**
 
 ## P1 — Fonctionnalités principales
 
-### US-004 — Tableau de bord
-**En tant qu'** utilisateur,
-**je veux** visualiser l'activité de mon entreprise,
-**afin de** identifier rapidement les priorités.
+### US-004 — Tableau de bord — À FAIRE / À VÉRIFIER
 
-Critères d'acceptation :
-- Indicateurs d'activité.
-- Dossiers et tâches prioritaires.
-- Activité récente.
-- Interface adaptée aux ordinateurs et mobiles.
+Indicateurs d'activité ; dossiers et tâches prioritaires ; activité récente ; responsive.
 
-Statut : À FAIRE
+Maquette préparée, réalisation complète non confirmée.
 
-### US-005 — Gestion des dossiers
-**En tant qu'** utilisateur,
-**je veux** créer et suivre des dossiers,
-**afin de** centraliser le travail de mon entreprise.
+### US-005 — Gestion des dossiers — PARTIEL
 
-Critères d'acceptation :
-- Création, consultation et modification.
-- Client, description, statut et responsable.
-- Photos et commentaires associés.
-- Historique des modifications importantes.
+Création, consultation, modification ; client, description, statut et responsable ; photos/commentaires ; historique des modifications.
 
-Statut : À FAIRE
+Socle développé, photos/commentaires/historique complet à vérifier.
 
-### US-006 — Tableau Kanban
-**En tant qu'** utilisateur,
-**je veux** organiser mes dossiers par statut,
-**afin de** suivre leur avancement visuellement.
+#### US-005.1 [AJOUT] — Responsable et participants — RÉALISÉ, À AUDITER
 
-Critères d'acceptation :
-- Colonnes représentant les statuts.
-- Déplacement des dossiers entre colonnes.
-- Enregistrement des changements de statut.
-- Statuts configurables à terme.
+Affecter responsable et participants ; contrôler les accès ; préserver l'accès ADMIN aux dossiers historiques sans responsable.
 
-Statut : À FAIRE
+#### US-005.2 [AJOUT] — Changement de statut via API — RÉALISÉ
 
-### US-007 — Gestion des tâches
-**En tant qu'** utilisateur,
-**je veux** gérer des tâches indépendantes ou liées à un dossier,
-**afin de** organiser le travail quotidien.
+Déplacement de dossier ; vérification des droits ; rejet des statuts inconnus et accès non authentifiés ; tests d'intégration développés.
 
-Critères d'acceptation :
-- Création et modification d'une tâche.
-- Assignation à un collaborateur.
-- Priorité, échéance et statut.
-- Tâche associée ou non à un dossier.
+#### US-005.3 [AJOUT] — Kanban frontend — RÉALISÉ
 
-Statut : À FAIRE
+Affichage en colonnes et déplacement des dossiers avec persistance.
 
-### US-008 — Gestion des clients
-**En tant qu'** utilisateur,
-**je veux** centraliser mes fiches clients,
-**afin de** retrouver facilement leurs informations et dossiers.
+Statuts configurables exclus du périmètre actuel.
 
-Critères d'acceptation :
-- Coordonnées du client.
-- Historique des dossiers associés.
-- Recherche de clients.
-- Accès limité à l'entreprise concernée.
+### US-006 — Tableau Kanban — PARTIEL / FONCTIONNEL
 
-Statut : À FAIRE
+Colonnes de statut, déplacement, enregistrement des changements ; statuts configurables à terme.
 
-### US-009 — Calendrier
-**En tant qu'** utilisateur,
-**je veux** consulter les échéances et rendez-vous,
-**afin de** planifier mon activité.
+**Recoupe US-005.2 et 005.3 : ne pas redévelopper.** Configurabilité à faire.
 
-Critères d'acceptation :
-- Vue calendrier.
-- Affichage des tâches et échéances.
-- Accès au dossier ou à la tâche depuis le calendrier.
+### US-007 — Gestion des tâches — À FAIRE
 
-Statut : À FAIRE
+Création et modification ; affectation collaborateur ; priorité, échéance et statut ; tâche autonome ou liée à un dossier.
 
-### US-010 — Formulaire de contact public
-**En tant que** visiteur,
-**je veux** transmettre une demande à une entreprise,
-**afin d'** être recontacté.
+**Prochaine US fonctionnelle proposée**, après contrôle des points P0.
 
-Critères d'acceptation :
-- Formulaire propre à chaque entreprise.
-- Création d'une demande à qualifier.
-- Validation des données et protection contre les abus.
-- Information RGPD adaptée au traitement.
+### US-008 — Gestion des clients — PARTIEL / À VÉRIFIER
 
-Statut : À FAIRE
+Coordonnées ; dossiers associés ; recherche ; accès limité à l'entreprise.
+
+Des écrans et fonctions clients existent, mais couverture intégrale non auditée.
+
+### US-009 — Calendrier — À FAIRE
+
+Vue calendrier ; tâches et échéances ; accès direct au dossier ou à la tâche.
+
+### US-010 — Formulaire de contact public — À FAIRE
+
+Formulaire propre à chaque entreprise ; création d'une demande à qualifier ; validation et anti-abus ; information RGPD adaptée.
+
+#### US-010.1 [AJOUT] — Création automatique d'une fiche prospect — À FAIRE
+
+Une soumission du formulaire public crée automatiquement une fiche prospect/demande dans **la bonne entreprise**, sans ressaisie, avec information RGPD et protections adaptées.
 
 ## P2 — Pilotage commercial
 
-### US-011 — Pipeline commercial
+### US-011 — Pipeline commercial — À FAIRE
+
 Suivre une demande depuis sa qualification jusqu'au paiement.
 
-### US-012 — Documents commerciaux
-Gérer les devis, factures et documents associés aux dossiers.
+### US-012 — Documents commerciaux — À FAIRE
 
-### US-013 — Relances
-Identifier les dossiers et paiements nécessitant une relance.
+Gérer devis, factures et documents associés aux dossiers.
 
-### US-014 — Historique et traçabilité
+### US-013 — Relances — À FAIRE
+
+Identifier les dossiers et paiements à relancer.
+
+### US-014 — Historique et traçabilité — À FAIRE / À VÉRIFIER
+
 Conserver les événements importants, leur date et leur auteur.
+
+#### US-014.1 [AJOUT] — Commentaires et événements horodatés — À FAIRE / À VÉRIFIER
+
+Commentaires sur dossiers et changements de statut, avec auteur, date et accès contrôlé.
 
 ## P3 — Administration SaaS
 
-### US-015 — Gestion des abonnements
-Gérer les offres, abonnements et statuts de paiement des entreprises clientes.
+### US-015 — Gestion des abonnements — À FAIRE
 
-### US-016 — Administration de la plateforme
-Disposer d'un espace réservé à l'exploitant de SuperviseMe pour superviser les entreprises clientes et les abonnements.
+Offres, abonnements et statuts de paiement des entreprises clientes.
+
+### US-016 — Administration de la plateforme — À FAIRE
+
+Espace exploitant pour superviser les entreprises clientes et abonnements.
+
+## Besoins identifiés après le cadrage initial
+
+### US-017 [AJOUT] — Planning des équipes — À CADRER
+
+**En tant qu'** ADMIN, je veux organiser les interventions et la charge de mes collaborateurs.
+
+Critères envisagés :
+- Planning par personne et période.
+- Affectation à des dossiers/tâches.
+- Disponibilités.
+- Interface mobile.
+
+**Distinct de l'US-009**, qui affiche les échéances.
+
+### US-018 [AJOUT] — Commandes fournisseurs — À CADRER
+
+**En tant qu'** ADMIN, je veux gérer les approvisionnements liés ou non aux dossiers.
+
+Critères envisagés :
+- États : à commander / commandée / en attente / reçue / à payer / payée.
+- Montants et échéances.
+- Alertes sur les commandes à lancer après acceptation d'un devis.
+
+### US-019 [AJOUT] — Automatisations internes sans licence facturée par workflow — À CADRER
+
+**En tant qu'** exploitant, je veux automatiser les processus sans coût de licence ou d'abonnement supplémentaire par workflow.
+
+Critères envisagés :
+- Automatisations invisibles pour le client.
+- Solutions auto-hébergées privilégiées.
+- Licences, ressources serveur et coûts indirects à vérifier.
+- Sécurité et traçabilité.
+
+### US-020 [AJOUT] — Pièces jointes et documents des dossiers — À CADRER
+
+**En tant qu'** utilisateur, je veux déposer et retrouver PDF, photos et documents dans un dossier ou une fiche client.
+
+Critères envisagés :
+- Dépôt de fichiers.
+- Contrôle des droits.
+- Stockage sécurisé.
+- Limites et conservation.
+
+À articuler avec US-005 et US-012.
 
 ## Exigences transversales
 
-- Isolation stricte des données entre entreprises.
-- Contrôle des autorisations côté serveur.
-- Sécurité des données et des accès.
-- Respect du RGPD.
-- Interface responsive.
-- Tests automatisés avant fusion.
-- Migrations de base de données avec Flyway.
+- Isolation stricte entre entreprises et contrôle des autorisations côté serveur.
+- Sécurité, RGPD, interface responsive.
+- Tests automatisés et build avant fusion ; migrations Flyway.
 - Sauvegardes et restauration documentées.
+- Historique préservé lors de la désactivation d'un collaborateur.
 
-## Méthode de développement
+## Méthode de développement (pratique observée)
 
-1. Une User Story par branche `feature/...`.
-2. Développement et tests.
-3. Commit et push.
-4. Pull Request vers `develop`.
-5. Fusion uniquement après vérifications.
-6. Synchronisation du dépôt local.
-7. `main` reste la branche stable.
+1. Cadrer les critères de l'US.
+2. Créer une branche `feature/...`.
+3. Développer et tester, idéalement tests en amont.
+4. Commit, push, Pull Request, vérification et fusion.
+5. Synchroniser `main` en local et supprimer la branche terminée.
+6. Mettre à jour les statuts de ce fichier.
 
-## Points à préciser
+**Écart à arbitrer :** le cadrage initial prévoyait une PR vers `develop`, mais les dernières PR (#13 et #14) ont été fusionnées vers **`main`**. Ne pas changer le workflow sans décision explicite.
 
-- Conditions de création de la première entreprise et de son ADMIN.
-- Paramétrage des statuts métier.
-- Règles exactes de gestion des devis et factures.
-- Tarification et fonctionnement des abonnements.
-- Politique de conservation et suppression des données.
+## Reprise proposée
+
+1. Vérifier les critères P0 non prouvés (isolation, réinitialisation, permissions).
+2. Cadrer et développer **US-007 — Gestion des tâches**.
+3. Mettre à jour les statuts après tests et validation IHM.
+
+## Questions ouvertes
+
+- Création initiale de l'entreprise et de son ADMIN.
+- Statuts configurables.
+- Devis/factures.
+- Tarification.
+- Conservation/suppression RGPD.
+- Articulation calendrier/planning.
+- Règles fournisseurs.
+- Stockage des documents.
