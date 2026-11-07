@@ -1,5 +1,6 @@
 package fr.superviseme.api.demandecontact;
 
+import fr.superviseme.api.client.Client;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +24,8 @@ class DemandeContactTest {
         String message = "Fabrication d'un escalier sur mesure";
 
         // Act
-        DemandeContact demande = new DemandeContact(motif, message);
+        Client client = new Client("Dupont", null, "dupont@example.com", null, null);
+        DemandeContact demande = new DemandeContact(client, motif, message);
 
         // Assert
         assertEquals(motif, demande.getMotif());
@@ -39,11 +41,12 @@ class DemandeContactTest {
         // Arrange
         String motif = "Demande de devis";
         String message = " ";
+        Client client = new Client("Dupont", null, "dupont@example.com", null, null);
 
         // Act & Assert
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new DemandeContact(motif, message)
+                () -> new DemandeContact(client, motif, message)
         );
     }
 }
