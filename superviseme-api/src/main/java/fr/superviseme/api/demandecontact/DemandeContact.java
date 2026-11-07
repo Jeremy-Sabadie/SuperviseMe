@@ -1,5 +1,6 @@
 package fr.superviseme.api.demandecontact;
 
+import fr.superviseme.api.client.Client;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -18,6 +19,11 @@ public class DemandeContact {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /** Client à l'origine de la demande commerciale. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
+
     @Column(nullable = false, length = 150)
     private String motif;
 
@@ -32,11 +38,17 @@ public class DemandeContact {
     }
 
     /**
-     * Crée une demande avec un motif et un message obligatoires.
+     * Crée une demande commerciale associée à un client.
      *
-     * @throws IllegalArgumentException si une information est absente ou vide
+     * @throws IllegalArgumentException si le client, le motif
+     *                                  ou le message est invalide
      */
-    public DemandeContact(String motif, String message) {
+    public DemandeContact(Client client, String motif, String message) {
+        if (client == null) {
+            throw new IllegalArgumentException("Client obligatoire");
+        }
+
+        this.client = client;
         this.motif = valider(motif, "Motif");
         this.message = valider(message, "Message");
     }
@@ -56,6 +68,7 @@ public class DemandeContact {
     }
 
     public UUID getId() { return id; }
+    public Client getClient() { return client; }
     public String getMotif() { return motif; }
     public String getMessage() { return message; }
     public Instant getDateCreation() { return dateCreation; }
