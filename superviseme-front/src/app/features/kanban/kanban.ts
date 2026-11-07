@@ -1,3 +1,4 @@
+import { DemandeClientApiService } from '../../core/services/demande-client-api';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import Swal from 'sweetalert2';
 import { DossierApi, DossierApiService } from '../../core/services/dossier-api';
@@ -26,6 +27,9 @@ interface Dossier {
   styleUrl: './kanban.scss'
 })
 export class Kanban implements OnInit {
+  private readonly demandesApi = inject(DemandeClientApiService);
+  readonly demandesEnAttente = signal(0);
+
   private readonly session = inject(SessionService);
   private readonly dossierApi = inject(DossierApiService);
   private readonly clientApi = inject(ClientApiService);
@@ -59,6 +63,11 @@ export class Kanban implements OnInit {
 
   ngOnInit(): void {
     this.chargerDossiers();
+    this.demandesApi.compteur().subscribe({
+      next: nombre => this.demandesEnAttente.set(nombre),
+      error: () => this.demandesEnAttente.set(0)
+    });
+
   }
 
   chargerDossiers(): void {

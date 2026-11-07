@@ -33,6 +33,14 @@ public class DemandeContact {
     @Column(nullable = false, updatable = false)
     private Instant dateCreation;
 
+    public enum Statut {
+        A_TRAITER, EN_COURS, TRAITE
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Statut statut = Statut.A_TRAITER;
+
     /** Constructeur requis par JPA. */
     protected DemandeContact() {
     }
@@ -65,6 +73,15 @@ public class DemandeContact {
     @PrePersist
     void avantCreation() {
         dateCreation = Instant.now();
+    }
+
+    public Statut getStatut() { return statut; }
+
+    public void changerStatut(Statut nouveauStatut) {
+        if (nouveauStatut == null) {
+            throw new IllegalArgumentException("Statut obligatoire");
+        }
+        this.statut = nouveauStatut;
     }
 
     public UUID getId() { return id; }
