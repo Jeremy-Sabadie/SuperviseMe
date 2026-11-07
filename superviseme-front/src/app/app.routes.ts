@@ -3,6 +3,13 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
+  { path: 'demandes-clients', canActivate: [authGuard], loadComponent: () => import('./features/demandes-clients/demandes-clients').then(m => m.DemandesClients) },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./features/contact/contact').then(m => m.Contact)
+  },
+
   {
     path: 'dossiers/nouveau',
     canActivate: [authGuard, adminGuard],

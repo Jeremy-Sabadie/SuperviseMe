@@ -206,3 +206,19 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   color: #a78bfa;
   text-decoration: underline;
 }
+
+.badge-demandes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}

@@ -15,6 +15,12 @@
       <a class="nav nav-link" routerLink="/dossiers">▤ &nbsp; Mes dossiers</a>
       <div class="nav">◷ &nbsp; Calendrier</div>
       <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
+      <a class="nav nav-link" routerLink="/demandes-clients">
+        ✉ &nbsp; Demandes clients
+        @if (demandesEnAttente() > 0) {
+          <span class="badge-demandes">{{ demandesEnAttente() }}</span>
+        }
+      </a>
       <div class="separator"></div>
       <div class="section-label">GESTION</div>
       @if (estAdmin()) {
@@ -104,6 +110,12 @@
   <a class="mobile-link" routerLink="/dossiers">▤ Dossiers</a>
   <span>◷ Agenda</span>
   <a class="mobile-link" routerLink="/clients">♙ Clients</a>
+  <a class="mobile-link" routerLink="/demandes-clients">
+    ✉ Demandes
+    @if (demandesEnAttente() > 0) {
+      <span class="badge-demandes">{{ demandesEnAttente() }}</span>
+    }
+  </a>
   @if (estAdmin()) {
     <a class="mobile-link" routerLink="/collaborateurs">♙ Collaborateurs</a>
   }

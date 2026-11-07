@@ -1,0 +1,47 @@
+<div class="page-demandes">
+  <header>
+    <a routerLink="/" class="retour">← Tableau de bord</a>
+    <h1>Demandes clients</h1>
+    <p>Consultez et traitez les demandes reçues depuis votre formulaire de contact.</p>
+  </header>
+
+  @if (erreur()) {
+    <p class="erreur" role="alert">{{ erreur() }}</p>
+  }
+
+  @if (chargement()) {
+    <p>Chargement des demandes...</p>
+  } @else if (demandes().length === 0) {
+    <div class="vide">Aucune demande client pour le moment.</div>
+  } @else {
+    <div class="liste">
+      @for (demande of demandes(); track demande.id) {
+        <article class="demande">
+          <div class="entete">
+            <div>
+              <h2>{{ demande.motif }}</h2>
+              <strong>{{ demande.nom }}</strong>
+              <p>{{ demande.email }}</p>
+            </div>
+            <time>{{ demande.dateCreation | date:'dd/MM/yyyy à HH:mm' }}</time>
+          </div>
+
+          <p class="message">{{ demande.message }}</p>
+
+          <div class="actions">
+            <label [for]="'statut-' + demande.id">Statut</label>
+            <select
+              [id]="'statut-' + demande.id"
+              [value]="demande.statut"
+              [disabled]="modification() !== null"
+              (change)="changerStatut(demande, $any($event.target).value)">
+              <option value="A_TRAITER">À traiter</option>
+              <option value="EN_COURS">En cours</option>
+              <option value="TRAITE">Traité</option>
+            </select>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

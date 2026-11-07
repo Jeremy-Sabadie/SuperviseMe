@@ -1,0 +1,36 @@
+<main class="contact-page">
+  <section class="contact-card">
+    <div class="eyebrow">PRENONS CONTACT</div>
+    <h1>Parlons de votre projet.</h1>
+    <p class="intro">Décrivez votre besoin et nous reviendrons vers vous dans les meilleurs délais.</p>
+
+    @if (succes()) {
+      <div class="success" role="status">Votre demande a bien été envoyée. Merci !</div>
+    }
+
+    @if (erreur()) {
+      <div class="error" role="alert">L'envoi a échoué. Veuillez réessayer.</div>
+    }
+
+    <p class="required-note"><span class="required">*</span> Champs obligatoires</p>
+
+    <form (ngSubmit)="envoyer()" #contactForm="ngForm">
+      <label for="nom">Votre nom <span class="required" aria-label="obligatoire">*</span></label>
+      <input id="nom" name="nom" [(ngModel)]="nom" required maxlength="150" placeholder="Jean Dupont">
+
+      <label for="email">Votre adresse email <span class="required" aria-label="obligatoire">*</span></label>
+      <input id="email" name="email" type="email" [(ngModel)]="email" required email maxlength="254" placeholder="jean@exemple.fr">
+
+      <label for="motif">Objet de votre demande <span class="required" aria-label="obligatoire">*</span></label>
+      <input id="motif" name="motif" [(ngModel)]="motif" required maxlength="150" placeholder="Demande de devis">
+
+      <label for="message">Votre message <span class="required" aria-label="obligatoire">*</span></label>
+      <textarea id="message" name="message" [(ngModel)]="message" required maxlength="5000" rows="5" placeholder="Décrivez votre projet..."></textarea>
+
+      <button type="submit" [disabled]="contactForm.invalid || envoi()">
+        {{ envoi() ? 'Envoi en cours...' : 'Envoyer ma demande →' }}
+      </button>
+    </form>
+    <p class="privacy">Les informations transmises servent uniquement au traitement de votre demande.</p>
+  </section>
+</main>
