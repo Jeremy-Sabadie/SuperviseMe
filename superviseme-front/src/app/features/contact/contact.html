@@ -22,10 +22,27 @@
       <input id="email" name="email" type="email" [(ngModel)]="email" required email maxlength="254" placeholder="jean@exemple.fr">
 
       <label for="motif">Objet de votre demande <span class="required" aria-label="obligatoire">*</span></label>
-      <input id="motif" name="motif" [(ngModel)]="motif" required maxlength="150" placeholder="Demande de devis">
+      <!-- Choix du motif : conserve le modèle Angular et le contrat API existants. -->
+      <select id="motif" name="motif" [(ngModel)]="motif" required>
+        <option value="" disabled>Choisissez un motif</option>
+        <option value="Demande de devis">Demande de devis</option>
+        <option value="Demande de rendez-vous">Demande de rendez-vous</option>
+        <option value="Question sur une prestation">Question sur une prestation</option>
+        <option value="Suivi d'un chantier">Suivi d'un chantier</option>
+        <option value="Autre demande">Autre demande</option>
+      </select>
 
-      <label for="message">Votre message <span class="required" aria-label="obligatoire">*</span></label>
-      <textarea id="message" name="message" [(ngModel)]="message" required maxlength="5000" rows="5" placeholder="Décrivez votre projet..."></textarea>
+      <!-- Le champ apparaît immédiatement si le visiteur choisit Autre demande. -->
+      @if (motif === 'Autre demande') {
+        <label for="precision">Précisez votre demande <span class="required">*</span></label>
+        <input id="precision" name="precision" [(ngModel)]="message"
+               required maxlength="5000" placeholder="Décrivez votre demande">
+      }
+
+      @if (motif !== 'Autre demande') {
+        <label for="message">Votre message <span class="required" aria-label="obligatoire">*</span></label>
+        <textarea id="message" name="message" [(ngModel)]="message" required maxlength="5000" rows="5" placeholder="Décrivez votre projet..."></textarea>
+      }
 
       <button type="submit" [disabled]="contactForm.invalid || envoi()">
         {{ envoi() ? 'Envoi en cours...' : 'Envoyer ma demande →' }}
