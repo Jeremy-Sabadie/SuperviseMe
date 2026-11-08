@@ -59,3 +59,72 @@ select {
   .page-demandes { padding: 22px 14px 80px; }
   .demande { padding: 16px; }
 }
+
+
+/* Action commerciale : création manuelle d'un dossier */
+.creer-dossier {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #818cf8;
+  border-radius: 9px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.creer-dossier:hover {
+  background: #6366f1;
+  transform: translateY(-1px);
+}
+
+.creer-dossier:focus-visible {
+  outline: 2px solid #c7d2fe;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .creer-dossier {
+    width: 100%;
+  }
+}
+
+/* Bouton de création : version compacte */
+.actions .creer-dossier {
+  width: auto;
+  margin-left: auto;
+  padding: 9px 15px;
+  background: #25334c;
+  border: 1px solid #6366f1;
+  border-radius: 8px;
+  color: #e8edf8;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+}
+
+.actions .creer-dossier:hover {
+  background: #354466;
+  border-color: #a5b4fc;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .actions .creer-dossier {
+    width: auto;
+    margin-left: 0;
+  }
+}
