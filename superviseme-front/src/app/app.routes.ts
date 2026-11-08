@@ -4,6 +4,13 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'task',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/taches/taches').then(m => m.Taches)
+  },
+
+  {
     path: 'confidentialite',
     loadComponent: () => import('./features/confidentialite/confidentialite')
       .then(m => m.Confidentialite)
