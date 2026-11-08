@@ -29,24 +29,55 @@ export class Contact implements OnInit, OnDestroy {
       next: data => {
         this.realisations.set(data);
         this.indexRealisation.set(0);
+        this.positionPiste.set(data.length > 1 ? 1 : 0);
         this.demarrerCarrousel();
       },
       error: () => this.realisations.set([])
     });
   }
 
+  // Piste avec copies aux extrémités pour une boucle fluide.
+  readonly positionPiste = signal(1);
+  readonly transitionActive = signal(true);
+  readonly animationEnCours = signal(false);
+
+  imagesPiste(): Realisation[] {
+    const images = this.realisations();
+    return images.length > 1
+      ? [images[images.length - 1], ...images, images[0]]
+      : images;
+  }
+
   precedente(): void {
-    const total = this.realisations().length;
-    if (total > 0) {
-      this.indexRealisation.update(i => (i - 1 + total) % total);
-    }
+    if (this.animationEnCours() || this.realisations().length < 2) return;
+    this.animationEnCours.set(true);
+    this.positionPiste.update(i => i - 1);
   }
 
   suivante(): void {
+    if (this.animationEnCours() || this.realisations().length < 2) return;
+    this.animationEnCours.set(true);
+    this.positionPiste.update(i => i + 1);
+  }
+
+  finTransition(): void {
+    if (!this.animationEnCours()) return;
+
     const total = this.realisations().length;
-    if (total > 0) {
-      this.indexRealisation.update(i => (i + 1) % total);
+    const position = this.positionPiste();
+
+    if (position === 0 || position === total + 1) {
+      this.transitionActive.set(false);
+      this.positionPiste.set(position === 0 ? total : 1);
+
+      // Réactivation après repositionnement invisible.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => this.transitionActive.set(true));
+      });
     }
+
+    this.indexRealisation.set((this.positionPiste() - 1 + total) % total);
+    this.animationEnCours.set(false);
   }
 
   private minuterieCarrousel: ReturnType<typeof setInterval> | null = null;

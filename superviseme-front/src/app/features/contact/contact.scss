@@ -53,3 +53,102 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .form-validation p {
   margin: 4px 0;
 }
+
+/* Carrousel public des réalisations */
+.contact-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+.realisations {
+  width: min(100%, 900px);
+  text-align: center;
+}
+
+.realisations h2 {
+  font-size: clamp(24px, 4vw, 32px);
+  margin: 12px 0 24px;
+}
+
+.carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.realisation {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  background: #151d35;
+  border: 1px solid #34405d;
+  border-radius: 18px;
+}
+
+.realisation img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 45vw, 440px);
+  object-fit: cover;
+}
+
+.realisation figcaption {
+  padding: 18px;
+  text-align: left;
+}
+
+.realisation figcaption p {
+  color: #aab5cf;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.carousel-nav {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #8274f5;
+  color: white;
+  cursor: pointer;
+}
+
+.carousel-counter {
+  color: #aab5cf;
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .carousel { gap: 6px; }
+  .carousel-nav { width: 32px; height: 32px; }
+}
+
+
+/* Défilement horizontal fluide */
+.carousel-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 800ms ease-in-out;
+  will-change: transform;
+}
+
+.carousel-track.sans-transition {
+  transition: none;
+}
+
+.carousel-track .realisation {
+  flex: 0 0 100%;
+  box-sizing: border-box;
+}

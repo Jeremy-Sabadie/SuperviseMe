@@ -96,23 +96,28 @@
           </button>
         }
 
-        @for (realisation of realisations(); track realisation.id; let i = $index) {
-          @if (i === indexRealisation()) {
-            <figure class="realisation">
-              <img [src]="realisation.imageUrl"
-                   [alt]="realisation.titre || 'Photo de réalisation'"
-                   loading="lazy">
-              @if (realisation.titre || realisation.description) {
-                <figcaption>
-                  <strong>{{ realisation.titre }}</strong>
-                  @if (realisation.description) {
-                    <p>{{ realisation.description }}</p>
-                  }
-                </figcaption>
-              }
-            </figure>
-          }
-        }
+        <div class="carousel-viewport">
+          <div class="carousel-track"
+               [class.sans-transition]="!transitionActive()"
+               [style.transform]="'translateX(-' + (positionPiste() * 100) + '%)'"
+               (transitionend)="finTransition()">
+            @for (realisation of imagesPiste(); track $index) {
+              <figure class="realisation">
+                <img [src]="realisation.imageUrl"
+                     [alt]="realisation.titre || 'Photo de réalisation'"
+                     loading="lazy">
+                @if (realisation.titre || realisation.description) {
+                  <figcaption>
+                    <strong>{{ realisation.titre }}</strong>
+                    @if (realisation.description) {
+                      <p>{{ realisation.description }}</p>
+                    }
+                  </figcaption>
+                }
+              </figure>
+            }
+          </div>
+        </div>
 
         @if (realisations().length > 1) {
           <button type="button" class="carousel-nav"
