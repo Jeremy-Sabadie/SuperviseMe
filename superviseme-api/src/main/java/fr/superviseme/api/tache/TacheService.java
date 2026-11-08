@@ -78,8 +78,7 @@ public class TacheService {
         verifierUtilisateurAutorise();
 
         Tache tache = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Tâche introuvable"));
+                .orElseThrow(() -> new TacheIntrouvableException(id));
 
         if (!estAdministrateur()) {
             UUID utilisateurId = utilisateurConnecteId();

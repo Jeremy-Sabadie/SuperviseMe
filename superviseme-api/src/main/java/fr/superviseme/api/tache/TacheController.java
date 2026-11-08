@@ -80,4 +80,13 @@ public class TacheController {
         return TacheResponse.depuis(
                 service.changerStatut(id, demande.statut()));
     }
+
+    /**
+     * Masque les détails internes lorsqu'une tâche est inexistante.
+     */
+    @ExceptionHandler(TacheIntrouvableException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void tacheIntrouvable(TacheIntrouvableException exception) {
+        // Le statut HTTP suffit pour informer le client.
+    }
 }
