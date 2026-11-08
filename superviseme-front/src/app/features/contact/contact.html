@@ -44,10 +44,42 @@
         <textarea id="message" name="message" [(ngModel)]="message" required maxlength="5000" rows="5" placeholder="Décrivez votre projet..."></textarea>
       }
 
+      <label class="privacy-consent" for="priseConnaissance"
+             style="display:flex;align-items:flex-start;gap:10px;margin:18px 0;font-size:13px;line-height:1.5">
+        <input id="priseConnaissance" name="priseConnaissance"
+               type="checkbox" [(ngModel)]="priseConnaissance"
+               required style="width:18px;height:18px;flex-shrink:0;accent-color:#8274f5">
+        <span>J'ai pris connaissance de la
+          <a href="/confidentialite" target="_blank" rel="noopener noreferrer"
+             style="color:#a5b4fc;text-decoration:underline">politique de confidentialité</a>
+          et des informations concernant l'utilisation de mes données personnelles.
+        </span>
+      </label>
+
+      @if (contactForm.invalid && !envoi()) {
+        <div class="form-validation" role="status" aria-live="polite">
+          @if (!nom.trim() || !email.trim() || !motif || !message.trim()) {
+            <p>Veuillez remplir tous les champs obligatoires (*).</p>
+          }
+          @if (email.trim() && contactForm.controls['email']?.invalid) {
+            <p>Veuillez saisir une adresse e-mail valide.</p>
+          }
+          @if (!priseConnaissance) {
+            <p>Veuillez confirmer avoir pris connaissance de la politique de confidentialité.</p>
+          }
+        </div>
+      }
+
       <button type="submit" [disabled]="contactForm.invalid || envoi()">
         {{ envoi() ? 'Envoi en cours...' : 'Envoyer ma demande →' }}
       </button>
     </form>
-    <p class="privacy">Les informations transmises servent uniquement au traitement de votre demande.</p>
+    <p class="privacy">
+      Les données renseignées sont utilisées pour traiter votre demande
+      et vous recontacter à ce sujet. Les champs marqués * sont obligatoires.
+      Consultez notre
+      <a href="/confidentialite">politique de confidentialité</a>
+      pour connaître les modalités de traitement et vos droits.
+    </p>
   </section>
 </main>

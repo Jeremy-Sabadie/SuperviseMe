@@ -37,3 +37,19 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 
 .required { color: #ff858e; font-weight: 700; }
 .required-note { font-size: 12px; color: #b6bfd4; margin-bottom: 8px; }
+
+/* Explications accessibles lorsque le formulaire est incomplet */
+.form-validation {
+  margin: 12px 0;
+  padding: 10px 14px;
+  border: 1px solid #7764a8;
+  border-radius: 8px;
+  background: rgba(130, 116, 245, 0.08);
+  color: #ddd6fe;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.form-validation p {
+  margin: 4px 0;
+}

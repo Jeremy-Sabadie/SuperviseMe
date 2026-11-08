@@ -17,13 +17,33 @@ export class Contact {
   email = '';
   motif = '';
   message = '';
+  priseConnaissance = false;
 
   envoi = signal(false);
   succes = signal(false);
   erreur = signal(false);
 
-  envoyer() {
-    if (this.envoi()) return;
+  async envoyer() {
+    if (this.envoi() || !this.priseConnaissance ||
+        !this.nom.trim() || !this.email.trim() ||
+        !this.motif || !this.message.trim()) return;
+
+    const confirmation = await Swal.fire({
+      icon: 'question',
+      title: "Confirmer l'envoi ?",
+      text: "Votre demande et vos coordonnées seront transmises à l'entreprise afin qu'elle puisse vous répondre.",
+      showCancelButton: true,
+      confirmButtonText: "Confirmer l'envoi",
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#8274f5',
+      cancelButtonColor: '#475569',
+      reverseButtons: true,
+      background: '#151d30',
+      color: '#ffffff',
+      focusCancel: true
+    });
+
+    if (!confirmation.isConfirmed || this.envoi()) return;
 
     this.envoi.set(true);
     this.erreur.set(false);
@@ -49,6 +69,7 @@ export class Contact {
         this.email = '';
         this.motif = '';
         this.message = '';
+        this.priseConnaissance = false;
       },
       error: () => {
         this.envoi.set(false);
