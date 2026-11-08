@@ -1,7 +1,9 @@
+import Swal from 'sweetalert2';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { TacheApi, TacheApiService, StatutTache } from '../../../core/services/tache-api';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { Client, ClientApiService } from '../../../core/services/client-api';
 import { CollaborateurResponse, UtilisateurApiService } from '../../../core/services/utilisateur-api';
@@ -19,6 +21,26 @@ export class FicheDossier implements OnInit {
   private readonly clientsApi = inject(ClientApiService);
   private readonly utilisateursApi = inject(UtilisateurApiService);
   private readonly authApi = inject(AuthApiService);
+  private readonly tachesApi = inject(TacheApiService);
+
+  readonly tachesDossier = signal<TacheApi[]>([]);
+  readonly erreurTaches = signal('');
+  readonly enregistrementTache = signal(false);
+  formulaireTacheOuvert = false;
+  colonneMobile: StatutTache = 'NON_COMMENCEE';
+
+  readonly colonnesTaches: { statut: StatutTache; libelle: string }[] = [
+    { statut: 'NON_COMMENCEE', libelle: 'À faire' },
+    { statut: 'EN_COURS', libelle: 'En cours' },
+    { statut: 'TERMINEE', libelle: 'Terminées' }
+  ];
+
+  nombreTaches(statut: StatutTache): number {
+    return this.tachesDossier().filter(t => t.statut === statut).length;
+  }
+
+  titreTache = '';
+  responsableTacheId = '';
 
   readonly clients = signal<Client[]>([]);
   readonly responsables = signal<CollaborateurResponse[]>([]);
@@ -71,6 +93,7 @@ export class FicheDossier implements OnInit {
           clientId: dossier.clientId ?? ''
         };
         this.chargement.set(false);
+        this.chargerTaches(dossier.id);
       },
       error: () => {
         this.erreur.set('Impossible de charger ce dossier.');
@@ -175,4 +198,156 @@ export class FicheDossier implements OnInit {
       }
     });
   }
+
+  chargerTaches(dossierId: string): void {
+    this.tachesApi.lister().subscribe({
+      next: taches => {
+        this.tachesDossier.set(taches.filter(t => t.dossierId === dossierId));
+        this.erreurTaches.set('');
+      },
+      error: () => this.erreurTaches.set('Impossible de charger les tâches du dossier.')
+    });
+  }
+
+  async creerTache(): Promise<void> {
+    const dossier = this.dossier();
+    const titre = this.titreTache.trim();
+    if (!dossier || !this.estAdmin() || !titre || !this.responsableTacheId
+        || this.enregistrementTache()) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Créer cette tâche ?',
+      text: `Ajouter « ${titre} » au dossier « ${dossier.titre} » ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Créer',
+      cancelButtonText: 'Annuler',
+      background: '#1b2a35',
+      color: '#e5eef2',
+      confirmButtonColor: '#4f9ca5',
+      cancelButtonColor: '#344854',
+      reverseButtons: true
+    });
+    if (!confirmation.isConfirmed || this.enregistrementTache()) return;
+
+    this.enregistrementTache.set(true);
+    this.erreurTaches.set('');
+
+    this.tachesApi.creer({
+      titre,
+      responsableId: this.responsableTacheId,
+      dossierId: dossier.id
+    }).subscribe({
+      next: tache => {
+        this.tachesDossier.update(liste => [...liste, tache]);
+        this.titreTache = '';
+        this.responsableTacheId = '';
+        this.formulaireTacheOuvert = false;
+        this.enregistrementTache.set(false);
+        void Swal.fire({
+          title: 'Tâche créée',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      },
+      error: () => {
+        this.erreurTaches.set('Impossible de créer la tâche.');
+        this.enregistrementTache.set(false);
+        void Swal.fire({
+          title: 'Création impossible',
+          icon: 'error',
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      }
+    });
+  }
+
+  async ouvrirStatutTache(tache: TacheApi): Promise<void> {
+    if (!this.estAdmin() || this.enregistrementTache()) return;
+
+    const choix = await Swal.fire({
+      title: tache.titre,
+      text: 'Choisissez le nouveau statut.',
+      input: 'select',
+      inputOptions: {
+        NON_COMMENCEE: 'À faire',
+        EN_COURS: 'En cours',
+        TERMINEE: 'Terminée'
+      },
+      inputValue: tache.statut,
+      showCancelButton: true,
+      confirmButtonText: 'Continuer',
+      cancelButtonText: 'Annuler',
+      background: '#1b2a35',
+      color: '#e5eef2',
+      confirmButtonColor: '#4f9ca5',
+      cancelButtonColor: '#344854',
+      reverseButtons: true
+    });
+
+    if (!choix.isConfirmed || !choix.value
+        || choix.value === tache.statut) return;
+
+    const statuts: StatutTache[] = [
+      'NON_COMMENCEE', 'EN_COURS', 'TERMINEE'
+    ];
+    if (!statuts.includes(choix.value as StatutTache)) return;
+
+    await this.changerStatutTache(tache, choix.value as StatutTache);
+  }
+
+  async changerStatutTache(tache: TacheApi, statut: StatutTache): Promise<void> {
+    if (!this.estAdmin() || this.enregistrementTache()
+        || tache.statut === statut) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Modifier le statut ?',
+      text: `Confirmer la modification de « ${tache.titre} » ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmer',
+      cancelButtonText: 'Annuler',
+      background: '#1b2a35',
+      color: '#e5eef2',
+      confirmButtonColor: '#4f9ca5',
+      cancelButtonColor: '#344854',
+      reverseButtons: true
+    });
+    if (!confirmation.isConfirmed || this.enregistrementTache()) return;
+
+    this.enregistrementTache.set(true);
+    this.erreurTaches.set('');
+
+    this.tachesApi.changerStatut(tache.id, statut).subscribe({
+      next: resultat => {
+        this.tachesDossier.update(liste =>
+          liste.map(item => item.id === tache.id ? resultat : item)
+        );
+        this.enregistrementTache.set(false);
+        void Swal.fire({
+          title: 'Statut mis à jour',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      },
+      error: () => {
+        this.erreurTaches.set('Impossible de modifier le statut.');
+        this.enregistrementTache.set(false);
+        void Swal.fire({
+          title: 'Modification impossible',
+          icon: 'error',
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      }
+    });
+  }
+
 }
