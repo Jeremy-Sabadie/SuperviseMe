@@ -35,6 +35,10 @@ export class ClientApiService {
     return this.http.post<Client>(this.url, client);
   }
 
+  supprimer(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
   modifier(id: string, client: ClientRequest): Observable<Client> {
     return this.http.put<Client>(`${this.url}/${id}`, client);
   }

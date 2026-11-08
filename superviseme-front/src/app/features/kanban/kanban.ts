@@ -1,4 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { DemandeClientApiService } from '../../core/services/demande-client-api';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, exhaustMap, of, timer } from 'rxjs';
 import Swal from 'sweetalert2';
 import { DossierApi, DossierApiService } from '../../core/services/dossier-api';
 import { ClientApiService } from '../../core/services/client-api';
@@ -26,6 +29,10 @@ interface Dossier {
   styleUrl: './kanban.scss'
 })
 export class Kanban implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly demandesApi = inject(DemandeClientApiService);
+  readonly demandesEnAttente = signal(0);
+
   private readonly session = inject(SessionService);
   private readonly dossierApi = inject(DossierApiService);
   private readonly clientApi = inject(ClientApiService);
@@ -59,6 +66,31 @@ export class Kanban implements OnInit {
 
   ngOnInit(): void {
     this.chargerDossiers();
+    this.demarrerActualisationDemandes();
+
+  }
+
+  /**
+   * Actualise le nombre de demandes à traiter toutes les 10 secondes.
+   *
+   * Une erreur réseau n'interrompt pas les actualisations suivantes.
+   * Les requêtes ne se chevauchent pas et l'abonnement est automatiquement
+   * supprimé lorsque le composant Angular est détruit.
+   */
+  private demarrerActualisationDemandes(): void {
+    timer(0, 10_000).pipe(
+      exhaustMap(() =>
+        this.demandesApi.compteur().pipe(
+          catchError(() => of(null))
+        )
+      ),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(nombre => {
+      // Conserver la dernière valeur connue si le serveur est indisponible.
+      if (nombre !== null) {
+        this.demandesEnAttente.set(nombre);
+      }
+    });
   }
 
   chargerDossiers(): void {
@@ -81,7 +113,7 @@ export class Kanban implements OnInit {
                 .map(d => ({
                   id: d.id,
                   titre: d.titre,
-                  client: noms.get(d.clientId) ?? 'Client non renseigné',
+                  client: (d.clientId ? noms.get(d.clientId) : null) ?? 'Client non renseigné',
                   priorite: d.priorite === 'HAUTE'
                     ? 'Haute'
                     : d.priorite === 'BASSE' ? 'Basse' : 'Normale',

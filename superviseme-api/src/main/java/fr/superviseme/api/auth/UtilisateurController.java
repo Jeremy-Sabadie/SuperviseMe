@@ -3,6 +3,8 @@ package fr.superviseme.api.auth;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.JsonNode;
@@ -29,7 +31,8 @@ public class UtilisateurController {
     public record CollaborateurResponse(
             UUID id,
             String email,
-            RoleUtilisateur role
+            RoleUtilisateur role,
+            boolean actif
     ) {}
 
     @PostMapping
@@ -58,7 +61,8 @@ public class UtilisateurController {
         return new CollaborateurResponse(
                 utilisateur.getId(),
                 utilisateur.getEmail(),
-                utilisateur.getRole()
+                utilisateur.getRole(),
+                utilisateur.isActif()
         );
     }
 
@@ -71,9 +75,48 @@ public class UtilisateurController {
                 .map(utilisateur -> new CollaborateurResponse(
                         utilisateur.getId(),
                         utilisateur.getEmail(),
-                        utilisateur.getRole()
+                        utilisateur.getRole(),
+                utilisateur.isActif()
                 ))
                 .toList();
+    }
+
+    public record ModifierCollaborateurRequest(@NotBlank String email) {}
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CollaborateurResponse modifier(
+            @PathVariable UUID id,
+            @Valid @RequestBody ModifierCollaborateurRequest request) {
+        return reponse(service.modifierEmail(id, request.email()));
+    }
+
+    /** Désactivation réservée aux administrateurs. */
+    @PatchMapping("/{id}/desactiver")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CollaborateurResponse desactiver(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        UUID administrateurId = UUID.fromString(jwt.getSubject());
+        Utilisateur utilisateur = service.desactiver(id, administrateurId);
+        return reponse(utilisateur);
+    }
+
+    /** Réactivation réservée aux administrateurs. */
+    @PatchMapping("/{id}/reactiver")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CollaborateurResponse reactiver(@PathVariable UUID id) {
+        return reponse(service.reactiver(id));
+    }
+
+    private CollaborateurResponse reponse(Utilisateur utilisateur) {
+        return new CollaborateurResponse(
+                utilisateur.getId(),
+                utilisateur.getEmail(),
+                utilisateur.getRole(),
+                utilisateur.isActif()
+        );
     }
 
     private String texte(JsonNode body, String champ) {

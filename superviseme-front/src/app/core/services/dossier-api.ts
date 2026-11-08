@@ -17,7 +17,7 @@ export interface DossierApi {
   statut: StatutDossier;
   priorite: PrioriteDossier;
   echeance: string | null;
-  clientId: string;
+  clientId: string | null;
   responsableId: string | null;
   participantIds: string[];
   dateCreation: string;
@@ -29,6 +29,7 @@ export interface CreerDossierRequest {
   description: string;
   clientId: string | null;
   responsableId: string;
+  echeance: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -44,6 +45,10 @@ export class DossierApiService {
     return this.http.get<DossierApi[]>(this.url);
   }
 
+  supprimer(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${encodeURIComponent(id)}`);
+  }
+
   consulter(id: string): Observable<DossierApi> {
     return this.http.get<DossierApi>(`${this.url}/${id}`);
   }
@@ -57,6 +62,13 @@ export class DossierApiService {
     clientId: string | null;
   }): Observable<DossierApi> {
     return this.http.put<DossierApi>(`${this.url}/${id}`, dossier);
+  }
+
+  affecterParticipants(id: string, participantIds: string[]): Observable<DossierApi> {
+    return this.http.put<DossierApi>(
+      `${this.url}/${id}/participants`,
+      { participantIds }
+    );
   }
 
   changerStatut(id: string, statut: StatutDossier): Observable<DossierApi> {

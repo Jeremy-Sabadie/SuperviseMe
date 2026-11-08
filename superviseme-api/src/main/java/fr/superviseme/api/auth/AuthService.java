@@ -37,7 +37,9 @@ public class AuthService {
                 .orElseThrow(() ->
                         new BadCredentialsException("Identifiants incorrects"));
 
-        if (!encoder.matches(motDePasse, utilisateur.getMotDePasseHash())) {
+        // Ne révèle pas si le compte existe ou s'il est désactivé.
+        if (!utilisateur.isActif()
+                || !encoder.matches(motDePasse, utilisateur.getMotDePasseHash())) {
             throw new BadCredentialsException("Identifiants incorrects");
         }
 

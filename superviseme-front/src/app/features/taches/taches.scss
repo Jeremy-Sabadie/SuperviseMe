@@ -1,0 +1,115 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #e5eef2;
+}
+
+.taches-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.retour {
+  color: #80cbd2;
+  text-decoration: none;
+}
+
+header {
+  margin: 28px 0;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+header p,
+.tache p {
+  color: #a8bac5;
+}
+
+.creation,
+.tache {
+  background: #1b2a35;
+  border: 1px solid #344854;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.creation {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+input,
+select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #46606d;
+  border-radius: 8px;
+  background: #14232d;
+  color: #e5eef2;
+}
+
+button {
+  padding: 12px 20px;
+  background: #4f9ca5;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.liste {
+  display: grid;
+  gap: 14px;
+}
+
+.tache {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.tache h3 {
+  margin: 0 0 8px;
+}
+
+.tache-statut {
+  min-width: 180px;
+}
+
+.tache-statut label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.priorite,
+.statut-lecture {
+  color: #80cbd2;
+}
+
+.erreur {
+  color: #ff9b9b;
+}
+
+@media (max-width: 650px) {
+  .tache {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

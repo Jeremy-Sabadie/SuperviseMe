@@ -4,6 +4,32 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'task',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/taches/taches').then(m => m.Taches)
+  },
+
+  {
+    path: 'confidentialite',
+    loadComponent: () => import('./features/confidentialite/confidentialite')
+      .then(m => m.Confidentialite)
+  },
+
+  { path: 'demandes-clients', canActivate: [authGuard], loadComponent: () => import('./features/demandes-clients/demandes-clients').then(m => m.DemandesClients) },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./features/contact/contact').then(m => m.Contact)
+  },
+
+  {
+    path: 'dossiers/nouveau',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./features/dossiers/dossiers/dossiers')
+      .then(m => m.Dossiers)
+  },
+  {
     path: 'dossiers/:id',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -12,9 +38,9 @@ export const routes: Routes = [
   },
   {
     path: 'dossiers',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () => import('./features/dossiers/dossiers/dossiers')
-      .then(m => m.Dossiers)
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/dossiers/liste-dossiers')
+      .then(m => m.ListeDossiers)
   },
   {
     path: 'clients',

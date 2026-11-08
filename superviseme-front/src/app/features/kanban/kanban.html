@@ -3,7 +3,15 @@
     <div class="brand"><span class="logo">S</span> Supervise<span>Me</span></div>
     <div class="user">
   <span class="user-label">Espace entreprise</span>
-  <span class="avatar">R</span>
+  <details class="profil-menu">
+    <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
+    <div class="profil-options">
+      @if (estAdmin()) {
+        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>
+      }
+      <button type="button" (click)="deconnecter()">Déconnexion</button>
+    </div>
+  </details>
   <button type="button" class="logout" (click)="deconnecter()">Déconnexion</button>
 </div>
   </header>
@@ -13,8 +21,15 @@
       <div class="section-label">ESPACE DE TRAVAIL</div>
       <div class="nav active">▦ &nbsp; Tableau de bord</div>
       <a class="nav nav-link" routerLink="/dossiers">▤ &nbsp; Mes dossiers</a>
+      <a class="nav nav-link" routerLink="/task">☑ &nbsp; Mes tâches</a>
       <div class="nav">◷ &nbsp; Calendrier</div>
       <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
+      <a class="nav nav-link" routerLink="/demandes-clients">
+        ✉ &nbsp; Demandes clients
+        @if (demandesEnAttente() > 0) {
+          <span class="badge-demandes">{{ demandesEnAttente() }}</span>
+        }
+      </a>
       <div class="separator"></div>
       <div class="section-label">GESTION</div>
       @if (estAdmin()) {
@@ -30,7 +45,7 @@
           <h1>Tableau de bord</h1>
           <p>Pilotez votre activité et suivez vos dossiers en temps réel.</p>
         </div>
-        @if (estAdmin()) { <a class="primary" routerLink="/dossiers">+ Nouveau dossier</a> }
+        @if (estAdmin()) { <a class="primary" routerLink="/dossiers/nouveau">+ Ouvrir un nouveau dossier</a> }
       </div>
 
       <div class="stats">
@@ -101,9 +116,16 @@
 
 <nav class="mobile-nav" aria-label="Navigation mobile">
   <span>▦ Tableau</span>
-  <span>▤ Dossiers</span>
+  <a class="mobile-link" routerLink="/dossiers">▤ Dossiers</a>
+  <a class="mobile-link" routerLink="/task">☑ Tâches</a>
   <span>◷ Agenda</span>
   <a class="mobile-link" routerLink="/clients">♙ Clients</a>
+  <a class="mobile-link" routerLink="/demandes-clients">
+    ✉ Demandes
+    @if (demandesEnAttente() > 0) {
+      <span class="badge-demandes">{{ demandesEnAttente() }}</span>
+    }
+  </a>
   @if (estAdmin()) {
     <a class="mobile-link" routerLink="/collaborateurs">♙ Collaborateurs</a>
   }

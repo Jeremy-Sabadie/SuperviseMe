@@ -1,17 +1,14 @@
 <section class="clients-page">
+  <a routerLink="/" class="sm-retour-dashboard">← Retour au tableau de bord</a>
   <header class="page-header">
     <div>
       <h1>Clients</h1>
-      <p>Gérez vos clients et leurs coordonnées.</p>
+      <p>Gérez vos clients et leurs dossiers.</p>
     </div>
     <button type="button" class="primary" (click)="nouveau()">
       + Nouveau client
     </button>
   </header>
-
-  @if (message()) {
-    <p class="success" role="status">{{ message() }}</p>
-  }
 
   @if (erreur()) {
     <p class="error" role="alert">{{ erreur() }}</p>
@@ -22,32 +19,23 @@
       <h2>{{ clientId ? 'Modifier le client' : 'Nouveau client' }}</h2>
 
       <div class="form-grid">
-        <label>
-          Nom *
+        <label>Nom *
           <input name="nom" [(ngModel)]="formulaire.nom"
-                 required maxlength="150" />
+                 required maxlength="150">
         </label>
-
-        <label>
-          Entreprise
+        <label>Entreprise
           <input name="entreprise" [(ngModel)]="formulaire.entreprise"
-                 maxlength="150" />
+                 maxlength="150">
         </label>
-
-        <label>
-          Email
+        <label>Email
           <input name="email" type="email"
-                 [(ngModel)]="formulaire.email" maxlength="254" />
+                 [(ngModel)]="formulaire.email" maxlength="254">
         </label>
-
-        <label>
-          Téléphone
+        <label>Téléphone
           <input name="telephone" type="tel"
-                 [(ngModel)]="formulaire.telephone" maxlength="30" />
+                 [(ngModel)]="formulaire.telephone" maxlength="30">
         </label>
-
-        <label class="full-width">
-          Adresse
+        <label class="full-width">Adresse
           <textarea name="adresse" rows="3"
                     [(ngModel)]="formulaire.adresse"></textarea>
         </label>
@@ -65,26 +53,90 @@
 
   @if (chargement()) {
     <p>Chargement des clients...</p>
-  } @else if (clients().length === 0) {
-    <div class="empty-state">
-      <h2>Aucun client enregistré</h2>
-      <p>Créez votre premier client pour pouvoir lui associer des dossiers.</p>
-    </div>
   } @else {
-    <div class="clients-list">
-      @for (client of clients(); track client.id) {
-        <article class="client-card">
-          <div>
-            <h2>{{ client.nom }}</h2>
-            <p>{{ client.entreprise || 'Particulier' }}</p>
-            <p>{{ client.email || 'Aucun email' }}</p>
-            <p>{{ client.telephone || 'Aucun téléphone' }}</p>
+    <div class="master-detail" [class.detail-ouvert]="clientSelectionne()">
+      <div class="master">
+        <input type="search"
+               aria-label="Rechercher un client"
+               placeholder="Rechercher un client..."
+               [ngModel]="recherche()"
+               (ngModelChange)="recherche.set($event)">
+
+        <div class="clients-list">
+          @for (client of clientsFiltres(); track client.id) {
+            <div class="sm-client-item">
+              <button type="button" class="client-card"
+                      [class.actif]="clientSelectionne()?.id === client.id"
+                      (click)="selectionner(client)">
+                <strong>{{ client.nom }}</strong>
+                <span>{{ client.entreprise || 'Particulier' }}</span>
+              </button>
+              <div class="sm-client-actions">
+                <button type="button" (click)="selectionner(client)">
+                  Consulter
+                </button>
+                <button type="button" (click)="modifier(client)">
+                  Modifier
+                </button>
+                <button type="button" class="sm-delete"
+                        (click)="supprimer(client)">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <p>Aucun client trouvé.</p>
+          }
+        </div>
+      </div>
+
+      <div class="detail">
+        @if (clientSelectionne(); as client) {
+          <button type="button" class="retour"
+                  (click)="fermerFiche()">← Retour aux clients</button>
+
+          <div class="detail-header">
+            <div>
+              <h2>{{ client.nom }}</h2>
+              <p>{{ client.entreprise || 'Particulier' }}</p>
+            </div>
+            <button type="button" (click)="modifier(client)">
+              Modifier
+            </button>
           </div>
-          <button type="button" (click)="modifier(client)">
-            Consulter / Modifier
-          </button>
-        </article>
-      }
+
+          <div class="section-detail">
+            <h3>Coordonnées</h3>
+            <p>{{ client.email || 'Email non renseigné' }}</p>
+            <p>{{ client.telephone || 'Téléphone non renseigné' }}</p>
+            <p>{{ client.adresse || 'Adresse non renseignée' }}</p>
+          </div>
+
+          <div class="section-detail">
+            <div class="section-header">
+              <h3>Dossiers associés ({{ dossiersClient().length }})</h3>
+              <a [routerLink]="['/dossiers/nouveau']" [queryParams]="{ clientId: client.id }">
+                + Nouveau dossier
+              </a>
+            </div>
+
+            @for (dossier of dossiersClient(); track dossier.id) {
+              <a class="dossier-ligne"
+                 [routerLink]="['/dossiers', dossier.id]">
+                <strong>{{ dossier.titre }}</strong>
+                <span>{{ dossier.statut.replaceAll('_', ' ') }}</span>
+              </a>
+            } @empty {
+              <p>Aucun dossier associé à ce client.</p>
+            }
+          </div>
+        } @else {
+          <div class="detail-vide">
+            <h2>Fiche client</h2>
+            <p>Sélectionnez un client pour consulter ses informations et ses dossiers.</p>
+          </div>
+        }
+      </div>
     </div>
   }
 </section>

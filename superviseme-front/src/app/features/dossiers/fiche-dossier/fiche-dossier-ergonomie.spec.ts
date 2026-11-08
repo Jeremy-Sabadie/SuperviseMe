@@ -69,7 +69,7 @@ describe('Fiche dossier - ergonomie', () => {
     fiche.responsables.set([{
       id: 'user-1',
       email: 'responsable@exemple.fr',
-      role: 'USER'
+      role: 'USER', actif: true
     }]);
 
     expect(fiche.nomClient('client-1')).toBe('Menuiserie Dupont');

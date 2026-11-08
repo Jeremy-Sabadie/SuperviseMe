@@ -25,10 +25,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/contact").permitAll()
                         .requestMatchers("/api/dossiers", "/api/dossiers/**").hasAnyRole("ADMIN", "USER")
+                        // Consultation partagée ; création réservée à ADMIN au niveau métier.
+                        .requestMatchers("/api/taches", "/api/taches/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/clients", "/api/clients/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/demandes-clients", "/api/demandes-clients/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/utilisateurs").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/utilisateurs").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/utilisateurs/*/desactiver",
+                                "/api/utilisateurs/*/reactiver").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .anyRequest().denyAll()

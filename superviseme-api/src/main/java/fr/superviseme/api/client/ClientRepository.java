@@ -2,6 +2,7 @@ package fr.superviseme.api.client;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -13,6 +14,12 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
      * Recherche les clients par nom, sans distinction de casse.
      */
     List<Client> findByNomContainingIgnoreCaseOrderByNomAsc(String nom);
+
+    /**
+     * Recherche un client par son adresse e-mail,
+     * sans distinction de casse.
+     */
+    Optional<Client> findByEmailIgnoreCase(String email);
 
     /** Retourne les clients triés par nom. */
     List<Client> findAllByOrderByNomAsc();

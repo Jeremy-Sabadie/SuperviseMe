@@ -57,4 +57,18 @@ describe('Kanban', () => {
 
     expect(component.dossiers()).toBe(avant);
   });
+
+  it('ouvre directement le formulaire de création depuis le tableau de bord', () => {
+    const fixture = TestBed.createComponent(Kanban);
+    fixture.componentInstance.estAdmin.set(true);
+    fixture.detectChanges();
+
+    const bouton = fixture.nativeElement.querySelector(
+      'a.primary[href="/dossiers/nouveau"]'
+    );
+
+    expect(bouton).not.toBeNull();
+    expect(bouton.textContent.trim()).toBe('+ Ouvrir un nouveau dossier');
+  });
+
 });

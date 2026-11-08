@@ -1,0 +1,130 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #0b1220;
+  color: #e8edf8;
+  font-family: Arial, sans-serif;
+}
+
+.page-demandes {
+  max-width: 1050px;
+  margin: auto;
+  padding: 36px 22px 80px;
+}
+
+.retour { color: #a5b4fc; text-decoration: none; }
+h1 { margin: 24px 0 8px; }
+header p, .entete p, time { color: #9caac2; }
+.liste { display: grid; gap: 18px; margin-top: 30px; }
+
+.demande {
+  background: #151f32;
+  border: 1px solid #2b3850;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.entete {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+h2 { margin: 0 0 12px; font-size: 20px; }
+.entete p { margin: 6px 0; }
+time { font-size: 13px; }
+.message { white-space: pre-wrap; line-height: 1.6; margin: 24px 0; }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #2b3850;
+  padding-top: 18px;
+}
+
+select {
+  background: #25334c;
+  color: white;
+  border: 1px solid #506080;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.erreur { color: #fca5a5; }
+.vide { padding: 40px; text-align: center; color: #9caac2; }
+
+@media (max-width: 600px) {
+  .page-demandes { padding: 22px 14px 80px; }
+  .demande { padding: 16px; }
+}
+
+
+/* Action commerciale : création manuelle d'un dossier */
+.creer-dossier {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #818cf8;
+  border-radius: 9px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.creer-dossier:hover {
+  background: #6366f1;
+  transform: translateY(-1px);
+}
+
+.creer-dossier:focus-visible {
+  outline: 2px solid #c7d2fe;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .creer-dossier {
+    width: 100%;
+  }
+}
+
+/* Bouton de création : version compacte */
+.actions .creer-dossier {
+  width: auto;
+  margin-left: auto;
+  padding: 9px 15px;
+  background: #25334c;
+  border: 1px solid #6366f1;
+  border-radius: 8px;
+  color: #e8edf8;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+  transform: none;
+}
+
+.actions .creer-dossier:hover {
+  background: #354466;
+  border-color: #a5b4fc;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .actions .creer-dossier {
+    width: auto;
+    margin-left: 0;
+  }
+}

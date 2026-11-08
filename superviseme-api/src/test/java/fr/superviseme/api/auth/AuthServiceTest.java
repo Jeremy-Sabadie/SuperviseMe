@@ -89,4 +89,23 @@ class AuthServiceTest {
 
         verifyNoInteractions(jwtEncoder);
     }
+
+    @Test
+    void doitRefuserLaConnexionDUnCollaborateurDesactive() {
+        Utilisateur utilisateur = new Utilisateur(
+                "ancien@exemple.fr",
+                encoder.encode("MotDePasseFort2026!"),
+                RoleUtilisateur.USER
+        );
+        utilisateur.desactiver();
+
+        when(repository.findByEmail("ancien@exemple.fr"))
+                .thenReturn(Optional.of(utilisateur));
+
+        assertThatThrownBy(() ->
+                service.connecter("ancien@exemple.fr", "MotDePasseFort2026!")
+        ).isInstanceOf(BadCredentialsException.class);
+
+        verifyNoInteractions(jwtEncoder);
+    }
 }

@@ -1,7 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import Swal from 'sweetalert2';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { UtilisateurApiService } from '../../core/services/utilisateur-api';
+import {
+  CollaborateurResponse,
+  UtilisateurApiService
+} from '../../core/services/utilisateur-api';
 
 @Component({
   selector: 'app-collaborateurs',
@@ -10,15 +14,171 @@ import { UtilisateurApiService } from '../../core/services/utilisateur-api';
   templateUrl: './collaborateurs.html',
   styleUrl: './collaborateurs.scss'
 })
-export class Collaborateurs {
+export class Collaborateurs implements OnInit {
   private readonly api = inject(UtilisateurApiService);
 
   email = '';
   motDePasse = '';
 
+  readonly collaborateurs = signal<CollaborateurResponse[]>([]);
+  readonly recherche = signal('');
+  readonly edition = signal(false);
+  readonly selection = signal<CollaborateurResponse | null>(null);
+  readonly chargementListe = signal(false);
   readonly chargement = signal(false);
   readonly erreur = signal('');
   readonly succes = signal('');
+
+  readonly modificationStatut = signal(false);
+
+  readonly collaborateursFiltres = computed(() => {
+    const terme = this.recherche().trim().toLowerCase();
+    return this.collaborateurs().filter(c =>
+      c.email.toLowerCase().includes(terme)
+    );
+  });
+
+  ngOnInit(): void {
+    this.charger();
+  }
+
+  charger(): void {
+    this.chargementListe.set(true);
+    this.api.lister().subscribe({
+      next: liste => {
+        this.collaborateurs.set(liste);
+        this.chargementListe.set(false);
+      },
+      error: () => {
+        this.erreur.set('Impossible de charger les collaborateurs.');
+        this.chargementListe.set(false);
+      }
+    });
+  }
+
+  ouvrirCreation(): void {
+    this.email = '';
+    this.motDePasse = '';
+    this.erreur.set('');
+    this.succes.set('');
+    this.edition.set(true);
+  }
+
+  annulerCreation(): void {
+    this.edition.set(false);
+    this.email = '';
+    this.motDePasse = '';
+    this.erreur.set('');
+  }
+
+  readonly modificationEmail = signal(false);
+  emailModification = '';
+
+  ouvrirModification(collaborateur: CollaborateurResponse): void {
+    if (collaborateur.role === 'ADMIN') return;
+    this.selection.set(collaborateur);
+    this.emailModification = collaborateur.email;
+    this.modificationEmail.set(true);
+  }
+
+  enregistrerModification(): void {
+    const collaborateur = this.selection();
+    if (!collaborateur || this.chargement()) return;
+
+    this.chargement.set(true);
+    this.api.modifier(collaborateur.id, this.emailModification).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.modificationEmail.set(false);
+        this.chargement.set(false);
+        this.succes.set('Collaborateur modifié.');
+      },
+      error: () => {
+        this.chargement.set(false);
+        this.erreur.set('Modification impossible. Vérifiez l’adresse e-mail.');
+      }
+    });
+  }
+
+  selectionner(collaborateur: CollaborateurResponse): void {
+    // Une confirmation ouverte ne doit jamais concerner une autre fiche.
+    this.selection.set(collaborateur);
+  }
+
+  fermerFiche(): void {
+    this.selection.set(null);
+  }
+
+  /** Confirmation explicite avant toute désactivation. */
+  async demanderDesactivation(): Promise<void> {
+    const collaborateur = this.selection();
+    if (!collaborateur?.actif || collaborateur.role === 'ADMIN'
+        || this.modificationStatut()) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Désactiver ce collaborateur ?',
+      text: `${collaborateur.email} perdra immédiatement son accès. Ses dossiers et son historique seront conservés.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Désactiver',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#dc3545',
+      background: '#151d30',
+      color: '#ffffff',
+      width: 'min(420px, 95vw)',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed || this.selection()?.id !== collaborateur.id
+        || this.modificationStatut()) return;
+
+    this.modificationStatut.set(true);
+    this.erreur.set('');
+
+    this.api.desactiver(collaborateur.id).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.succes.set('Le collaborateur a été désactivé.');
+        this.modificationStatut.set(false);
+      },
+      error: () => {
+        this.erreur.set('Impossible de désactiver ce collaborateur.');
+        this.modificationStatut.set(false);
+      }
+    });
+  }
+
+  /** Réactive le compte sans recréer le collaborateur. */
+  reactiverSelection(): void {
+    const collaborateur = this.selection();
+    if (!collaborateur || collaborateur.actif || this.modificationStatut()) return;
+
+    this.modificationStatut.set(true);
+    this.erreur.set('');
+
+    this.api.reactiver(collaborateur.id).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.succes.set('Le collaborateur a été réactivé.');
+        this.modificationStatut.set(false);
+      },
+      error: () => {
+        this.erreur.set('Impossible de réactiver ce collaborateur.');
+        this.modificationStatut.set(false);
+      }
+    });
+  }
+
+  /** Conserve la sélection et remplace uniquement les données actualisées. */
+  private actualiserCollaborateur(resultat: CollaborateurResponse): void {
+    this.collaborateurs.update(liste =>
+      liste.map(c => c.id === resultat.id ? resultat : c)
+    );
+
+    if (this.selection()?.id === resultat.id) {
+      this.selection.set(resultat);
+    }
+  }
 
   ajouter(): void {
     if (this.chargement()) return;
@@ -32,8 +192,10 @@ export class Collaborateurs {
         this.succes.set(
           `Le collaborateur ${collaborateur.email} a été créé.`
         );
+        this.collaborateurs.update(liste => [...liste, collaborateur]);
         this.email = '';
         this.motDePasse = '';
+        this.edition.set(false);
         this.chargement.set(false);
       },
       error: () => {

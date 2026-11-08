@@ -54,4 +54,43 @@ describe('DossierApiService', () => {
 
     req.flush({ id, statut: 'EN_COURS' });
   });
+
+  it('transmet plusieurs participants via PUT', () => {
+    const id = 'dossier-1';
+    const participantIds = ['user-1', 'user-2'];
+
+    service.affecterParticipants(id, participantIds).subscribe(dossier => {
+      expect(dossier.participantIds).toEqual(participantIds);
+    });
+
+    const requete = http.expectOne(`/api/dossiers/${id}/participants`);
+
+    expect(requete.request.method).toBe('PUT');
+    expect(requete.request.body).toEqual({ participantIds });
+
+    requete.flush({ id, participantIds });
+  });
+
+  it('propage une erreur HTTP lors de l’attribution', () => {
+    let codeErreur: number | undefined;
+
+    service.affecterParticipants('dossier-1', ['user-1']).subscribe({
+      next: () => { throw new Error('La requête devait échouer'); },
+      error: erreur => {
+        codeErreur = erreur.status;
+      }
+    });
+
+    const requete = http.expectOne('/api/dossiers/dossier-1/participants');
+
+    // Le backend refuse l'attribution à un utilisateur non autorisé.
+    requete.flush(
+      { message: 'Accès refusé' },
+      { status: 403, statusText: 'Forbidden' }
+    );
+
+    expect(codeErreur).toBe(403);
+  });
+
+
 });

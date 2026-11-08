@@ -1,0 +1,137 @@
+<main class="contact-page">
+  <section class="contact-card">
+    <div class="eyebrow">PRENONS CONTACT</div>
+    <h1>Parlons de votre projet.</h1>
+    <p class="intro">Décrivez votre besoin et nous reviendrons vers vous dans les meilleurs délais.</p>
+
+    @if (succes()) {
+      <div class="success" role="status">Votre demande a bien été envoyée. Merci !</div>
+    }
+
+    @if (erreur()) {
+      <div class="error" role="alert">L'envoi a échoué. Veuillez réessayer.</div>
+    }
+
+    <p class="required-note"><span class="required">*</span> Champs obligatoires</p>
+
+    <form (ngSubmit)="envoyer()" #contactForm="ngForm">
+      <label for="nom">Votre nom <span class="required" aria-label="obligatoire">*</span></label>
+      <input id="nom" name="nom" [(ngModel)]="nom" required maxlength="150" placeholder="Jean Dupont">
+
+      <label for="email">Votre adresse email <span class="required" aria-label="obligatoire">*</span></label>
+      <input id="email" name="email" type="email" [(ngModel)]="email" required email maxlength="254" placeholder="jean@exemple.fr">
+
+      <label for="motif">Objet de votre demande <span class="required" aria-label="obligatoire">*</span></label>
+      <!-- Choix du motif : conserve le modèle Angular et le contrat API existants. -->
+      <select id="motif" name="motif" [(ngModel)]="motif" required>
+        <option value="" disabled>Choisissez un motif</option>
+        <option value="Demande de devis">Demande de devis</option>
+        <option value="Demande de rendez-vous">Demande de rendez-vous</option>
+        <option value="Question sur une prestation">Question sur une prestation</option>
+        <option value="Suivi d'un chantier">Suivi d'un chantier</option>
+        <option value="Autre demande">Autre demande</option>
+      </select>
+
+      <!-- Le champ apparaît immédiatement si le visiteur choisit Autre demande. -->
+      @if (motif === 'Autre demande') {
+        <label for="precision">Précisez votre demande <span class="required">*</span></label>
+        <input id="precision" name="precision" [(ngModel)]="message"
+               required maxlength="5000" placeholder="Décrivez votre demande">
+      }
+
+      @if (motif !== 'Autre demande') {
+        <label for="message">Votre message <span class="required" aria-label="obligatoire">*</span></label>
+        <textarea id="message" name="message" [(ngModel)]="message" required maxlength="5000" rows="5" placeholder="Décrivez votre projet..."></textarea>
+      }
+
+      <label class="privacy-consent" for="priseConnaissance"
+             style="display:flex;align-items:flex-start;gap:10px;margin:18px 0;font-size:13px;line-height:1.5">
+        <input id="priseConnaissance" name="priseConnaissance"
+               type="checkbox" [(ngModel)]="priseConnaissance"
+               required style="width:18px;height:18px;flex-shrink:0;accent-color:#8274f5">
+        <span>J'ai pris connaissance de la
+          <a href="/confidentialite" target="_blank" rel="noopener noreferrer"
+             style="color:#a5b4fc;text-decoration:underline">politique de confidentialité</a>
+          et des informations concernant l'utilisation de mes données personnelles.
+        </span>
+      </label>
+
+      @if (contactForm.invalid && !envoi()) {
+        <div class="form-validation" role="status" aria-live="polite">
+          @if (!nom.trim() || !email.trim() || !motif || !message.trim()) {
+            <p>Veuillez remplir tous les champs obligatoires (*).</p>
+          }
+          @if (email.trim() && contactForm.controls['email']?.invalid) {
+            <p>Veuillez saisir une adresse e-mail valide.</p>
+          }
+          @if (!priseConnaissance) {
+            <p>Veuillez confirmer avoir pris connaissance de la politique de confidentialité.</p>
+          }
+        </div>
+      }
+
+      <button type="submit" [disabled]="contactForm.invalid || envoi()">
+        {{ envoi() ? 'Envoi en cours...' : 'Envoyer ma demande →' }}
+      </button>
+    </form>
+    <p class="privacy">
+      Les données renseignées sont utilisées pour traiter votre demande
+      et vous recontacter à ce sujet. Les champs marqués * sont obligatoires.
+      Consultez notre
+      <a href="/confidentialite">politique de confidentialité</a>
+      pour connaître les modalités de traitement et vos droits.
+    </p>
+  </section>
+
+  @if (realisations().length > 0) {
+    <section class="realisations" aria-label="Nos réalisations">
+      <div class="eyebrow">NOTRE SAVOIR-FAIRE</div>
+      <h2>Nos réalisations</h2>
+
+      <div class="carousel">
+        @if (realisations().length > 1) {
+          <button type="button" class="carousel-nav"
+                  (click)="precedente()" aria-label="Réalisation précédente">
+            &#10094;
+          </button>
+        }
+
+        <div class="carousel-viewport">
+          <div class="carousel-track"
+               [class.sans-transition]="!transitionActive()"
+               [style.transform]="'translateX(-' + (positionPiste() * 100) + '%)'"
+               (transitionend)="finTransition()">
+            @for (realisation of imagesPiste(); track $index) {
+              <figure class="realisation">
+                <img [src]="realisation.imageUrl"
+                     [alt]="realisation.titre || 'Photo de réalisation'"
+                     loading="lazy">
+                @if (realisation.titre || realisation.description) {
+                  <figcaption>
+                    <strong>{{ realisation.titre }}</strong>
+                    @if (realisation.description) {
+                      <p>{{ realisation.description }}</p>
+                    }
+                  </figcaption>
+                }
+              </figure>
+            }
+          </div>
+        </div>
+
+        @if (realisations().length > 1) {
+          <button type="button" class="carousel-nav"
+                  (click)="suivante()" aria-label="Réalisation suivante">
+            &#10095;
+          </button>
+        }
+      </div>
+
+      @if (realisations().length > 1) {
+        <p class="carousel-counter">
+          {{ indexRealisation() + 1 }} / {{ realisations().length }}
+        </p>
+      }
+    </section>
+  }
+</main>

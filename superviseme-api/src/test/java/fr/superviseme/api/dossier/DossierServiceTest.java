@@ -68,8 +68,17 @@ class DossierServiceTest {
     void creerDossier() {
         UUID responsableId = UUID.randomUUID();
 
+        UUID clientId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
         // Simule un responsable existant dans l'entreprise.
-        when(utilisateurRepository.existsById(responsableId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
         when(repository.save(any(Dossier.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -77,16 +86,28 @@ class DossierServiceTest {
                 new CreerDossierRequest(
                         "Installation atelier",
                         "Préparer le matériel",
-                        null,
+                        clientId,
                         responsableId)
         );
 
         assertEquals("Installation atelier", resultat.getTitre());
         assertEquals(StatutDossier.A_TRAITER, resultat.getStatut());
         assertEquals(PrioriteDossier.NORMALE, resultat.getPriorite());
+        assertEquals(clientId, resultat.getClientId());
         assertEquals(responsableId, resultat.getResponsableId());
 
         verify(repository).save(any(Dossier.class));
+    }
+
+    @Test
+    void creerDossierSansClientRefuse() {
+        UUID responsableId = UUID.randomUUID();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Installation atelier", null, null, responsableId)));
+
+        verify(repository, never()).save(any());
     }
 
     /** La liste doit retourner les dossiers enregistrés. */
@@ -146,4 +167,234 @@ class DossierServiceTest {
                 () -> service.consulter(dossierId)
         );
     }
+
+    /** Un dossier sans client peut être associé à un client existant. */
+    /** Une association existante ne doit jamais être remplacée. */
+    @Test
+    void modifierNeDoitPasChangerLeClient() {
+        UUID clientInitial = UUID.randomUUID();
+        dossier.associerClient(clientInitial);
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+
+        ModifierDossierRequest demande = new ModifierDossierRequest(
+                "Nouveau titre",
+                "Nouvelle description",
+                StatutDossier.EN_COURS,
+                PrioriteDossier.HAUTE,
+                null
+        );
+
+        service.modifier(dossierId, demande);
+
+        assertEquals(clientInitial, dossier.getClientId(),
+                "La modification classique ne doit pas changer le client");
+    }
+
+
+    @Test
+    void creerDossierAvecEcheance() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+        LocalDate echeance = LocalDate.of(2027, 1, 15);
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Rénovation escalier",
+                "Travaux prévus",
+                clientId,
+                responsableId,
+                echeance
+        ));
+
+        assertEquals(echeance, resultat.getEcheance());
+        verify(repository).save(any(Dossier.class));
+    }
+
+    @Test
+    void creerDossierSansEcheance() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Rénovation escalier",
+                null,
+                clientId,
+                responsableId,
+                null
+        ));
+
+        assertNull(resultat.getEcheance());
+        verify(repository).save(any(Dossier.class));
+    }
+
+
+    @Test
+    void creerDossierAvecEcheancePasseeRefuse() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Dossier en retard",
+                        null,
+                        clientId,
+                        responsableId,
+                        LocalDate.now().minusDays(1)
+                ))
+        );
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void creerDossierAvecEcheanceAujourdhuiAutorise() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        // Simule un responsable existant et actif.
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(new fr.superviseme.api.auth.Utilisateur(
+                        "actif@exemple.fr",
+                        "hash-test",
+                        fr.superviseme.api.auth.RoleUtilisateur.USER
+                )));
+        when(repository.save(any(Dossier.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Dossier resultat = service.creer(new CreerDossierRequest(
+                "Dossier du jour",
+                null,
+                clientId,
+                responsableId,
+                LocalDate.now()
+        ));
+
+        assertEquals(LocalDate.now(), resultat.getEcheance());
+    }
+
+
+    @Test
+    void refuserResponsableDesactivePourNouveauDossier() {
+        UUID clientId = UUID.randomUUID();
+        UUID responsableId = UUID.randomUUID();
+
+        var responsable = new fr.superviseme.api.auth.Utilisateur(
+                "ancien@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        responsable.desactiver();
+
+        when(clientRepository.existsById(clientId)).thenReturn(true);
+        when(utilisateurRepository.findById(responsableId))
+                .thenReturn(Optional.of(responsable));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.creer(new CreerDossierRequest(
+                        "Nouveau chantier",
+                        null,
+                        clientId,
+                        responsableId
+                ))
+        );
+
+        verify(repository, never()).save(any());
+    }
+
+    /**
+     * Un collaborateur désactivé ne doit plus recevoir de nouvelles
+     * affectations, même si son compte existe toujours en base.
+     * Cette vérification backend empêche le contournement par l'API.
+     */
+    @Test
+    void refuserParticipantDesactive() {
+        UUID participantId = UUID.randomUUID();
+
+        var participant = new fr.superviseme.api.auth.Utilisateur(
+                "ancien@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        participant.desactiver();
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+        when(utilisateurRepository.findById(participantId))
+                .thenReturn(Optional.of(participant));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.affecterParticipants(
+                        dossierId,
+                        java.util.Set.of(participantId)
+                )
+        );
+
+        assertFalse(dossier.getParticipantIds().contains(participantId));
+    }
+
+    /**
+     * Un participant déjà affecté doit rester présent dans son dossier
+     * après désactivation, même lors d'une mise à jour des affectations.
+     */
+    @Test
+    void conserverParticipantHistoriqueDesactive() {
+        UUID participantId = UUID.randomUUID();
+
+        var participant = new fr.superviseme.api.auth.Utilisateur(
+                "historique@exemple.fr",
+                "hash-test",
+                fr.superviseme.api.auth.RoleUtilisateur.USER
+        );
+        participant.desactiver();
+
+        // Cette affectation existait avant la désactivation.
+        dossier.affecterParticipants(java.util.Set.of(participantId));
+
+        when(repository.findById(dossierId))
+                .thenReturn(Optional.of(dossier));
+        when(utilisateurRepository.findById(participantId))
+                .thenReturn(Optional.of(participant));
+
+        service.affecterParticipants(
+                dossierId,
+                java.util.Set.of(participantId)
+        );
+
+        assertTrue(dossier.getParticipantIds().contains(participantId),
+                "L'affectation historique doit être conservée");
+    }
+
 }

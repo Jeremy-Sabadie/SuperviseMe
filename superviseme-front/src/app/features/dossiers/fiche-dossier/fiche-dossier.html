@@ -48,6 +48,132 @@
       </button>
     </form>
 
+    @if (estAdmin()) {
+      <!-- Attribution indépendante des modifications générales du dossier. -->
+      <section class="attribution" aria-labelledby="titre-participants">
+        <h2 id="titre-participants">Collaborateurs du dossier</h2>
+        <p>Sélectionnez les collaborateurs participant à ce dossier.</p>
+
+        @for (collaborateur of responsables(); track collaborateur.id) {
+          <label class="participant">
+            <input
+              type="checkbox"
+              [checked]="participantSelectionne(collaborateur.id)"
+              [disabled]="enregistrementParticipants() || !collaborateur.actif"
+              (change)="basculerParticipant(collaborateur.id, $any($event.target).checked)">
+            {{ collaborateur.email }} @if (!collaborateur.actif) { (Compte désactivé) }
+          </label>
+        }
+
+        <button
+          type="button"
+          [disabled]="enregistrementParticipants() || !participantsModifies()"
+          (click)="enregistrerParticipants()">
+          {{ enregistrementParticipants() ? 'Enregistrement...' : 'Enregistrer les participants' }}
+        </button>
+
+        @if (succesParticipants()) {
+          <p class="succes">Participants enregistrés.</p>
+        }
+      </section>
+    }
+
+
+
+    <section class="taches-dossier" aria-labelledby="titre-taches">
+      <div class="taches-entete">
+        <div>
+          <h2 id="titre-taches">Tâches du dossier</h2>
+          <p class="reference">{{ tachesDossier().length }} tâche(s) associée(s)</p>
+        </div>
+        @if (estAdmin()) {
+          <button type="button" class="bouton-ajout"
+            (click)="formulaireTacheOuvert = !formulaireTacheOuvert">
+            {{ formulaireTacheOuvert ? 'Annuler' : '+ Ajouter une tâche' }}
+          </button>
+        }
+      </div>
+
+      @if (estAdmin() && formulaireTacheOuvert) {
+        <form class="formulaire-tache" (ngSubmit)="creerTache()">
+          <label>Titre
+            <input name="titreTache" [(ngModel)]="titreTache"
+              required maxlength="200">
+          </label>
+          <label>Responsable
+            <select name="responsableTache" [(ngModel)]="responsableTacheId" required>
+              <option value="">Sélectionner</option>
+              @for (personne of responsables(); track personne.id) {
+                @if (personne.actif) {
+                  <option [value]="personne.id">{{ personne.email }}</option>
+                }
+              }
+            </select>
+          </label>
+          <button type="submit"
+            [disabled]="enregistrementTache() || !titreTache.trim() || !responsableTacheId">
+            Créer la tâche
+          </button>
+        </form>
+      }
+
+
+      <nav class="onglets-taches" aria-label="Statuts des tâches">
+        @for (colonne of colonnesTaches; track colonne.statut) {
+          <button type="button"
+            [class.actif]="colonneMobile === colonne.statut"
+            [attr.aria-pressed]="colonneMobile === colonne.statut"
+            (click)="colonneMobile = colonne.statut">
+            {{ colonne.libelle }}
+            <span>{{ nombreTaches(colonne.statut) }}</span>
+          </button>
+        }
+      </nav>
+
+      <div class="tableau-taches">
+        @for (colonne of colonnesTaches; track colonne.statut) {
+          <div class="colonne-taches"
+            [class.colonne-mobile-active]="colonneMobile === colonne.statut">
+            <div class="colonne-entete">
+              <span class="point-statut" [class]="colonne.statut"></span>
+              <h3>{{ colonne.libelle }}</h3>
+              <span class="compteur">{{ nombreTaches(colonne.statut) }}</span>
+            </div>
+
+            @for (tache of tachesDossier(); track tache.id) {
+              @if (tache.statut === colonne.statut) {
+                <article class="carte-tache">
+                  <div class="carte-tache-entete">
+                    <strong>{{ tache.titre }}</strong>
+                    @if (estAdmin()) {
+                      <button type="button" class="bouton-statut"
+                        [attr.aria-label]="'Modifier le statut de ' + tache.titre"
+                        (click)="ouvrirStatutTache(tache)"
+                        [disabled]="enregistrementTache()">
+                        <span>Modifier</span>
+                        <span aria-hidden="true">›</span>
+                      </button>
+                    }
+                  </div>
+                  <p class="responsable-tache"
+                    [title]="nomResponsable(tache.responsableId)">
+                    <span aria-hidden="true">●</span>
+                    {{ nomResponsable(tache.responsableId) }}
+                  </p>
+                </article>
+              }
+            } @empty {
+              <p class="colonne-vide">Aucune tâche</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (erreurTaches()) {
+        <p class="erreur">{{ erreurTaches() }}</p>
+      }
+    </section>
+
     @if (succes()) { <p class="succes">Modifications enregistrées.</p> }
   }
 

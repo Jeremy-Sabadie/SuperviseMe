@@ -24,6 +24,13 @@ public class Utilisateur {
     @Column(nullable = false)
     private RoleUtilisateur role;
 
+    /**
+     * Un compte désactivé reste enregistré pour conserver
+     * l'historique des dossiers et des affectations.
+     */
+    @Column(nullable = false)
+    private boolean actif = true;
+
     protected Utilisateur() {
     }
 
@@ -47,5 +54,23 @@ public class Utilisateur {
 
     public RoleUtilisateur getRole() {
         return role;
+    }
+
+    public boolean isActif() {
+        return actif;
+    }
+
+    /** Bloque le compte sans supprimer ses données historiques. */
+    public void modifierEmail(String email) {
+        this.email = email;
+    }
+
+    public void desactiver() {
+        this.actif = false;
+    }
+
+    /** Rétablit l'accès au compte existant. */
+    public void reactiver() {
+        this.actif = true;
     }
 }
