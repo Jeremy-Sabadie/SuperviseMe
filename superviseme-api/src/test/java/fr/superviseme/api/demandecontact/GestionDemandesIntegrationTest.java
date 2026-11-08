@@ -151,6 +151,77 @@ class GestionDemandesIntegrationTest {
     }
 
     /**
+     * US-011 : vérifie le cycle commercial des demandes.
+     *
+     * Chaque statut doit être accepté par l'API, enregistré
+     * dans PostgreSQL et restitué lors d'une nouvelle lecture.
+     * Le compteur ne doit compter que les demandes A_TRAITER.
+     */
+    @Test
+    void cycleCommercialEstPersisteEtRestitue() throws Exception {
+        String token = obtenirToken();
+        String email = "commercial-" + UUID.randomUUID() + "@test.local";
+        long compteurInitial = lireCompteur(token);
+
+        mvc.perform(post("/api/public/contact")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of(
+                        "nom", "Prospect commercial",
+                        "email", email,
+                        "motif", "Demande de devis",
+                        "message", "Demande pour tester le cycle commercial"
+                ))))
+                .andExpect(status().isCreated());
+
+        String liste = mvc.perform(get(API)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String id = null;
+        for (var demande : json.readTree(liste)) {
+            if (email.equals(demande.get("email").asText())) {
+                id = demande.get("id").asText();
+                break;
+            }
+        }
+        assertNotNull(id, "La demande commerciale doit exister");
+        verifierCompteur(token, compteurInitial + 1);
+
+        String[] statuts = {
+                "PROPOSITION_COMMERCIALE_A_ETABLIR",
+                "PROPOSITION_COMMERCIALE_ENVOYEE",
+                "PROPOSITION_COMMERCIALE_ACCEPTEE",
+                "PROPOSITION_COMMERCIALE_REFUSEE",
+                "TRAITE"
+        };
+
+        for (String statut : statuts) {
+            modifierStatut(token, id, statut);
+
+            String demandes = mvc.perform(get(API)
+                    .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+
+            boolean statutRetrouve = false;
+            for (var demande : json.readTree(demandes)) {
+                if (id.equals(demande.get("id").asText())
+                        && statut.equals(demande.get("statut").asText())) {
+                    statutRetrouve = true;
+                    break;
+                }
+            }
+
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    statutRetrouve,
+                    "Le statut doit être enregistré et restitué : " + statut
+            );
+            verifierCompteur(token, compteurInitial);
+        }
+    }
+
+    /**
      * Modifie le statut d'une demande via l'API authentifiée.
      *
      * Vérifie également que le statut retourné correspond

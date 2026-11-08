@@ -33,12 +33,22 @@ public class DemandeContact {
     @Column(nullable = false, updatable = false)
     private Instant dateCreation;
 
+    /**
+     * Étapes du suivi commercial d'une demande.
+     * Les anciens statuts restent disponibles pour les données existantes.
+     */
     public enum Statut {
-        A_TRAITER, EN_COURS, TRAITE
+        A_TRAITER,
+        EN_COURS,
+        TRAITE,
+        PROPOSITION_COMMERCIALE_A_ETABLIR,
+        PROPOSITION_COMMERCIALE_ENVOYEE,
+        PROPOSITION_COMMERCIALE_ACCEPTEE,
+        PROPOSITION_COMMERCIALE_REFUSEE
     }
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 50)
     private Statut statut = Statut.A_TRAITER;
 
     /** Constructeur requis par JPA. */
