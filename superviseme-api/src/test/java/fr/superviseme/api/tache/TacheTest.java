@@ -14,7 +14,7 @@ class TacheTest {
 
         assertEquals("Entretenir les machines", tache.getTitre());
         assertNull(tache.getDossierId());
-        assertEquals(StatutTache.A_FAIRE, tache.getStatut());
+        assertEquals(StatutTache.NON_COMMENCEE, tache.getStatut());
         assertEquals(PrioriteTache.NORMALE, tache.getPriorite());
     }
 
