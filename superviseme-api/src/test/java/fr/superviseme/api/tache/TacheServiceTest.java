@@ -5,6 +5,13 @@ import fr.superviseme.api.auth.Utilisateur;
 import fr.superviseme.api.auth.UtilisateurRepository;
 import fr.superviseme.api.dossier.Dossier;
 import fr.superviseme.api.dossier.DossierService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +38,55 @@ class TacheServiceTest {
 
     @InjectMocks
     private TacheService service;
+
+    @BeforeEach
+    void authentifierAdmin() {
+        authentifier("ROLE_ADMIN");
+    }
+
+    @AfterEach
+    void nettoyerSecurite() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void authentifier(String role) {
+        var auth = new UsernamePasswordAuthenticationToken(
+                UUID.randomUUID().toString(),
+                null,
+                List.of(new SimpleGrantedAuthority(role))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @Test
+    void userNePeutPasCreerTache() {
+        authentifier("ROLE_USER");
+
+        assertThrows(AccessDeniedException.class, () ->
+                service.creer(new CreerTacheRequest(
+                        "Préparer atelier",
+                        null,
+                        UUID.randomUUID()
+                ))
+        );
+
+        verifyNoInteractions(repository, utilisateurs, dossiers);
+    }
+
+    @Test
+    void utilisateurNonAuthentifieNePeutPasCreerTache() {
+        SecurityContextHolder.clearContext();
+
+        assertThrows(AccessDeniedException.class, () ->
+                service.creer(new CreerTacheRequest(
+                        "Préparer atelier",
+                        null,
+                        UUID.randomUUID()
+                ))
+        );
+
+        verifyNoInteractions(repository, utilisateurs, dossiers);
+    }
 
     @Test
     void creerTacheIndependante() {
