@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { TacheApi } from '../../core/services/tache-api';
 import { AuthApiService } from '../../core/services/auth-api';
 import { TacheApiService } from '../../core/services/tache-api';
 import { UtilisateurApiService } from '../../core/services/utilisateur-api';
@@ -35,11 +36,11 @@ describe('Taches', () => {
   ];
 
   let role = 'USER';
-  let changementStatut: ReturnType<typeof vi.fn>;
+  let changementStatut: ReturnType<typeof vi.fn<(id: string, statut: string) => Observable<TacheApi>>>;
 
   beforeEach(async () => {
     role = 'USER';
-    changementStatut = vi.fn(() => of(taches[0]));
+    changementStatut = vi.fn((_id: string, _statut: string) => of(taches[0]));
 
     await TestBed.configureTestingModule({
       imports: [Taches],
@@ -55,8 +56,8 @@ describe('Taches', () => {
           provide: TacheApiService,
           useValue: {
             lister: () => of(taches),
-            changerStatut: (...args: unknown[]) =>
-              changementStatut(...args),
+            changerStatut: (id: string, statut: string) =>
+              changementStatut(id, statut),
             creer: () => of(taches[0]),
           },
         },
