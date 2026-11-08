@@ -2,7 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export type StatutDemande = 'A_TRAITER' | 'EN_COURS' | 'TRAITE';
+export type StatutDemande =
+  | 'A_TRAITER'
+  | 'EN_COURS'
+  | 'TRAITE'
+  | 'PROPOSITION_COMMERCIALE_A_ETABLIR'
+  | 'PROPOSITION_COMMERCIALE_ENVOYEE'
+  | 'PROPOSITION_COMMERCIALE_ACCEPTEE'
+  | 'PROPOSITION_COMMERCIALE_REFUSEE';
 
 export interface DemandeClient {
   id: string;

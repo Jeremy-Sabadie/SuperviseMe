@@ -36,9 +36,24 @@
               [disabled]="modification() !== null"
               (change)="changerStatut(demande, $any($event.target).value)">
               <option value="A_TRAITER">À traiter</option>
-              <option value="EN_COURS">En cours</option>
-              <option value="TRAITE">Traité</option>
+              <option value="PROPOSITION_COMMERCIALE_A_ETABLIR">Proposition commerciale à établir</option>
+              <option value="PROPOSITION_COMMERCIALE_ENVOYEE">Proposition commerciale envoyée</option>
+              <option value="PROPOSITION_COMMERCIALE_ACCEPTEE">Proposition commerciale acceptée</option>
+              <option value="PROPOSITION_COMMERCIALE_REFUSEE">Proposition commerciale refusée</option>
+              <option value="TRAITE">Traité sans suite commerciale</option>
+              @if (demande.statut === 'EN_COURS') {
+                <option value="EN_COURS">En cours (ancien statut)</option>
+              }
             </select>
+
+            @if (demande.statut === 'PROPOSITION_COMMERCIALE_ACCEPTEE') {
+              <a
+                class="creer-dossier"
+                routerLink="/dossiers/nouveau"
+                [queryParams]="{ clientId: demande.clientId }">
+                Créer un dossier
+              </a>
+            }
           </div>
         </article>
       }
