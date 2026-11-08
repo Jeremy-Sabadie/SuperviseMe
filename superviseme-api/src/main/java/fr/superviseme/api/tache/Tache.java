@@ -61,6 +61,11 @@ public class Tache {
         this.titre = titre.trim();
     }
 
+    public void affecterResponsable(UUID responsableId) {
+        this.responsableId = Objects.requireNonNull(
+                responsableId, "Responsable obligatoire");
+    }
+
     public void changerStatut(StatutTache statut) {
         this.statut = Objects.requireNonNull(statut);
     }
