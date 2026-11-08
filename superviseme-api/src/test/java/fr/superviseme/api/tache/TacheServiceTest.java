@@ -157,6 +157,86 @@ class TacheServiceTest {
         verify(repository, never()).save(any());
     }
 
+
+    @Test
+    void adminPeutListerToutesLesTaches() {
+        Tache premiere = new Tache("Découpe", null);
+        Tache seconde = new Tache("Livraison", null);
+
+        when(repository.findAll()).thenReturn(List.of(premiere, seconde));
+
+        assertEquals(2, service.lister().size());
+    }
+
+    @Test
+    void userPeutListerToutesLesTaches() {
+        authentifier("ROLE_USER");
+
+        Tache tacheCollegue = new Tache("Préparer commande", null);
+        when(repository.findAll()).thenReturn(List.of(tacheCollegue));
+
+        assertEquals(List.of(tacheCollegue), service.lister());
+    }
+
+    @Test
+    void utilisateurNonAuthentifieNePeutPasLister() {
+        SecurityContextHolder.clearContext();
+
+        assertThrows(AccessDeniedException.class, service::lister);
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void userPeutChangerStatutDeSaTache() {
+        UUID utilisateurId = UUID.randomUUID();
+        authentifierUtilisateur(utilisateurId, "ROLE_USER");
+
+        Tache tache = new Tache("Préparer chantier", null);
+        tache.affecterResponsable(utilisateurId);
+
+        when(repository.findById(any())).thenReturn(Optional.of(tache));
+
+        service.changerStatut(UUID.randomUUID(), StatutTache.EN_COURS);
+
+        assertEquals(StatutTache.EN_COURS, tache.getStatut());
+    }
+
+    @Test
+    void userNePeutPasChangerStatutTacheCollegue() {
+        authentifier("ROLE_USER");
+
+        Tache tache = new Tache("Préparer chantier", null);
+        tache.affecterResponsable(UUID.randomUUID());
+
+        when(repository.findById(any())).thenReturn(Optional.of(tache));
+
+        assertThrows(AccessDeniedException.class, () ->
+                service.changerStatut(UUID.randomUUID(), StatutTache.TERMINEE));
+
+        assertEquals(StatutTache.NON_COMMENCEE, tache.getStatut());
+    }
+
+    @Test
+    void adminPeutChangerStatutTouteTache() {
+        Tache tache = new Tache("Préparer chantier", null);
+        tache.affecterResponsable(UUID.randomUUID());
+
+        when(repository.findById(any())).thenReturn(Optional.of(tache));
+
+        service.changerStatut(UUID.randomUUID(), StatutTache.TERMINEE);
+
+        assertEquals(StatutTache.TERMINEE, tache.getStatut());
+    }
+
+    private void authentifierUtilisateur(UUID id, String role) {
+        var auth = new UsernamePasswordAuthenticationToken(
+                id.toString(),
+                null,
+                List.of(new SimpleGrantedAuthority(role))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
     private Utilisateur utilisateurActif() {
         return new Utilisateur(
                 "collaborateur@test.local",
