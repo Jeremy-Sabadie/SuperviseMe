@@ -147,4 +147,57 @@ describe('Taches', () => {
       )
     ).toBeTruthy();
   });
+
+  it('envoie la création à l’API pour ADMIN', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+    composant.estAdmin.set(true);
+    composant.titre = ' Préparer le chantier ';
+    composant.responsableId = 'user-1';
+
+    const creer = vi.spyOn(
+      TestBed.inject(TacheApiService), 'creer'
+    );
+
+    composant.creer();
+
+    expect(creer).toHaveBeenCalledWith({
+      titre: 'Préparer le chantier',
+      responsableId: 'user-1',
+      dossierId: null,
+    });
+  });
+
+  it('interdit la création à USER', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+    composant.titre = 'Tâche interdite';
+    composant.responsableId = 'user-1';
+
+    const creer = vi.spyOn(
+      TestBed.inject(TacheApiService), 'creer'
+    );
+
+    composant.creer();
+
+    expect(creer).not.toHaveBeenCalled();
+  });
+
+  it('transmet le changement de statut de sa tâche', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+
+    composant.changerStatut(taches[0], 'EN_COURS');
+
+    expect(changementStatut).toHaveBeenCalledWith('tache-1', 'EN_COURS');
+  });
+
+  it('bloque le changement de statut de la tâche d’un collègue', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+
+    composant.changerStatut(taches[1], 'TERMINEE');
+
+    expect(changementStatut).not.toHaveBeenCalled();
+  });
 });
