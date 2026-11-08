@@ -3,6 +3,12 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'confidentialite',
+    loadComponent: () => import('./features/confidentialite/confidentialite')
+      .then(m => m.Confidentialite)
+  },
+
   { path: 'demandes-clients', canActivate: [authGuard], loadComponent: () => import('./features/demandes-clients/demandes-clients').then(m => m.DemandesClients) },
   {
     path: 'contact',
