@@ -82,4 +82,51 @@
       pour connaître les modalités de traitement et vos droits.
     </p>
   </section>
+
+  @if (realisations().length > 0) {
+    <section class="realisations" aria-label="Nos réalisations">
+      <div class="eyebrow">NOTRE SAVOIR-FAIRE</div>
+      <h2>Nos réalisations</h2>
+
+      <div class="carousel">
+        @if (realisations().length > 1) {
+          <button type="button" class="carousel-nav"
+                  (click)="precedente()" aria-label="Réalisation précédente">
+            &#10094;
+          </button>
+        }
+
+        @for (realisation of realisations(); track realisation.id; let i = $index) {
+          @if (i === indexRealisation()) {
+            <figure class="realisation">
+              <img [src]="realisation.imageUrl"
+                   [alt]="realisation.titre || 'Photo de réalisation'"
+                   loading="lazy">
+              @if (realisation.titre || realisation.description) {
+                <figcaption>
+                  <strong>{{ realisation.titre }}</strong>
+                  @if (realisation.description) {
+                    <p>{{ realisation.description }}</p>
+                  }
+                </figcaption>
+              }
+            </figure>
+          }
+        }
+
+        @if (realisations().length > 1) {
+          <button type="button" class="carousel-nav"
+                  (click)="suivante()" aria-label="Réalisation suivante">
+            &#10095;
+          </button>
+        }
+      </div>
+
+      @if (realisations().length > 1) {
+        <p class="carousel-counter">
+          {{ indexRealisation() + 1 }} / {{ realisations().length }}
+        </p>
+      }
+    </section>
+  }
 </main>

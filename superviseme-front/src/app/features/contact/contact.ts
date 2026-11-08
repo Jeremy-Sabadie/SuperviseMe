@@ -1,7 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+
+interface Realisation {
+  id: string;
+  titre: string;
+  description: string | null;
+  imageUrl: string;
+  position: number;
+}
 
 @Component({
   selector: 'app-contact',
@@ -10,8 +18,59 @@ import Swal from 'sweetalert2';
   templateUrl: './contact.html',
   styleUrl: './contact.scss'
 })
-export class Contact {
+export class Contact implements OnInit, OnDestroy {
   private http = inject(HttpClient);
+
+  realisations = signal<Realisation[]>([]);
+  indexRealisation = signal(0);
+
+  ngOnInit(): void {
+    this.http.get<Realisation[]>('/api/public/realisations').subscribe({
+      next: data => {
+        this.realisations.set(data);
+        this.indexRealisation.set(0);
+        this.demarrerCarrousel();
+      },
+      error: () => this.realisations.set([])
+    });
+  }
+
+  precedente(): void {
+    const total = this.realisations().length;
+    if (total > 0) {
+      this.indexRealisation.update(i => (i - 1 + total) % total);
+    }
+  }
+
+  suivante(): void {
+    const total = this.realisations().length;
+    if (total > 0) {
+      this.indexRealisation.update(i => (i + 1) % total);
+    }
+  }
+
+  private minuterieCarrousel: ReturnType<typeof setInterval> | null = null;
+
+  demarrerCarrousel(): void {
+    this.arreterCarrousel();
+
+    if (this.realisations().length < 2) return;
+
+    this.minuterieCarrousel = setInterval(() => {
+      this.suivante();
+    }, 4000);
+  }
+
+  arreterCarrousel(): void {
+    if (this.minuterieCarrousel !== null) {
+      clearInterval(this.minuterieCarrousel);
+      this.minuterieCarrousel = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.arreterCarrousel();
+  }
 
   nom = '';
   email = '';
