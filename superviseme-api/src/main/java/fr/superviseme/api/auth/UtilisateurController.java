@@ -81,6 +81,16 @@ public class UtilisateurController {
                 .toList();
     }
 
+    public record ModifierCollaborateurRequest(@NotBlank String email) {}
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CollaborateurResponse modifier(
+            @PathVariable UUID id,
+            @Valid @RequestBody ModifierCollaborateurRequest request) {
+        return reponse(service.modifierEmail(id, request.email()));
+    }
+
     /** Désactivation réservée aux administrateurs. */
     @PatchMapping("/{id}/desactiver")
     @PreAuthorize("hasRole('ADMIN')")

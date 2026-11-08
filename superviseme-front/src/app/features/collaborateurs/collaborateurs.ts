@@ -1,6 +1,7 @@
 import Swal from 'sweetalert2';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   CollaborateurResponse,
   UtilisateurApiService
@@ -9,7 +10,7 @@ import {
 @Component({
   selector: 'app-collaborateurs',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './collaborateurs.html',
   styleUrl: './collaborateurs.scss'
 })
@@ -68,6 +69,35 @@ export class Collaborateurs implements OnInit {
     this.email = '';
     this.motDePasse = '';
     this.erreur.set('');
+  }
+
+  readonly modificationEmail = signal(false);
+  emailModification = '';
+
+  ouvrirModification(collaborateur: CollaborateurResponse): void {
+    if (collaborateur.role === 'ADMIN') return;
+    this.selection.set(collaborateur);
+    this.emailModification = collaborateur.email;
+    this.modificationEmail.set(true);
+  }
+
+  enregistrerModification(): void {
+    const collaborateur = this.selection();
+    if (!collaborateur || this.chargement()) return;
+
+    this.chargement.set(true);
+    this.api.modifier(collaborateur.id, this.emailModification).subscribe({
+      next: resultat => {
+        this.actualiserCollaborateur(resultat);
+        this.modificationEmail.set(false);
+        this.chargement.set(false);
+        this.succes.set('Collaborateur modifié.');
+      },
+      error: () => {
+        this.chargement.set(false);
+        this.erreur.set('Modification impossible. Vérifiez l’adresse e-mail.');
+      }
+    });
   }
 
   selectionner(collaborateur: CollaborateurResponse): void {

@@ -1,4 +1,5 @@
 <section class="dossiers-page">
+  <a routerLink="/" class="sm-retour-dashboard">← Retour au tableau de bord</a>
   <header class="page-header">
     <div>
       <h1>Mes dossiers</h1>
@@ -29,15 +30,34 @@
 
         <div class="dossiers-list">
           @for (dossier of dossiersFiltres(); track dossier.id) {
-            <button type="button"
-                    class="dossier-card"
-                    data-testid="dossier-select"
-                    [class.actif]="dossierSelectionne()?.id === dossier.id"
-                    (click)="selectionner(dossier)">
-              <strong>{{ dossier.titre }}</strong>
-              <span>{{ nomClient(dossier.clientId) }}</span>
-              <small>{{ dossier.statut.replaceAll('_', ' ') }}</small>
-            </button>
+            <div class="sm-list-item">
+              <button type="button"
+                      class="dossier-card"
+                      data-testid="dossier-select"
+                      [class.actif]="dossierSelectionne()?.id === dossier.id"
+                      (click)="selectionner(dossier)">
+                <strong>{{ dossier.titre }}</strong>
+                <span>{{ nomClient(dossier.clientId) }}</span>
+                <small>{{ dossier.statut.replaceAll('_', ' ') }}</small>
+              </button>
+
+              <div class="sm-list-actions">
+                <button type="button"
+                        (click)="selectionner(dossier)">
+                  Consulter
+                </button>
+
+                @if (estAdmin()) {
+                  <a [routerLink]="['/dossiers', dossier.id]">
+                    Modifier
+                  </a>
+                  <button type="button" class="sm-danger"
+                          (click)="supprimer(dossier)">
+                    Supprimer
+                  </button>
+                }
+              </div>
+            </div>
           } @empty {
             <p>Aucun dossier trouvé.</p>
           }

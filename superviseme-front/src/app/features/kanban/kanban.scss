@@ -3,7 +3,7 @@
 .page { min-height: 100vh; background: #0b1120; }
 .topbar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; border-bottom: 1px solid #222d43; background: #10192c; }
 .brand { font-size: 21px; font-weight: 800; letter-spacing: -.6px; }
-.brand > span:last-child { color: #a78bfa; }
+.brand > span:last-child { color: var(--sm-accent-hover); }
 .logo { display: inline-grid; place-items: center; width: 35px; height: 35px; margin-right: 9px; background: linear-gradient(135deg,#6d5dfc,#ad65f6); border-radius: 10px; }
 .user { display: flex; align-items: center; gap: 16px; color: #94a3b8; font-size: 13px; }
 .avatar, .assignee { display: inline-grid; place-items: center; background: #5344a0; border-radius: 50%; color: white; font-weight: 700; }
@@ -12,11 +12,11 @@
 .sidebar { width: 238px; flex-shrink: 0; padding: 32px 14px; background: #10192c; border-right: 1px solid #222d43; }
 .section-label { font-size: 10px; letter-spacing: 1.4px; color: #64748b; padding: 0 16px; margin-bottom: 16px; font-weight: 800; }
 .nav { padding: 13px 16px; border-radius: 9px; color: #98a6bf; margin-bottom: 5px; font-size: 13px; }
-.nav.active { background: #29264d; color: #c4b5fd; font-weight: 700; }
+.nav.active { background: #29264d; color: var(--sm-accent-hover); font-weight: 700; }
 .separator { height: 1px; background: #263149; margin: 24px 12px; }
 main { padding: 40px; width: 100%; min-width: 0; max-width: 1800px; margin: 0 auto; }
 .heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-.eyebrow { color: #a78bfa; font-size: 10px; font-weight: 800; letter-spacing: 2px; }
+.eyebrow { color: var(--sm-accent-hover); font-size: 10px; font-weight: 800; letter-spacing: 2px; }
 h1 { font-size: 31px; margin: 10px 0; letter-spacing: -.8px; }
 .heading p, .board-heading p { color: #8493ac; font-size: 13px; margin: 0; }
 .primary { background: #6d5dfc; border: 0; color: white; padding: 13px 18px; border-radius: 9px; font-weight: 700; }
@@ -27,7 +27,7 @@ h1 { font-size: 31px; margin: 10px 0; letter-spacing: -.8px; }
 .stat strong { display: block; margin-top: 13px; font-size: 29px; }
 .board-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
 h2 { font-size: 19px; margin: 0 0 8px; }
-.demo { color: #c4b5fd; border: 1px solid #544786; padding: 7px 12px; border-radius: 20px; font-size: 11px; }
+.demo { color: var(--sm-accent-hover); border: 1px solid #544786; padding: 7px 12px; border-radius: 20px; font-size: 11px; }
 .board { display: grid; grid-template-columns: repeat(3,minmax(230px,1fr)); gap: 18px; }
 .column { background: #111b2e; border: 1px solid #26334c; border-radius: 13px; padding: 17px; }
 .column-heading, .column-title { display: flex; align-items: center; gap: 10px; }
@@ -148,7 +148,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   }
 
   .mobile-nav span:first-child {
-    color: #c4b5fd;
+    color: var(--sm-accent-hover);
     font-weight: 700;
   }
 }
@@ -171,7 +171,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   border: 1px solid #544786;
   border-radius: 9px;
   background: transparent;
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   font: inherit;
   cursor: pointer;
 }
@@ -189,7 +189,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
 }
 
 .mobile-link:hover {
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
 }
 
 @media (max-width: 760px) {
@@ -203,7 +203,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   cursor: pointer;
 }
 .dossier-link:hover {
-  color: #a78bfa;
+  color: var(--sm-accent-hover);
   text-decoration: underline;
 }
 
@@ -221,4 +221,42 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
+}
+
+.profil-menu { position:relative; }
+.profil-menu summary { cursor:pointer; list-style:none; }
+.profil-menu summary::-webkit-details-marker { display:none; }
+.profil-options { position:absolute; right:0; top:42px; z-index:100;
+  min-width:230px; padding:8px; border-radius:12px;
+  border:1px solid #34415d; background:#1b2540;
+  box-shadow:0 12px 30px #0007; }
+.profil-options a,.profil-options button {
+  display:block; box-sizing:border-box; width:100%; padding:12px;
+  text-align:left; background:transparent; border:0; border-radius:7px;
+  color:white; text-decoration:none; cursor:pointer; font:inherit;
+}
+.profil-options a:hover,.profil-options button:hover { background:#34415d; }
+
+/* Correction du menu profil sur mobile */
+.profil-options {
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.profil-options a,
+.profil-options button {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* SuperviseMe — bouton principal du tableau de bord */
+.heading a.primary {
+  background: var(--sm-accent);
+  color: var(--sm-bg);
+  text-decoration: none;
+}
+
+.heading a.primary:hover {
+  background: var(--sm-accent-hover);
 }

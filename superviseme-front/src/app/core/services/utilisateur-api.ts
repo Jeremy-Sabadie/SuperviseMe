@@ -27,6 +27,13 @@ export class UtilisateurApiService {
   }
 
   /** Désactive un compte sans supprimer son historique. */
+  modifier(id: string, email: string) {
+    return this.http.put<CollaborateurResponse>(
+      `/api/utilisateurs/${id}`,
+      { email }
+    );
+  }
+
   desactiver(id: string): Observable<CollaborateurResponse> {
     return this.http.patch<CollaborateurResponse>(
       `/api/utilisateurs/${encodeURIComponent(id)}/desactiver`, {}

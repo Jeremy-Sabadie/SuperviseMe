@@ -3,7 +3,15 @@
     <div class="brand"><span class="logo">S</span> Supervise<span>Me</span></div>
     <div class="user">
   <span class="user-label">Espace entreprise</span>
-  <span class="avatar">R</span>
+  <details class="profil-menu">
+    <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
+    <div class="profil-options">
+      @if (estAdmin()) {
+        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>
+      }
+      <button type="button" (click)="deconnecter()">Déconnexion</button>
+    </div>
+  </details>
   <button type="button" class="logout" (click)="deconnecter()">Déconnexion</button>
 </div>
   </header>

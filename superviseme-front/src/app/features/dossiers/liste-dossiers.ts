@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -54,6 +55,57 @@ export class ListeDossiers implements OnInit {
       error: () => {
         this.erreur.set('Impossible de charger les dossiers.');
         this.chargement.set(false);
+      }
+    });
+  }
+
+  async supprimer(dossier: DossierApi): Promise<void> {
+    if (!this.estAdmin()) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Supprimer ce dossier ?',
+      text: `Le dossier « ${dossier.titre} » sera définitivement supprimé.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Supprimer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#c65d65',
+      cancelButtonColor: '#344854',
+      background: '#1b2a35',
+      color: '#e5eef2',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    this.api.supprimer(dossier.id).subscribe({
+      next: () => {
+        this.dossiers.update(liste =>
+          liste.filter(item => item.id !== dossier.id)
+        );
+
+        if (this.dossierSelectionne()?.id === dossier.id) {
+          this.fermerFiche();
+        }
+
+        void Swal.fire({
+          title: 'Dossier supprimé',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      },
+      error: () => {
+        void Swal.fire({
+          title: 'Suppression impossible',
+          text: 'Le dossier n’a pas été supprimé.',
+          icon: 'error',
+          confirmButtonColor: '#4f9ca5',
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
       }
     });
   }
