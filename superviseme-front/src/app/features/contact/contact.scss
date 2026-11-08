@@ -152,3 +152,19 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   flex: 0 0 100%;
   box-sizing: border-box;
 }
+
+/* SuperviseMe — bouton d'envoi Bleu pétrole */
+button[type="submit"] {
+  background: var(--sm-accent);
+  color: var(--sm-bg);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: var(--sm-accent-hover);
+}
+
+button[type="submit"]:disabled {
+  background: var(--sm-accent);
+  opacity: 0.45;
+  cursor: not-allowed;
+}

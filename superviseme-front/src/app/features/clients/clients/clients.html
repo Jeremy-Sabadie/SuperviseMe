@@ -1,4 +1,5 @@
 <section class="clients-page">
+  <a routerLink="/" class="sm-retour-dashboard">← Retour au tableau de bord</a>
   <header class="page-header">
     <div>
       <h1>Clients</h1>
@@ -63,12 +64,26 @@
 
         <div class="clients-list">
           @for (client of clientsFiltres(); track client.id) {
-            <button type="button" class="client-card"
-                    [class.actif]="clientSelectionne()?.id === client.id"
-                    (click)="selectionner(client)">
-              <strong>{{ client.nom }}</strong>
-              <span>{{ client.entreprise || 'Particulier' }}</span>
-            </button>
+            <div class="sm-client-item">
+              <button type="button" class="client-card"
+                      [class.actif]="clientSelectionne()?.id === client.id"
+                      (click)="selectionner(client)">
+                <strong>{{ client.nom }}</strong>
+                <span>{{ client.entreprise || 'Particulier' }}</span>
+              </button>
+              <div class="sm-client-actions">
+                <button type="button" (click)="selectionner(client)">
+                  Consulter
+                </button>
+                <button type="button" (click)="modifier(client)">
+                  Modifier
+                </button>
+                <button type="button" class="sm-delete"
+                        (click)="supprimer(client)">
+                  Supprimer
+                </button>
+              </div>
+            </div>
           } @empty {
             <p>Aucun client trouvé.</p>
           }

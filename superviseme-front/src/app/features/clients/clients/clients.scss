@@ -53,7 +53,7 @@ p { color: #94a3b8; }
 .client-card span { color: #94a3b8; font-size: 13px; }
 
 .client-card.actif {
-  border-color: #8b5cf6;
+  border-color: var(--sm-accent);
   background: #252044;
 }
 
@@ -72,7 +72,7 @@ p { color: #94a3b8; }
 .section-header { margin-bottom: 12px; }
 .section-header h3 { margin: 0; }
 
-a { color: #a5b4fc; text-decoration: none; }
+a { color: var(--sm-accent-hover); text-decoration: none; }
 
 .dossier-ligne {
   display: flex;
@@ -85,7 +85,7 @@ a { color: #a5b4fc; text-decoration: none; }
   color: #e5e7eb;
 }
 
-.dossier-ligne span { color: #a5b4fc; font-size: 12px; }
+.dossier-ligne span { color: var(--sm-accent-hover); font-size: 12px; }
 
 .detail-vide {
   text-align: center;
@@ -130,7 +130,7 @@ button {
   color: white;
 }
 
-button.primary { background: #7c3aed; border-color: #7c3aed; }
+button.primary { background: var(--sm-accent); border-color: var(--sm-accent); }
 button:disabled { opacity: .5; cursor: not-allowed; }
 
 .retour { display: none; margin-bottom: 16px; }
@@ -195,6 +195,51 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 .choix-dossier.selectionne {
-  border-color: #8b5cf6;
+  border-color: var(--sm-accent);
   background: #302657;
+}
+
+
+/* Actions CRUD — Clients */
+.sm-client-item {
+  background: var(--sm-bg);
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.sm-client-item .client-card {
+  border: 0;
+  padding: 8px;
+}
+
+.sm-client-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sm-client-actions button {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+  border: 1px solid var(--sm-border);
+  color: var(--sm-text);
+  background: var(--sm-surface);
+}
+
+.sm-client-actions button:first-child {
+  color: var(--sm-accent-hover);
+}
+
+/* Suppression : action destructive */
+.sm-client-actions .sm-delete {
+  color: #f1a1a1;
+  border-color: #70414a;
+  background: #422a32;
+}
+
+.sm-client-actions .sm-delete:hover {
+  background: #60353e;
 }

@@ -1,4 +1,5 @@
 <main class="collaborateurs-page">
+  <a routerLink="/" class="sm-retour-dashboard">← Retour au tableau de bord</a>
   <header class="page-header">
     <div>
       <h1>Collaborateurs</h1>
@@ -53,6 +54,7 @@
 
         <div class="collaborateurs-list">
           @for (collaborateur of collaborateursFiltres(); track collaborateur.id) {
+            <div class="sm-list-item">
             <button type="button" class="collaborateur-card"
                     [class.actif]="selection()?.id === collaborateur.id"
                     (click)="selectionner(collaborateur)">
@@ -63,6 +65,30 @@
                 {{ collaborateur.actif ? 'Actif' : 'Compte désactivé' }}
               </span>
             </button>
+
+            <div class="sm-list-actions">
+              <button type="button" (click)="selectionner(collaborateur)">
+                Consulter
+              </button>
+
+              @if (collaborateur.role !== 'ADMIN') {
+                <button type="button" (click)="ouvrirModification(collaborateur)">
+                  Modifier
+                </button>
+                @if (collaborateur.actif) {
+                  <button type="button" class="sm-danger"
+                          (click)="selectionner(collaborateur); demanderDesactivation()">
+                    Désactiver
+                  </button>
+                } @else {
+                  <button type="button"
+                          (click)="selectionner(collaborateur); reactiverSelection()">
+                    Réactiver
+                  </button>
+                }
+              }
+            </div>
+            </div>
           } @empty {
             <p>Aucun collaborateur trouvé.</p>
           }
@@ -74,6 +100,20 @@
           <button type="button" class="retour"
                   (click)="fermerFiche()">← Retour aux collaborateurs</button>
           <h2>Fiche collaborateur</h2>
+          @if (modificationEmail()) {
+            <form class="creation-form" (ngSubmit)="enregistrerModification()">
+              <label for="emailModification">Adresse e-mail</label>
+              <input id="emailModification" type="email" name="emailModification"
+                     [(ngModel)]="emailModification" required>
+              <div class="actions">
+                <button type="button" (click)="modificationEmail.set(false)">Annuler</button>
+                <button type="submit" class="primary" [disabled]="chargement()">
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          }
+
           <div class="section-detail">
             <h3>Adresse e-mail</h3>
             <p>{{ collaborateur.email }}</p>

@@ -45,6 +45,10 @@ export class DossierApiService {
     return this.http.get<DossierApi[]>(this.url);
   }
 
+  supprimer(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${encodeURIComponent(id)}`);
+  }
+
   consulter(id: string): Observable<DossierApi> {
     return this.http.get<DossierApi>(`${this.url}/${id}`);
   }

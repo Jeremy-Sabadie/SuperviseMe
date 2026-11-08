@@ -21,7 +21,7 @@
 
 h1 { margin: 0 0 8px; font-size: 28px; }
 h2 { margin-top: 0; }
-h3 { font-size: 14px; color: #a5b4fc; }
+h3 { font-size: 14px; color: var(--sm-accent-hover); }
 p { color: #94a3b8; }
 
 button, input {
@@ -32,7 +32,7 @@ button, input {
 button { cursor: pointer; }
 
 .primary {
-  background: #7c3aed;
+  background: var(--sm-accent);
   color: white;
   border: none;
   padding: 12px 18px;
@@ -84,14 +84,14 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 }
 
 .collaborateur-card span { color: #94a3b8; font-size: 13px; }
-.collaborateur-card.actif { border-color: #8b5cf6; }
+.collaborateur-card.actif { border-color: var(--sm-accent); }
 
 .empty-detail { color: #94a3b8; padding: 40px 10px; text-align: center; }
 
 .retour {
   border: none;
   background: transparent;
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   padding: 0 0 20px;
 }
 

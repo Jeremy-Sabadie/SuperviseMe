@@ -115,6 +115,57 @@ export class Clients implements OnInit {
     this.edition.set(false);
   }
 
+  async supprimer(client: Client): Promise<void> {
+    const confirmation = await Swal.fire({
+      title: 'Supprimer ce client ?',
+      text: `Cette action est irréversible : ${client.nom}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Supprimer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#c65d65',
+      cancelButtonColor: '#344854',
+      background: '#1b2a35',
+      color: '#e5eef2',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    this.api.supprimer(client.id).subscribe({
+      next: () => {
+        if (this.clientSelectionne()?.id === client.id) {
+          this.fermerFiche();
+        }
+        this.charger();
+        void Swal.fire({
+          title: 'Client supprimé',
+          icon: 'success',
+          timer: 1600,
+          showConfirmButton: false,
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      },
+      error: (erreur) => {
+        const message = erreur.status === 409
+          ? 'Suppression impossible : des dossiers sont associés à ce client.'
+          : erreur.status === 403
+            ? "Vous n'avez pas les droits nécessaires."
+            : 'Impossible de supprimer ce client.';
+
+        void Swal.fire({
+          title: 'Suppression refusée',
+          text: message,
+          icon: 'error',
+          confirmButtonColor: '#4f9ca5',
+          background: '#1b2a35',
+          color: '#e5eef2'
+        });
+      }
+    });
+  }
+
   async enregistrer(): Promise<void> {
     if (!this.formulaire.nom.trim() || this.enregistrement()) return;
 

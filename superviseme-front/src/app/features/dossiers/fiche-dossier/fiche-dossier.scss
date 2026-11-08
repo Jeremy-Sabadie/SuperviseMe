@@ -11,7 +11,7 @@
   margin: auto;
   padding: 48px 24px;
 }
-.retour { color: #a78bfa; text-decoration: none; }
+.retour { color: var(--sm-accent-hover); text-decoration: none; }
 h1 { margin: 36px 0 8px; }
 .reference { color: #93a4c3; overflow-wrap: anywhere; }
 form {
@@ -36,7 +36,7 @@ input, textarea, select {
 }
 .deux-colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 button {
-  background: #7658dc;
+  background: var(--sm-accent);
   color: white;
   border: 0;
   border-radius: 9px;
@@ -70,7 +70,7 @@ button:disabled { opacity: .5; }
     height: 18px;
     margin: 0;
     padding: 0;
-    accent-color: #7658dc;
+    accent-color: var(--sm-accent);
   }
 }
 
@@ -94,6 +94,6 @@ button:disabled { opacity: .5; }
     height: 18px;
     margin: 0;
     padding: 0;
-    accent-color: #7658dc;
+    accent-color: var(--sm-accent);
   }
 }

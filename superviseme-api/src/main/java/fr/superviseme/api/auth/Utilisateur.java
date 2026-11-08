@@ -61,6 +61,10 @@ public class Utilisateur {
     }
 
     /** Bloque le compte sans supprimer ses données historiques. */
+    public void modifierEmail(String email) {
+        this.email = email;
+    }
+
     public void desactiver() {
         this.actif = false;
     }

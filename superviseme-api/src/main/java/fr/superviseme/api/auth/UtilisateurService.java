@@ -72,6 +72,33 @@ public class UtilisateurService {
         return cible;
     }
 
+    @Transactional
+    public Utilisateur modifierEmail(UUID id, String email) {
+        Utilisateur cible = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Collaborateur introuvable"));
+
+        if (cible.getRole() == RoleUtilisateur.ADMIN) {
+            throw new IllegalArgumentException("Modification administrateur interdite");
+        }
+
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email obligatoire");
+        }
+
+        String normalise = email.trim().toLowerCase(Locale.ROOT);
+        if (!normalise.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")
+                || normalise.length() > 254) {
+            throw new IllegalArgumentException("Email invalide");
+        }
+
+        if (!normalise.equals(cible.getEmail()) && repository.existsByEmail(normalise)) {
+            throw new IllegalArgumentException("Email déjà utilisé");
+        }
+
+        cible.modifierEmail(normalise);
+        return cible;
+    }
+
     private Utilisateur creer(String email, String motDePasse, RoleUtilisateur role) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email obligatoire");

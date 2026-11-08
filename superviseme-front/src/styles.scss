@@ -1,1 +1,100 @@
-/* You can add global styles to this file, and also import other style files */
+/* SuperviseMe — Design System : Bleu pétrole */
+:root {
+  /* Fonds */
+  --sm-bg: #101923;
+  --sm-surface: #1b2a35;
+  --sm-surface-hover: #243744;
+
+  /* Identité */
+  --sm-accent: #4f9ca5;
+  --sm-accent-hover: #65b0b8;
+
+  /* Textes */
+  --sm-text: #e5eef2;
+  --sm-muted: #a6b4c0;
+
+  /* Bordures */
+  --sm-border: #344854;
+
+  /* États fonctionnels */
+  --sm-success: #65b99a;
+  --sm-warning: #e0b36b;
+  --sm-danger: #e08080;
+
+  color-scheme: dark;
+}
+
+/* Navigation secondaire — Bleu pétrole */
+.sm-retour-dashboard {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 18px;
+  color: var(--sm-accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sm-retour-dashboard:hover {
+  color: var(--sm-accent-hover);
+  text-decoration: underline;
+}
+
+.sm-retour-dashboard:focus-visible {
+  outline: 2px solid var(--sm-accent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+
+/* Actions CRUD — Dossiers et Collaborateurs */
+.sm-list-item {
+  padding: 8px;
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  background: var(--sm-surface);
+  min-width: 0;
+}
+
+.sm-list-item > .dossier-card,
+.sm-list-item > .collaborateur-card {
+  width: 100%;
+}
+
+.sm-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sm-list-actions button,
+.sm-list-actions a {
+  flex: 1 1 70px;
+  min-width: 0;
+  padding: 8px 5px;
+  border: 1px solid var(--sm-border);
+  border-radius: 6px;
+  background: var(--sm-surface-hover);
+  color: var(--sm-text);
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sm-list-actions button:first-child {
+  color: var(--sm-accent-hover);
+}
+
+.sm-list-actions .sm-danger {
+  background: #422a32;
+  color: #f1a1a1;
+  border-color: #70414a;
+}
+
+.sm-list-actions button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}

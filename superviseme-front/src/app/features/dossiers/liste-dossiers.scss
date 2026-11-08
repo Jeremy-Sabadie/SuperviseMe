@@ -28,7 +28,7 @@ p { color: #94a3b8; }
 .primary {
   display: inline-block;
   padding: 12px 18px;
-  background: #7c3aed;
+  background: var(--sm-accent);
   border-radius: 9px;
   color: white;
   text-decoration: none;
@@ -53,7 +53,7 @@ p { color: #94a3b8; }
 .master-heading h2 { font-size: 18px; }
 .compteur {
   background: #302657;
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   border-radius: 20px;
   padding: 4px 10px;
   font-size: 13px;
@@ -89,13 +89,13 @@ input {
   font: inherit;
 }
 
-.dossier-card:hover { border-color: #8b5cf6; }
+.dossier-card:hover { border-color: var(--sm-accent); }
 .dossier-card.actif {
   background: #252044;
-  border-color: #8b5cf6;
+  border-color: var(--sm-accent);
 }
 .dossier-card span { color: #94a3b8; font-size: 13px; }
-.dossier-card small { color: #c4b5fd; font-size: 12px; }
+.dossier-card small { color: var(--sm-accent-hover); font-size: 12px; }
 
 .detail-header {
   align-items: flex-start;
@@ -104,11 +104,11 @@ input {
 }
 .detail-header h2 { margin: 8px 0; overflow-wrap: anywhere; }
 .detail-header p { margin: 0; }
-.eyebrow { font-size: 11px; letter-spacing: 2px; color: #a5b4fc; }
+.eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--sm-accent-hover); }
 .statut {
   flex-shrink: 0;
   background: #302657;
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   border-radius: 20px;
   padding: 7px 12px;
   font-size: 12px;
@@ -140,7 +140,7 @@ input {
 .fiche-link { text-align: center; }
 
 .detail-vide { text-align: center; padding: 80px 16px; }
-.detail-icone { font-size: 40px; color: #8b5cf6; }
+.detail-icone { font-size: 40px; color: var(--sm-accent); }
 .retour { display: none; }
 .error { color: #fca5a5; }
 
