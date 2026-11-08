@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { TacheApi } from '../../core/services/tache-api';
 import { AuthApiService } from '../../core/services/auth-api';
 import { TacheApiService } from '../../core/services/tache-api';
@@ -199,5 +199,39 @@ describe('Taches', () => {
     composant.changerStatut(taches[1], 'TERMINEE');
 
     expect(changementStatut).not.toHaveBeenCalled();
+  });
+
+  it('affiche une erreur si la création échoue sans perdre les tâches', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+    composant.estAdmin.set(true);
+    composant.titre = 'Nouvelle tâche';
+    composant.responsableId = 'user-1';
+
+    vi.spyOn(TestBed.inject(TacheApiService), 'creer')
+      .mockReturnValue(throwError(() => new Error('Erreur API')));
+
+    composant.creer();
+
+    expect(composant.erreur()).toBe('Impossible de créer la tâche.');
+    expect(composant.taches()).toEqual(taches);
+    expect(composant.enregistrement()).toBe(false);
+    expect(composant.titre).toBe('Nouvelle tâche');
+  });
+
+  it('conserve le statut initial si la modification échoue', () => {
+    const composant = TestBed.createComponent(Taches).componentInstance;
+    composant.ngOnInit();
+
+    changementStatut.mockImplementation(() =>
+      throwError(() => new Error('Erreur API'))
+    );
+
+    composant.changerStatut(taches[0], 'EN_COURS');
+
+    expect(changementStatut).toHaveBeenCalledWith('tache-1', 'EN_COURS');
+    expect(composant.erreur()).toBe('Impossible de modifier le statut.');
+    expect(composant.taches()[0].statut).toBe('NON_COMMENCEE');
+    expect(composant.enregistrement()).toBe(false);
   });
 });
