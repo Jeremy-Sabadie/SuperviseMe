@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -59,6 +60,73 @@ public class TacheService {
 
         return repository.save(tache);
     }
+
+    /**
+     * Liste toutes les tâches de l'instance pour les utilisateurs autorisés.
+     */
+    @Transactional(readOnly = true)
+    public List<Tache> lister() {
+        verifierUtilisateurAutorise();
+        return repository.findAll();
+    }
+
+    /**
+     * ADMIN peut changer tous les statuts.
+     * USER peut changer uniquement le statut de ses tâches.
+     */
+    public Tache changerStatut(UUID id, StatutTache statut) {
+        verifierUtilisateurAutorise();
+
+        Tache tache = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Tâche introuvable"));
+
+        if (!estAdministrateur()) {
+            UUID utilisateurId = utilisateurConnecteId();
+
+            if (!java.util.Objects.equals(
+                    utilisateurId, tache.getResponsableId())) {
+                throw new AccessDeniedException(
+                        "Modification réservée au responsable de la tâche");
+            }
+        }
+
+        tache.changerStatut(statut);
+        return tache;
+    }
+
+    private void verifierUtilisateurAutorise() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()
+                || auth.getAuthorities().stream().noneMatch(role ->
+                        "ROLE_ADMIN".equals(role.getAuthority())
+                        || "ROLE_USER".equals(role.getAuthority()))) {
+            throw new AccessDeniedException("Accès aux tâches interdit");
+        }
+    }
+
+    private boolean estAdministrateur() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.isAuthenticated()
+                && auth.getAuthorities().stream()
+                        .anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()));
+    }
+
+    private UUID utilisateurConnecteId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+
+        try {
+            return UUID.fromString(auth.getName());
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
     private void verifierAdministrateur() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
