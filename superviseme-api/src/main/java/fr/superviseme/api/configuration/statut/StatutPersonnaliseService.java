@@ -79,4 +79,52 @@ public class StatutPersonnaliseService {
         return statut;
     }
 
+
+    /**
+     * Supprime un statut existant.
+     *
+     * ATTENTION : la vérification des références métier
+     * doit être ajoutée avant toute exposition de cette
+     * opération dans l'API publique.
+     *
+     * @param id identifiant du statut à supprimer
+     * @throws IllegalArgumentException si le statut est introuvable
+     */
+    @Transactional
+    public void supprimer(UUID id) {
+        Objects.requireNonNull(id, "L'identifiant est obligatoire");
+
+        if (!repository.existsById(id)) {
+            throw new IllegalArgumentException("Statut introuvable");
+        }
+
+        repository.deleteById(id);
+    }
+
+    /**
+     * Modifie la position d'affichage d'un statut.
+     *
+     * Cette opération conserve le libellé, la couleur
+     * et la catégorie du statut.
+     *
+     * @param id identifiant du statut
+     * @param ordre nouvelle position
+     * @throws IllegalArgumentException si le statut ou l'ordre est invalide
+     */
+    @Transactional
+    public void reordonner(UUID id, int ordre) {
+        Objects.requireNonNull(id, "L'identifiant est obligatoire");
+
+        StatutPersonnalise statut = repository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Statut introuvable")
+                );
+
+        statut.modifier(
+                statut.getLibelle(),
+                statut.getCouleur(),
+                ordre
+        );
+    }
+
 }
