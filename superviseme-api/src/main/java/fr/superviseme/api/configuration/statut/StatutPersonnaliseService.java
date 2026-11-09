@@ -116,15 +116,33 @@ public class StatutPersonnaliseService {
         Objects.requireNonNull(id, "L'identifiant est obligatoire");
 
         StatutPersonnalise statut = repository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Statut introuvable")
-                );
+                .orElseThrow(() -> new IllegalArgumentException("Statut introuvable"));
 
-        statut.modifier(
-                statut.getLibelle(),
-                statut.getCouleur(),
-                ordre
-        );
+        List<StatutPersonnalise> statuts = new java.util.ArrayList<>(
+                repository.findByCategorieOrderByOrdreAsc(statut.getCategorie()));
+
+        int index = -1;
+        for (int i = 0; i < statuts.size(); i++) {
+            StatutPersonnalise courant = statuts.get(i);
+            if (courant == statut || id.equals(courant.getId())) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index < 0 || ordre < 0 || ordre >= statuts.size()) {
+            throw new IllegalArgumentException("Position invalide");
+        }
+
+        if (index == ordre) return;
+
+        statuts.remove(index);
+        statuts.add(ordre, statut);
+
+        for (int i = 0; i < statuts.size(); i++) {
+            StatutPersonnalise courant = statuts.get(i);
+            courant.modifier(courant.getLibelle(), courant.getCouleur(), i);
+        }
     }
 
 }

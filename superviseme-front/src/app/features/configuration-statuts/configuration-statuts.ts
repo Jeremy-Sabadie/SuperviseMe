@@ -123,15 +123,15 @@ export class ConfigurationStatuts implements OnInit {
     });
   }
 
-  /** Change l'ordre d'affichage du statut. */
+  /** Déplace un statut d'une position dans sa catégorie. */
   deplacer(statut: Statut, direction: number): void {
     const liste = this.statuts();
     const index = liste.findIndex(item => item.id === statut.id);
-    const cible = liste[index + direction];
-    if (!cible) return;
+    const cible = index + direction;
+    if (index < 0 || cible < 0 || cible >= liste.length) return;
 
     this.http.patch(`${this.url}/${statut.id}/ordre`, {
-      ordre: cible.ordre
+      ordre: cible
     }).subscribe({
       next: () => this.charger(),
       error: () => this.erreur('Impossible de déplacer ce statut.')
