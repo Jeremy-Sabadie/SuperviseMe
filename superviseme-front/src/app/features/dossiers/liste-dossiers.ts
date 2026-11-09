@@ -21,7 +21,6 @@ export class ListeDossiers implements OnInit {
   readonly estAdmin = signal(false);
 
   readonly dossiers = signal<DossierApi[]>([]);
-  readonly dossierSelectionne = signal<DossierApi | null>(null);
   readonly clients = signal(new Map<string, string>());
   readonly recherche = signal('');
   readonly chargement = signal(true);
@@ -83,11 +82,6 @@ export class ListeDossiers implements OnInit {
         this.dossiers.update(liste =>
           liste.filter(item => item.id !== dossier.id)
         );
-
-        if (this.dossierSelectionne()?.id === dossier.id) {
-          this.fermerFiche();
-        }
-
         void Swal.fire({
           title: 'Dossier supprimé',
           icon: 'success',
@@ -108,14 +102,6 @@ export class ListeDossiers implements OnInit {
         });
       }
     });
-  }
-
-  selectionner(dossier: DossierApi): void {
-    this.dossierSelectionne.set(dossier);
-  }
-
-  fermerFiche(): void {
-    this.dossierSelectionne.set(null);
   }
 
   nomClient(id: string | null): string {
