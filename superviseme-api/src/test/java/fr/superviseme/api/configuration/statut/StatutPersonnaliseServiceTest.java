@@ -93,4 +93,71 @@ class StatutPersonnaliseServiceTest {
         );
     }
 
+
+    /**
+     * Autorise la suppression d'un statut qui n'est plus utilisé.
+     */
+    @Test
+    void doitSupprimerUnStatutInutilise() {
+        UUID id = UUID.randomUUID();
+
+        when(repository.existsById(id)).thenReturn(true);
+
+        service.supprimer(id);
+
+        verify(repository).deleteById(id);
+    }
+
+    /**
+     * Refuse la suppression d'un statut inexistant.
+     */
+    @Test
+    void doitRefuserLaSuppressionDUnStatutInexistant() {
+        UUID id = UUID.randomUUID();
+
+        when(repository.existsById(id)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.supprimer(id));
+
+        verify(repository, never()).deleteById(any());
+    }
+
+    /**
+     * Vérifie que le propriétaire peut modifier
+     * la position d'affichage d'un statut.
+     */
+    @Test
+    void doitReordonnerUnStatut() {
+        UUID id = UUID.randomUUID();
+
+        StatutPersonnalise statut = new StatutPersonnalise(
+                CategorieStatut.CLIENT, "Prospect", "#2563EB", 1
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(statut));
+
+        service.reordonner(id, 3);
+
+        assertEquals(3, statut.getOrdre());
+    }
+
+    /**
+     * Refuse une position négative afin de préserver
+     * la cohérence de l'ordre d'affichage.
+     */
+    @Test
+    void doitRefuserUnOrdreNegatif() {
+        UUID id = UUID.randomUUID();
+
+        StatutPersonnalise statut = new StatutPersonnalise(
+                CategorieStatut.CLIENT, "Prospect", "#2563EB", 1
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(statut));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.reordonner(id, -1));
+    }
+
 }
