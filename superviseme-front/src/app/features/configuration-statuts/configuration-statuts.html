@@ -16,12 +16,12 @@
   </nav>
 
   <section class="panneau">
-    <h2>Statuts de la catégorie</h2>
+    <h2>Statuts personnalisés — {{ categorie() === "CLIENT" ? "Client" : categorie() === "SIGNATURE_COMMERCIALE" ? "Signature commerciale" : "Après signature" }}</h2>
 
     @if (chargement()) {
       <p>Chargement...</p>
     } @else if (statuts().length === 0) {
-      <p class="vide">Aucun statut personnalisé pour cette catégorie.</p>
+      <p class="vide">Aucun statut pour cette catégorie. Ajoutez votre première étape ci-dessous.</p>
     }
 
     @for (statut of statuts(); track statut.id; let i = $index) {
@@ -48,7 +48,7 @@
              maxlength="100" required placeholder="Nouveau statut">
       <input name="couleur" type="color" [(ngModel)]="couleur"
              aria-label="Couleur du nouveau statut">
-      <button type="submit" [disabled]="!libelle.trim()">+ Ajouter</button>
+      <button type="submit" [disabled]="chargement() || !libelle.trim() || libelle.trim().length > 100">+ Ajouter</button>
     </form>
 
     <p class="note">La suppression sera activée après sécurisation des statuts utilisés par les dossiers.</p>
