@@ -64,7 +64,7 @@
       </div>
 
       <div class="board" cdkDropListGroup>
-        @for (colonne of colonnes; track colonne.id) {
+        @for (colonne of colonnes(); track colonne.id) {
           <section class="column">
             <div class="column-heading">
               <div class="column-title">

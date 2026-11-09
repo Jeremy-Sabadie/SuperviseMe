@@ -28,8 +28,8 @@ export class ConfigurationStatuts implements OnInit {
 
   readonly categories = [
     { id: 'CLIENT', titre: 'Client' },
-    { id: 'SIGNATURE_COMMERCIALE', titre: 'Signature commerciale' },
-    { id: 'APRES_SIGNATURE', titre: 'Après signature' }
+    { id: 'SIGNATURE_COMMERCIALE', titre: 'Pré-signature commerciale' },
+    { id: 'APRES_SIGNATURE', titre: 'Post-signature commerciale' }
   ] as const;
 
   readonly categorie = signal<Categorie>('CLIENT');

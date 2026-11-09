@@ -42,6 +42,8 @@ public class SecurityConfig {
                                 "/api/utilisateurs/*/reactiver").hasRole("ADMIN")
                         // Configuration des statuts réservée à l'administrateur client.
                         // Le rôle OWNER reste réservé à l'administration globale.
+                        .requestMatchers(HttpMethod.GET, "/api/admin/statuts",
+                                "/api/admin/statuts/**").authenticated()
                         .requestMatchers("/api/admin/statuts",
                                 "/api/admin/statuts/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("OWNER")

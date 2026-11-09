@@ -32,11 +32,15 @@ class ClientServiceTest {
     @Mock
     private fr.superviseme.api.dossier.DossierRepository dossierRepository;
 
+    @Mock
+    private fr.superviseme.api.configuration.statut.StatutPersonnaliseRepository statutRepository;
+
     private ClientService clientService;
 
     @BeforeEach
     void initialiserService() {
-        clientService = new ClientService(clientRepository, dossierRepository);
+        clientService = new ClientService(
+                clientRepository, dossierRepository, statutRepository);
     }
 
     /**

@@ -135,11 +135,22 @@ class StatutPersonnaliseServiceTest {
                 CategorieStatut.CLIENT, "Prospect", "#2563EB", 1
         );
 
+        var premier = new StatutPersonnalise(
+                CategorieStatut.CLIENT, "Nouveau", "#2563EB", 0);
+        var deuxieme = new StatutPersonnalise(
+                CategorieStatut.CLIENT, "Contacté", "#2563EB", 2);
+        var troisieme = new StatutPersonnalise(
+                CategorieStatut.CLIENT, "Qualifié", "#2563EB", 3);
+
         when(repository.findById(id)).thenReturn(Optional.of(statut));
+        when(repository.findByCategorieOrderByOrdreAsc(CategorieStatut.CLIENT))
+                .thenReturn(java.util.List.of(premier, statut, deuxieme, troisieme));
 
         service.reordonner(id, 3);
 
         assertEquals(3, statut.getOrdre());
+        assertEquals(1, deuxieme.getOrdre());
+        assertEquals(2, troisieme.getOrdre());
     }
 
     /**

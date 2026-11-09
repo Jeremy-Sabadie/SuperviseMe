@@ -216,3 +216,16 @@ input {
     width: 100%;
   }
 }
+
+
+.statut-dossier-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, currentColor 16%, #192536);
+  font-size: 0.75rem;
+  font-weight: 600;
+}

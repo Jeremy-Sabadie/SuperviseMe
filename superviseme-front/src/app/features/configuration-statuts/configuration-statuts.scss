@@ -32,3 +32,24 @@ h2 { margin-top: 0; font-size: 20px; }
   .statut { flex-wrap: wrap; }
   .actions { width: 100%; justify-content: flex-end; }
 }
+
+
+.selecteur-couleur {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: #a9b8c8;
+  cursor: pointer;
+
+  input[type="color"] {
+    width: 36px;
+    height: 32px;
+    padding: 2px;
+    cursor: pointer;
+    border: 1px solid #40536a;
+    border-radius: 6px;
+    background: transparent;
+  }
+}

@@ -19,16 +19,19 @@ import java.util.UUID;
 public class DossierService {
 
     private final DossierRepository repository;
+    private final fr.superviseme.api.configuration.statut.StatutPersonnaliseRepository statutRepository;
     private final ClientRepository clientRepository;
     private final UtilisateurRepository utilisateurRepository;
 
     public DossierService(
             DossierRepository repository,
             ClientRepository clientRepository,
-            UtilisateurRepository utilisateurRepository) {
+            UtilisateurRepository utilisateurRepository,
+            fr.superviseme.api.configuration.statut.StatutPersonnaliseRepository statutRepository) {
         this.repository = repository;
         this.clientRepository = clientRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.statutRepository = statutRepository;
     }
 
     /** Crée un dossier avec ses valeurs métier par défaut. */
@@ -199,15 +202,42 @@ public class DossierService {
         dossier.changerStatut(statut);
 
         // Charger les participants avant la fermeture de la transaction.
-        dossier.getParticipantIds().size();
 
         return dossier;
     }
 
     /**
-     * Vérifie l'existence d'un client avant de l'associer à un dossier.
-     * Une association absente est autorisée.
+     * Affecte un statut personnalisé à un dossier existant.
+     * Vérifie les autorisations de modification et l'existence du statut.
+     *
+     * @param id identifiant du dossier
+     * @param statutId identifiant du statut personnalisé
+     * @return dossier après modification
+     * @throws IllegalArgumentException si le statut est introuvable
      */
+    @org.springframework.transaction.annotation.Transactional
+    public Dossier changerStatutPersonnalise(UUID id, UUID statutId) {
+        Dossier dossier = consulter(id);
+        if (!estAdministrateur() && !java.util.Objects.equals(
+                utilisateurConnecteId(), dossier.getResponsableId())) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Modification interdite");
+        }
+        if (statutId == null) {
+            throw new IllegalArgumentException("Statut personnalisé obligatoire");
+        }
+        var statutPersonnalise = statutRepository.findById(statutId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Statut personnalisé introuvable"));
+        if (statutPersonnalise.getCategorie()
+                == fr.superviseme.api.configuration.statut.CategorieStatut.CLIENT) {
+            throw new IllegalArgumentException(
+                    "Un statut client ne peut pas être affecté à un dossier");
+        }
+        dossier.changerStatutPersonnalise(statutId);
+        return dossier;
+    }
+
     private void verifierClientExistant(UUID clientId) {
         if (clientId != null && !clientRepository.existsById(clientId)) {
             throw new ClientDossierIntrouvableException(clientId);

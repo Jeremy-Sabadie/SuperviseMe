@@ -14,7 +14,8 @@ public record ClientResponse(
         String telephone,
         String adresse,
         Instant dateCreation,
-        Instant dateModification
+        Instant dateModification,
+        UUID statutPersonnaliseId
 ) {
 
     /** Convertit une entité en réponse API. */
@@ -27,7 +28,8 @@ public record ClientResponse(
                 client.getTelephone(),
                 client.getAdresse(),
                 client.getDateCreation(),
-                client.getDateModification()
+                client.getDateModification(),
+                client.getStatutPersonnaliseId()
         );
     }
 }

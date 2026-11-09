@@ -35,7 +35,11 @@
               <strong>{{ dossier.titre }}</strong>
               <span>{{ nomClient(dossier.clientId) }}</span>
               <span>Responsable : {{ nomResponsable(dossier.responsableId) }}</span>
-              <small>{{ dossier.statut.replaceAll('_', ' ') }}</small>
+              <small class="statut-dossier-badge"
+                     [style.color]="statutDuDossier(dossier)?.couleur || '#65c7d0'"
+                     [style.border-color]="statutDuDossier(dossier)?.couleur || '#65c7d0'">
+                {{ libelleStatutDossier(dossier) }}
+              </small>
             </div>
 
             <div class="sm-list-actions">

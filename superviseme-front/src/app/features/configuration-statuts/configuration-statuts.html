@@ -16,7 +16,7 @@
   </nav>
 
   <section class="panneau">
-    <h2>Statuts personnalisés — {{ categorie() === "CLIENT" ? "Client" : categorie() === "SIGNATURE_COMMERCIALE" ? "Signature commerciale" : "Après signature" }}</h2>
+    <h2>Statuts personnalisés — {{ categorie() === "CLIENT" ? "Client" : categorie() === "SIGNATURE_COMMERCIALE" ? "Pré-signature commerciale" : "Post-signature commerciale" }}</h2>
 
     @if (chargement()) {
       <p>Chargement...</p>
@@ -26,12 +26,16 @@
 
     @for (statut of statuts(); track statut.id; let i = $index) {
       <div class="statut">
-        <input type="color"
-               [value]="statut.couleur"
-               (change)="changerCouleur(statut, $any($event.target).value)"
-               [attr.aria-label]="'Couleur de ' + statut.libelle">
-
         <span class="libelle">{{ statut.libelle }}</span>
+
+        <label class="selecteur-couleur">
+          <span>Couleur</span>
+          <input type="color"
+                 [value]="statut.couleur"
+                 (change)="changerCouleur(statut, $any($event.target).value)"
+                 [attr.aria-label]="'Modifier la couleur de ' + statut.libelle"
+                 title="Cliquer pour modifier la couleur">
+        </label>
 
         <div class="actions">
           <button type="button" (click)="deplacer(statut, -1)"

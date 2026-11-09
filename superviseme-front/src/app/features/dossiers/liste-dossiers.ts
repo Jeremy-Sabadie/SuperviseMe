@@ -3,6 +3,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { StatutPersonnaliseApiService } from '../../core/services/statut-personnalise-api';
+import { StatutPersonnalise } from '../../core/services/statut-personnalise.model';
 import { DossierApi, DossierApiService } from '../../core/services/dossier-api';
 import { ClientApiService } from '../../core/services/client-api';
 import { AuthApiService } from '../../core/services/auth-api';
@@ -18,6 +20,8 @@ import { UtilisateurApiService } from '../../core/services/utilisateur-api';
 export class ListeDossiers implements OnInit {
   private readonly api = inject(DossierApiService);
   private readonly clientsApi = inject(ClientApiService);
+  private readonly statutsApi = inject(StatutPersonnaliseApiService);
+  readonly statutsPersonnalises = signal<StatutPersonnalise[]>([]);
   private readonly auth = inject(AuthApiService);
   private readonly utilisateursApi = inject(UtilisateurApiService);
   readonly estAdmin = signal(false);
@@ -59,9 +63,12 @@ export class ListeDossiers implements OnInit {
 
     forkJoin({
       dossiers: this.api.lister(),
-      clients: this.clientsApi.lister()
+      clients: this.clientsApi.lister(),
+      statutsAvant: this.statutsApi.lister('SIGNATURE_COMMERCIALE'),
+      statutsApres: this.statutsApi.lister('APRES_SIGNATURE')
     }).subscribe({
-      next: ({ dossiers, clients }) => {
+      next: ({ dossiers, clients, statutsAvant, statutsApres }) => {
+        this.statutsPersonnalises.set([...statutsAvant, ...statutsApres]);
         this.clients.set(new Map(
           clients.map(c => [c.id, c.entreprise || c.nom])
         ));
@@ -73,6 +80,18 @@ export class ListeDossiers implements OnInit {
         this.chargement.set(false);
       }
     });
+  }
+
+  statutDuDossier(dossier: DossierApi): StatutPersonnalise | undefined {
+    return this.statutsPersonnalises()
+      .find(s => s.id === dossier.statutPersonnaliseId);
+  }
+
+  libelleStatutDossier(dossier: DossierApi): string {
+    const statut = this.statutsPersonnalises()
+      .find(s => s.id === dossier.statutPersonnaliseId);
+
+    return statut?.libelle ?? dossier.statut.replaceAll('_', ' ');
   }
 
   async supprimer(dossier: DossierApi): Promise<void> {
