@@ -71,4 +71,33 @@ public class StatutPersonnalise {
     public String getLibelle() { return libelle; }
     public String getCouleur() { return couleur; }
     public int getOrdre() { return ordre; }
+
+    /**
+     * Modifie les propriétés configurables du statut.
+     *
+     * La catégorie et l'identifiant restent inchangés.
+     * Toutes les données sont validées avant modification.
+     *
+     * @param libelle nouveau libellé
+     * @param couleur nouvelle couleur hexadécimale
+     * @param ordre nouvelle position d'affichage
+     * @throws IllegalArgumentException si une valeur est invalide
+     */
+    public void modifier(String libelle, String couleur, int ordre) {
+        if (libelle == null || libelle.isBlank()
+                || libelle.trim().length() > 100) {
+            throw new IllegalArgumentException("Libellé invalide");
+        }
+        if (couleur == null || !couleur.matches("#[0-9a-fA-F]{6}")) {
+            throw new IllegalArgumentException("Couleur hexadécimale invalide");
+        }
+        if (ordre < 0) {
+            throw new IllegalArgumentException("Ordre invalide");
+        }
+
+        this.libelle = libelle.trim();
+        this.couleur = couleur;
+        this.ordre = ordre;
+    }
+
 }

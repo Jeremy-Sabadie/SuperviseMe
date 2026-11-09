@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.Objects;
 
 /**
@@ -41,4 +42,41 @@ public class StatutPersonnaliseService {
 
         return repository.findByCategorieOrderByOrdreAsc(categorie);
     }
+
+    /**
+     * Enregistre un nouveau statut personnalisé.
+     *
+     * @param statut statut préalablement validé par son constructeur
+     * @return statut enregistré
+     */
+    @Transactional
+    public StatutPersonnalise creer(StatutPersonnalise statut) {
+        Objects.requireNonNull(statut, "Le statut est obligatoire");
+        return repository.save(statut);
+    }
+
+    /**
+     * Modifie un statut existant sans changer son identité.
+     *
+     * La transaction permet à JPA de persister les changements
+     * sur l'entité récupérée.
+     *
+     * @throws IllegalArgumentException si le statut est introuvable
+     *                                  ou si les données sont invalides
+     */
+    @Transactional
+    public StatutPersonnalise modifier(
+            UUID id, String libelle, String couleur, int ordre
+    ) {
+        Objects.requireNonNull(id, "L'identifiant est obligatoire");
+
+        StatutPersonnalise statut = repository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Statut introuvable")
+                );
+
+        statut.modifier(libelle, couleur, ordre);
+        return statut;
+    }
+
 }
