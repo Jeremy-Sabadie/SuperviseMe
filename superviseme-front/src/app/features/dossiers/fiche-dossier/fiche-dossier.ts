@@ -64,7 +64,20 @@ export class FicheDossier implements OnInit {
     clientId: ''
   };
 
+  modeEdition = false;
+
+  avancement(): number {
+    const taches = this.tachesDossier();
+    if (!taches.length) return 0;
+    return Math.round(
+      100 * taches.filter(t => t.statut === 'TERMINEE').length / taches.length
+    );
+  }
+
   ngOnInit(): void {
+    this.modeEdition =
+      this.route.snapshot.queryParamMap.get('mode') === 'edition';
+
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.erreur.set('Identifiant du dossier manquant.');
@@ -155,8 +168,11 @@ export class FicheDossier implements OnInit {
 
   nomResponsable(id: string | null): string {
     if (!id) return 'Non assigné';
-    return this.responsables().find(r => r.id === id)?.email
-      ?? 'Responsable indisponible';
+    const responsable = this.responsables().find(r => r.id === id);
+    if (!responsable) return 'Responsable indisponible';
+    return responsable.prenom && responsable.nom
+      ? `${responsable.prenom} ${responsable.nom}`
+      : 'Identité à renseigner';
   }
 
   estModifie(): boolean {

@@ -38,6 +38,31 @@ public class UtilisateurService {
         return creer(email, motDePasse, RoleUtilisateur.USER);
     }
 
+    @Transactional
+    public Utilisateur creerCollaborateur(
+            String email, String motDePasse, String prenom, String nom) {
+        Utilisateur utilisateur = creerCollaborateur(email, motDePasse);
+        utilisateur.modifierIdentite(
+                validerIdentite(prenom), validerIdentite(nom));
+        return utilisateur;
+    }
+
+    @Transactional
+    public Utilisateur modifierCollaborateur(
+            UUID id, String email, String prenom, String nom) {
+        Utilisateur utilisateur = modifierEmail(id, email);
+        utilisateur.modifierIdentite(
+                validerIdentite(prenom), validerIdentite(nom));
+        return utilisateur;
+    }
+
+    private String validerIdentite(String valeur) {
+        if (valeur == null || valeur.isBlank() || valeur.trim().length() > 100) {
+            throw new IllegalArgumentException("Prénom et nom obligatoires (100 caractères maximum)");
+        }
+        return valeur.trim();
+    }
+
     @Transactional(readOnly = true)
     public java.util.List<Utilisateur> lister() {
         return repository.findAll();

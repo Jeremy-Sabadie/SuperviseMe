@@ -34,6 +34,7 @@
             <div class="dossier-card">
               <strong>{{ dossier.titre }}</strong>
               <span>{{ nomClient(dossier.clientId) }}</span>
+              <span>Responsable : {{ nomResponsable(dossier.responsableId) }}</span>
               <small>{{ dossier.statut.replaceAll('_', ' ') }}</small>
             </div>
 

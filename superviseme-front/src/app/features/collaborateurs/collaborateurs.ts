@@ -17,6 +17,8 @@ import {
 export class Collaborateurs implements OnInit {
   private readonly api = inject(UtilisateurApiService);
 
+  prenom = '';
+  nom = '';
   email = '';
   motDePasse = '';
 
@@ -34,7 +36,8 @@ export class Collaborateurs implements OnInit {
   readonly collaborateursFiltres = computed(() => {
     const terme = this.recherche().trim().toLowerCase();
     return this.collaborateurs().filter(c =>
-      c.email.toLowerCase().includes(terme)
+      [c.email, c.prenom ?? '', c.nom ?? '']
+        .join(' ').toLowerCase().includes(terme)
     );
   });
 
@@ -59,6 +62,8 @@ export class Collaborateurs implements OnInit {
   ouvrirCreation(): void {
     this.email = '';
     this.motDePasse = '';
+    this.prenom = '';
+    this.nom = '';
     this.erreur.set('');
     this.succes.set('');
     this.edition.set(true);
@@ -73,29 +78,67 @@ export class Collaborateurs implements OnInit {
 
   readonly modificationEmail = signal(false);
   emailModification = '';
+  prenomModification = '';
+  nomModification = '';
 
   ouvrirModification(collaborateur: CollaborateurResponse): void {
     if (collaborateur.role === 'ADMIN') return;
     this.selection.set(collaborateur);
     this.emailModification = collaborateur.email;
+    this.prenomModification = collaborateur.prenom ?? '';
+    this.nomModification = collaborateur.nom ?? '';
     this.modificationEmail.set(true);
   }
 
-  enregistrerModification(): void {
+  async enregistrerModification(): Promise<void> {
     const collaborateur = this.selection();
     if (!collaborateur || this.chargement()) return;
 
+    const confirmation = await Swal.fire({
+      title: 'Confirmer les modifications ?',
+      text: `Enregistrer les informations de ${this.prenomModification.trim()} ${this.nomModification.trim()} ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Enregistrer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#519ca5',
+      cancelButtonColor: '#344854',
+      background: '#151d30',
+      color: '#ffffff',
+      width: 'min(420px, 95vw)',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed ||
+        this.selection()?.id !== collaborateur.id ||
+        this.chargement()) return;
+
     this.chargement.set(true);
-    this.api.modifier(collaborateur.id, this.emailModification).subscribe({
+    this.erreur.set('');
+
+    this.api.modifier(
+      collaborateur.id,
+      this.emailModification,
+      this.prenomModification,
+      this.nomModification
+    ).subscribe({
       next: resultat => {
         this.actualiserCollaborateur(resultat);
         this.modificationEmail.set(false);
         this.chargement.set(false);
-        this.succes.set('Collaborateur modifié.');
+        void Swal.fire({
+          title: 'Collaborateur modifié',
+          text: 'Les informations ont été enregistrées avec succès.',
+          icon: 'success',
+          timer: 1800,
+          showConfirmButton: false,
+          background: '#151d30',
+          color: '#ffffff'
+        });
       },
       error: () => {
         this.chargement.set(false);
-        this.erreur.set('Modification impossible. Vérifiez l’adresse e-mail.');
+        this.erreur.set('Impossible de modifier ce collaborateur.');
       }
     });
   }
@@ -187,7 +230,7 @@ export class Collaborateurs implements OnInit {
     this.succes.set('');
     this.chargement.set(true);
 
-    this.api.creer(this.email, this.motDePasse).subscribe({
+    this.api.creer(this.email, this.motDePasse, this.prenom, this.nom).subscribe({
       next: collaborateur => {
         this.succes.set(
           `Le collaborateur ${collaborateur.email} a été créé.`
@@ -195,6 +238,8 @@ export class Collaborateurs implements OnInit {
         this.collaborateurs.update(liste => [...liste, collaborateur]);
         this.email = '';
         this.motDePasse = '';
+        this.prenom = '';
+        this.nom = '';
         this.edition.set(false);
         this.chargement.set(false);
       },

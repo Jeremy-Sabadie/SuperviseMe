@@ -4,83 +4,43 @@
   @if (chargement()) {
     <p>Chargement du dossier...</p>
   } @else if (dossier()) {
-    <h1>Fiche dossier</h1>
-    <p class="reference">Référence : {{ dossier()!.id.slice(0, 8) }}</p>
-
-    <form (ngSubmit)="enregistrer()">
-      <label>Titre
-        <input name="titre" [(ngModel)]="formulaire.titre" required maxlength="200">
-      </label>
-
-      <label>Description
-        <textarea name="description" [(ngModel)]="formulaire.description" rows="5"></textarea>
-      </label>
-
-      <div class="deux-colonnes">
-        <label>Statut
-          <select name="statut" [(ngModel)]="formulaire.statut">
-            <option value="A_TRAITER">À traiter</option>
-            <option value="EN_COURS">En cours</option>
-            <option value="TERMINE">Terminé</option>
-            <option value="ARCHIVE">Archivé</option>
-          </select>
-        </label>
-
-        <label>Priorité
-          <select name="priorite" [(ngModel)]="formulaire.priorite">
-            <option value="BASSE">Basse</option>
-            <option value="NORMALE">Normale</option>
-            <option value="HAUTE">Haute</option>
-          </select>
-        </label>
+    <header class="us008-header">
+      <div>
+        <p class="reference">Dossier {{ dossier()!.id.slice(0, 8) }}</p>
+        <h1>{{ dossier()!.titre }}</h1>
+        <span class="us008-statut">
+          {{ dossier()!.statut.replaceAll('_', ' ') }}
+        </span>
       </div>
-
-      <label>Échéance
-        <input type="date" name="echeance" [(ngModel)]="formulaire.echeance">
-      </label>
-
-      <p class="reference">Client : {{ nomClient(dossier()!.clientId) }}</p>
-      <p class="reference">Responsable : {{ nomResponsable(dossier()!.responsableId) }}</p>
-      <p class="reference">Participants : {{ dossier()!.participantIds.length }}</p>
-
-      <button type="submit" [disabled]="enregistrement() || !formulaire.titre.trim() || !estModifie()">
-        {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
-      </button>
-    </form>
-
-    @if (estAdmin()) {
-      <!-- Attribution indépendante des modifications générales du dossier. -->
-      <section class="attribution" aria-labelledby="titre-participants">
-        <h2 id="titre-participants">Collaborateurs du dossier</h2>
-        <p>Sélectionnez les collaborateurs participant à ce dossier.</p>
-
-        @for (collaborateur of responsables(); track collaborateur.id) {
-          <label class="participant">
-            <input
-              type="checkbox"
-              [checked]="participantSelectionne(collaborateur.id)"
-              [disabled]="enregistrementParticipants() || !collaborateur.actif"
-              (change)="basculerParticipant(collaborateur.id, $any($event.target).checked)">
-            {{ collaborateur.email }} @if (!collaborateur.actif) { (Compte désactivé) }
-          </label>
-        }
-
-        <button
-          type="button"
-          [disabled]="enregistrementParticipants() || !participantsModifies()"
-          (click)="enregistrerParticipants()">
-          {{ enregistrementParticipants() ? 'Enregistrement...' : 'Enregistrer les participants' }}
+      @if (estAdmin()) {
+        <button type="button" class="us008-modifier"
+          (click)="modeEdition = !modeEdition">
+          {{ modeEdition ? 'Fermer' : 'Modifier' }}
         </button>
+      }
+    </header>
 
-        @if (succesParticipants()) {
-          <p class="succes">Participants enregistrés.</p>
-        }
-      </section>
-    }
+    <section class="us008-resume" aria-label="Résumé du dossier">
+      <div>
+        <small>Client</small>
+        <strong>{{ nomClient(dossier()!.clientId) }}</strong>
+      </div>
+      <div>
+        <small>Responsable</small>
+        <strong>{{ nomResponsable(dossier()!.responsableId) }}</strong>
+      </div>
+      <div>
+        <small>Échéance</small>
+        <strong>{{ dossier()!.echeance || 'Non définie' }}</strong>
+      </div>
+      <div>
+        <small>Avancement des tâches</small>
+        <strong>{{ avancement() }} %</strong>
+        <progress [value]="avancement()" max="100"></progress>
+      </div>
+    </section>
 
-
-
-    <section class="taches-dossier" aria-labelledby="titre-taches">
+<details class="taches-dossier us008-section" open><summary>Tâches du dossier ({{ tachesDossier().length }})</summary><div class="us008-section-content">
       <div class="taches-entete">
         <div>
           <h2 id="titre-taches">Tâches du dossier</h2>
@@ -172,7 +132,98 @@
       @if (erreurTaches()) {
         <p class="erreur">{{ erreurTaches() }}</p>
       }
-    </section>
+    </div>
+    </details>
+
+
+    <details class="us008-section">
+      <summary>Description du dossier</summary>
+      <div class="us008-section-content">
+        <p>{{ dossier()!.description || 'Aucune description.' }}</p>
+      </div>
+    </details>
+
+    @if (estAdmin() && modeEdition) {
+      <section class="us008-section us008-edition">
+        <h2>Modifier le dossier</h2>
+    <form (ngSubmit)="enregistrer()">
+      <label>Titre
+        <input name="titre" [(ngModel)]="formulaire.titre" required maxlength="200">
+      </label>
+
+      <label>Description
+        <textarea name="description" [(ngModel)]="formulaire.description" rows="5"></textarea>
+      </label>
+
+      <div class="deux-colonnes">
+        <label>Statut
+          <select name="statut" [(ngModel)]="formulaire.statut">
+            <option value="A_TRAITER">À traiter</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ARCHIVE">Archivé</option>
+          </select>
+        </label>
+
+        <label>Priorité
+          <select name="priorite" [(ngModel)]="formulaire.priorite">
+            <option value="BASSE">Basse</option>
+            <option value="NORMALE">Normale</option>
+            <option value="HAUTE">Haute</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Échéance
+        <input type="date" name="echeance" [(ngModel)]="formulaire.echeance">
+      </label>
+
+      <p class="reference">Client : {{ nomClient(dossier()!.clientId) }}</p>
+      <p class="reference">Responsable : {{ nomResponsable(dossier()!.responsableId) }}</p>
+      <p class="reference">Participants : {{ dossier()!.participantIds.length }}</p>
+
+      <button type="submit" [disabled]="enregistrement() || !formulaire.titre.trim() || !estModifie()">
+        {{ enregistrement() ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+      </button>
+    </form>
+
+      </section>
+    }
+
+    @if (estAdmin()) {
+      <!-- Attribution indépendante des modifications générales du dossier. -->
+      <details class="attribution us008-section"><summary>Collaborateurs du dossier ({{ dossier()!.participantIds.length }})</summary><div class="us008-section-content">
+
+        <p>Sélectionnez les collaborateurs participant à ce dossier.</p>
+
+        @for (collaborateur of responsables(); track collaborateur.id) {
+          <label class="participant">
+            <input
+              type="checkbox"
+              [checked]="participantSelectionne(collaborateur.id)"
+              [disabled]="enregistrementParticipants() || !collaborateur.actif"
+              (change)="basculerParticipant(collaborateur.id, $any($event.target).checked)">
+            {{ collaborateur.email }} @if (!collaborateur.actif) { (Compte désactivé) }
+          </label>
+        }
+
+        <button
+          type="button"
+          [disabled]="enregistrementParticipants() || !participantsModifies()"
+          (click)="enregistrerParticipants()">
+          {{ enregistrementParticipants() ? 'Enregistrement...' : 'Enregistrer les participants' }}
+        </button>
+
+        @if (succesParticipants()) {
+          <p class="succes">Participants enregistrés.</p>
+        }
+      </div>
+      </details>
+    }
+
+
+
+
 
     @if (succes()) { <p class="succes">Modifications enregistrées.</p> }
   }

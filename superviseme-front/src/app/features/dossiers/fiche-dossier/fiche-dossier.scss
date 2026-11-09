@@ -254,3 +254,221 @@ button:disabled { opacity: .5; }
 
   .carte-tache { margin-bottom: 8px; }
 }
+
+
+/* US-008 — Fiche dossier mobile first */
+.us008-section {
+  border: 1px solid rgba(74, 210, 202, .22);
+  border-radius: 12px;
+  background: rgba(10, 29, 45, .72);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.us008-section > summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  color: #e8f7f7;
+  font-weight: 600;
+}
+
+.us008-section[open] > summary {
+  border-bottom: 1px solid rgba(74, 210, 202, .22);
+}
+
+.us008-section-content {
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .us008-section-content {
+    padding: 20px;
+  }
+}
+
+/* US-008 : fiche synthétique responsive */
+.us008-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.us008-header h1 {
+  margin: .25rem 0 .65rem;
+}
+
+.us008-statut {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: rgba(79, 156, 165, .18);
+  color: #8ee4e2;
+  font-weight: 600;
+}
+
+.us008-modifier {
+  background: #234a58;
+  color: #f0ffff;
+  border: 1px solid #4f9ca5;
+  border-radius: 8px;
+  padding: .7rem 1rem;
+  cursor: pointer;
+}
+
+.us008-resume {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.us008-resume > div {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(79, 156, 165, .3);
+  border-radius: 12px;
+  background: rgba(12, 34, 49, .75);
+}
+
+.us008-resume small,
+.us008-resume strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.us008-resume small {
+  color: #a4bdc7;
+  margin-bottom: .35rem;
+}
+
+.us008-resume strong {
+  color: #f0f8fa;
+}
+
+.us008-resume progress {
+  width: 100%;
+  height: .6rem;
+  margin-top: .5rem;
+  accent-color: #4f9ca5;
+}
+
+.us008-section {
+  display: block;
+  margin-bottom: .85rem;
+  border: 1px solid rgba(79, 156, 165, .3);
+  border-radius: 12px;
+  background: rgba(12, 34, 49, .75);
+  overflow: hidden;
+}
+
+.us008-section > summary {
+  cursor: pointer;
+  padding: 1rem;
+  color: #e8f7f7;
+  font-weight: 650;
+}
+
+.us008-section[open] > summary {
+  border-bottom: 1px solid rgba(79, 156, 165, .25);
+}
+
+.us008-section-content {
+  padding: 1rem;
+}
+
+.us008-edition {
+  padding: 1rem;
+}
+
+@media (min-width: 700px) {
+  .us008-resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .us008-resume {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* US-008 — correction mobile compacte */
+.us008-resume {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.us008-resume > div {
+  padding: 10px;
+  border-radius: 9px;
+}
+
+.us008-resume small {
+  font-size: 11px;
+}
+
+.us008-resume strong {
+  font-size: 13px;
+}
+
+.us008-header {
+  margin-bottom: 12px;
+}
+
+.us008-section {
+  margin-bottom: 8px;
+}
+
+.us008-section > summary {
+  padding: 11px 12px;
+}
+
+@media (max-width: 480px) {
+  .us008-resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* US-008 : optimisation densité desktop */
+@media (min-width: 900px) {
+  .us008-header {
+    margin-bottom: 10px;
+    align-items: center;
+  }
+
+  .us008-header h1 {
+    margin: 2px 0 5px;
+    font-size: clamp(22px, 2vw, 30px);
+    line-height: 1.15;
+  }
+
+  .us008-resume {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .us008-resume > div {
+    padding: 10px 12px;
+  }
+
+  .us008-section {
+    margin-bottom: 8px;
+  }
+
+  .us008-section > summary {
+    padding: 9px 12px;
+  }
+
+  .us008-section-content {
+    padding: 10px 12px;
+  }
+
+  .taches-dossier h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
+  }
+}

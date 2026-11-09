@@ -12,7 +12,7 @@
   padding: 36px 22px 80px;
 }
 
-.retour { color: #a5b4fc; text-decoration: none; }
+.retour { color: var(--sm-accent-hover); text-decoration: none; }
 h1 { margin: 24px 0 8px; }
 header p, .entete p, time { color: #9caac2; }
 .liste { display: grid; gap: 18px; margin-top: 30px; }
@@ -118,7 +118,7 @@ select {
 
 .actions .creer-dossier:hover {
   background: #354466;
-  border-color: #a5b4fc;
+  border-color: var(--sm-accent-hover);
   transform: none;
 }
 

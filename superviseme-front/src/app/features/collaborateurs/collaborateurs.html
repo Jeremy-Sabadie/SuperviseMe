@@ -23,6 +23,14 @@
       <h2>Nouveau collaborateur</h2>
       <p>Le compte créé disposera du rôle Collaborateur.</p>
 
+      <label for="prenom">Prénom</label>
+      <input id="prenom" name="prenom" [(ngModel)]="prenom"
+             required maxlength="100">
+
+      <label for="nom">Nom</label>
+      <input id="nom" name="nom" [(ngModel)]="nom"
+             required maxlength="100">
+
       <label for="email">Adresse e-mail</label>
       <input id="email" type="email" name="email"
              [(ngModel)]="email" required autocomplete="off">
@@ -58,7 +66,9 @@
             <button type="button" class="collaborateur-card"
                     [class.actif]="selection()?.id === collaborateur.id"
                     (click)="selectionner(collaborateur)">
-              <strong>{{ collaborateur.email }}</strong>
+              <strong>{{ collaborateur.prenom && collaborateur.nom
+                ? collaborateur.prenom + ' ' + collaborateur.nom
+                : collaborateur.email }}</strong>
               <span>{{ collaborateur.role === 'ADMIN' ? 'Administrateur' : 'Collaborateur' }}</span>
               <span class="statut-compte"
                     [class.statut-inactif]="!collaborateur.actif">
@@ -102,6 +112,12 @@
           <h2>Fiche collaborateur</h2>
           @if (modificationEmail()) {
             <form class="creation-form" (ngSubmit)="enregistrerModification()">
+              <label for="prenomModification">Prénom</label>
+              <input id="prenomModification" name="prenomModification"
+                     [(ngModel)]="prenomModification" required maxlength="100">
+              <label for="nomModification">Nom</label>
+              <input id="nomModification" name="nomModification"
+                     [(ngModel)]="nomModification" required maxlength="100">
               <label for="emailModification">Adresse e-mail</label>
               <input id="emailModification" type="email" name="emailModification"
                      [(ngModel)]="emailModification" required>
@@ -115,6 +131,10 @@
           }
 
           <div class="section-detail">
+            <h3>Identité</h3>
+            <p>{{ collaborateur.prenom && collaborateur.nom
+              ? collaborateur.prenom + ' ' + collaborateur.nom
+              : 'Identité à renseigner' }}</p>
             <h3>Adresse e-mail</h3>
             <p>{{ collaborateur.email }}</p>
             <h3>Rôle</h3>

@@ -32,7 +32,9 @@ public class UtilisateurController {
             UUID id,
             String email,
             RoleUtilisateur role,
-            boolean actif
+            boolean actif,
+            String prenom,
+            String nom
     ) {}
 
     @PostMapping
@@ -43,7 +45,7 @@ public class UtilisateurController {
             throw new IllegalArgumentException("Corps JSON invalide");
         }
 
-        Set<String> champsAutorises = Set.of("email", "motDePasse");
+        Set<String> champsAutorises = Set.of("email", "motDePasse", "prenom", "nom");
         var champs = body.propertyNames();
 
         for (String champ : champs) {
@@ -54,15 +56,17 @@ public class UtilisateurController {
 
         String email = texte(body, "email");
         String motDePasse = texte(body, "motDePasse");
+        String prenom = texte(body, "prenom");
+        String nom = texte(body, "nom");
 
         Utilisateur utilisateur =
-                service.creerCollaborateur(email, motDePasse);
+                service.creerCollaborateur(email, motDePasse, prenom, nom);
 
         return new CollaborateurResponse(
                 utilisateur.getId(),
                 utilisateur.getEmail(),
                 utilisateur.getRole(),
-                utilisateur.isActif()
+                utilisateur.isActif(), utilisateur.getPrenom(), utilisateur.getNom()
         );
     }
 
@@ -76,19 +80,23 @@ public class UtilisateurController {
                         utilisateur.getId(),
                         utilisateur.getEmail(),
                         utilisateur.getRole(),
-                utilisateur.isActif()
+                utilisateur.isActif(), utilisateur.getPrenom(), utilisateur.getNom()
                 ))
                 .toList();
     }
 
-    public record ModifierCollaborateurRequest(@NotBlank String email) {}
+    public record ModifierCollaborateurRequest(
+            @NotBlank String email,
+            @NotBlank String prenom,
+            @NotBlank String nom
+    ) {}
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public CollaborateurResponse modifier(
             @PathVariable UUID id,
             @Valid @RequestBody ModifierCollaborateurRequest request) {
-        return reponse(service.modifierEmail(id, request.email()));
+        return reponse(service.modifierCollaborateur(id, request.email(), request.prenom(), request.nom()));
     }
 
     /** Désactivation réservée aux administrateurs. */
@@ -115,7 +123,7 @@ public class UtilisateurController {
                 utilisateur.getId(),
                 utilisateur.getEmail(),
                 utilisateur.getRole(),
-                utilisateur.isActif()
+                utilisateur.isActif(), utilisateur.getPrenom(), utilisateur.getNom()
         );
     }
 
