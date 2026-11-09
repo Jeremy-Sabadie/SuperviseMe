@@ -1,0 +1,56 @@
+<div class="configuration-page">
+  <header class="page-header">
+    <a routerLink="/" class="retour">← Tableau de bord</a>
+    <h1>Configurer mes statuts</h1>
+    <p>Personnalisez les étapes de suivi de votre entreprise.</p>
+  </header>
+
+  <nav class="categories" aria-label="Catégories de statuts">
+    @for (item of categories; track item.id) {
+      <button type="button"
+              [class.active]="categorie() === item.id"
+              (click)="choisir(item.id)">
+        {{ item.titre }}
+      </button>
+    }
+  </nav>
+
+  <section class="panneau">
+    <h2>Statuts de la catégorie</h2>
+
+    @if (chargement()) {
+      <p>Chargement...</p>
+    } @else if (statuts().length === 0) {
+      <p class="vide">Aucun statut personnalisé pour cette catégorie.</p>
+    }
+
+    @for (statut of statuts(); track statut.id; let i = $index) {
+      <div class="statut">
+        <input type="color"
+               [value]="statut.couleur"
+               (change)="changerCouleur(statut, $any($event.target).value)"
+               [attr.aria-label]="'Couleur de ' + statut.libelle">
+
+        <span class="libelle">{{ statut.libelle }}</span>
+
+        <div class="actions">
+          <button type="button" (click)="deplacer(statut, -1)"
+                  [disabled]="i === 0" aria-label="Monter">↑</button>
+          <button type="button" (click)="deplacer(statut, 1)"
+                  [disabled]="i === statuts().length - 1" aria-label="Descendre">↓</button>
+          <button type="button" (click)="modifier(statut)">Modifier</button>
+        </div>
+      </div>
+    }
+
+    <form class="ajout" (ngSubmit)="ajouter()">
+      <input name="libelle" [(ngModel)]="libelle"
+             maxlength="100" required placeholder="Nouveau statut">
+      <input name="couleur" type="color" [(ngModel)]="couleur"
+             aria-label="Couleur du nouveau statut">
+      <button type="submit" [disabled]="!libelle.trim()">+ Ajouter</button>
+    </form>
+
+    <p class="note">La suppression sera activée après sécurisation des statuts utilisés par les dossiers.</p>
+  </section>
+</div>

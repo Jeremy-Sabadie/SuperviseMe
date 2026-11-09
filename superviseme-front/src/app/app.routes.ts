@@ -4,6 +4,14 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'configurer-statuts',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/configuration-statuts/configuration-statuts')
+        .then(m => m.ConfigurationStatuts)
+  },
+
+  {
     path: 'task',
     canActivate: [authGuard],
     loadComponent: () =>

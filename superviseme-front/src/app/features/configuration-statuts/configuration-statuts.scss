@@ -1,0 +1,34 @@
+:host { display: block; min-height: 100vh; background: #0b1220; color: #edf2fc; }
+.configuration-page { max-width: 1050px; margin: auto; padding: 38px 22px; }
+.page-header { margin-bottom: 30px; }
+.retour { color: #79b8ff; text-decoration: none; font-size: 14px; }
+h1 { font-size: clamp(27px, 4vw, 38px); margin: 22px 0 8px; }
+p { color: #a6b4cb; }
+.categories { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+button { cursor: pointer; border: 1px solid #35425a; border-radius: 9px;
+  background: #1b2940; color: #eaf0fa; padding: 10px 15px; }
+button:disabled { opacity: .35; cursor: not-allowed; }
+.categories button.active { background: #2563eb; border-color: #60a5fa; }
+.panneau { border: 1px solid #263751; border-radius: 16px;
+  padding: 25px; background: #141e30; }
+h2 { margin-top: 0; font-size: 20px; }
+.statut { display: flex; align-items: center; gap: 15px;
+  padding: 14px 0; border-bottom: 1px solid #29364b; }
+.statut input[type=color], .ajout input[type=color] {
+  width: 44px; height: 39px; border: 0; background: transparent; cursor: pointer;
+}
+.libelle { flex: 1; overflow-wrap: anywhere; font-weight: 600; }
+.actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.ajout { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.ajout input[type=text], .ajout input:not([type]) {
+  flex: 1; min-width: 170px; padding: 12px; background: #0c1525;
+  border: 1px solid #35425a; border-radius: 9px; color: white;
+}
+.ajout button { background: #2563eb; border-color: #2563eb; }
+.note { margin: 22px 0 0; font-size: 12px; }
+@media(max-width: 600px) {
+  .configuration-page { padding: 22px 14px; }
+  .panneau { padding: 16px; }
+  .statut { flex-wrap: wrap; }
+  .actions { width: 100%; justify-content: flex-end; }
+}
