@@ -1,5 +1,6 @@
 <section class="dossiers-page">
   <a routerLink="/" class="sm-retour-dashboard">← Retour au tableau de bord</a>
+
   <header class="page-header">
     <div>
       <h1>Mes dossiers</h1>
@@ -15,101 +16,55 @@
   } @else if (erreur()) {
     <p class="error" role="alert">{{ erreur() }}</p>
   } @else {
-    <div class="master-detail" [class.detail-ouvert]="dossierSelectionne()">
-      <div class="master">
-        <div class="master-heading">
-          <h2>Dossiers</h2>
-          <span class="compteur">{{ dossiersFiltres().length }}</span>
-        </div>
-
-        <input type="search"
-               placeholder="Rechercher un dossier ou un client..."
-               aria-label="Rechercher un dossier"
-               [ngModel]="recherche()"
-               (ngModelChange)="recherche.set($event)">
-
-        <div class="dossiers-list">
-          @for (dossier of dossiersFiltres(); track dossier.id) {
-            <div class="sm-list-item">
-              <button type="button"
-                      class="dossier-card"
-                      data-testid="dossier-select"
-                      [class.actif]="dossierSelectionne()?.id === dossier.id"
-                      (click)="selectionner(dossier)">
-                <strong>{{ dossier.titre }}</strong>
-                <span>{{ nomClient(dossier.clientId) }}</span>
-                <small>{{ dossier.statut.replaceAll('_', ' ') }}</small>
-              </button>
-
-              <div class="sm-list-actions">
-                <button type="button"
-                        (click)="selectionner(dossier)">
-                  Consulter
-                </button>
-
-                @if (estAdmin()) {
-                  <a [routerLink]="['/dossiers', dossier.id]">
-                    Modifier
-                  </a>
-                  <button type="button" class="sm-danger"
-                          (click)="supprimer(dossier)">
-                    Supprimer
-                  </button>
-                }
-              </div>
-            </div>
-          } @empty {
-            <p>Aucun dossier trouvé.</p>
-          }
-        </div>
+    <section class="master" aria-label="Liste des dossiers">
+      <div class="master-heading">
+        <h2>Dossiers</h2>
+        <span class="compteur">{{ dossiersFiltres().length }}</span>
       </div>
 
-      <div class="detail">
-        @if (dossierSelectionne(); as dossier) {
-          <div data-testid="dossier-detail">
-            <button type="button"
-                    class="retour"
-                    data-testid="dossier-retour"
-                    (click)="fermerFiche()">← Retour aux dossiers</button>
+      <input type="search"
+             placeholder="Rechercher un dossier ou un client..."
+             aria-label="Rechercher un dossier"
+             [ngModel]="recherche()"
+             (ngModelChange)="recherche.set($event)">
 
-            <div class="detail-header">
-              <div>
-                <span class="eyebrow">FICHE DOSSIER</span>
-                <h2>{{ dossier.titre }}</h2>
-                <p>{{ nomClient(dossier.clientId) }}</p>
-              </div>
-              <span class="statut">{{ dossier.statut.replaceAll('_', ' ') }}</span>
+      <div class="dossiers-list">
+        @for (dossier of dossiersFiltres(); track dossier.id) {
+          <article class="sm-list-item">
+            <div class="dossier-card">
+              <strong>{{ dossier.titre }}</strong>
+              <span>{{ nomClient(dossier.clientId) }}</span>
+              <span>Responsable : {{ nomResponsable(dossier.responsableId) }}</span>
+              <small class="statut-dossier-badge"
+                     [style.color]="statutDuDossier(dossier)?.couleur || '#65c7d0'"
+                     [style.border-color]="statutDuDossier(dossier)?.couleur || '#65c7d0'">
+                {{ libelleStatutDossier(dossier) }}
+              </small>
             </div>
 
-            <div class="infos">
-              <div class="info">
-                <span>Priorité</span>
-                <strong>{{ dossier.priorite }}</strong>
-              </div>
-              <div class="info">
-                <span>Échéance</span>
-                <strong>{{ dossier.echeance || 'Non renseignée' }}</strong>
-              </div>
-            </div>
+            <div class="sm-list-actions">
+              <a data-testid="dossier-consulter"
+                 [routerLink]="['/dossiers', dossier.id]">
+                Consulter
+              </a>
 
-            <div class="section-detail">
-              <h3>Description</h3>
-              <p>{{ dossier.description || 'Aucune description renseignée.' }}</p>
+              @if (estAdmin()) {
+                <a data-testid="dossier-modifier"
+                   [routerLink]="['/dossiers', dossier.id]"
+                   [queryParams]="{ mode: 'edition' }">
+                  Modifier
+                </a>
+                <button type="button" class="sm-danger"
+                        (click)="supprimer(dossier)">
+                  Supprimer
+                </button>
+              }
             </div>
-
-            <a class="primary fiche-link"
-               [routerLink]="['/dossiers', dossier.id]">
-              Ouvrir la fiche complète →
-            </a>
-          </div>
-        } @else {
-          <div class="detail-vide">
-            <span class="detail-icone">▤</span>
-            <h2>Fiche dossier</h2>
-            <p>Sélectionnez un dossier à gauche pour consulter ses informations.</p>
-          </div>
+          </article>
+        } @empty {
+          <p>Aucun dossier trouvé.</p>
         }
       </div>
-    </div>
+    </section>
   }
 </section>

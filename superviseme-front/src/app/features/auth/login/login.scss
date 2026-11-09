@@ -35,7 +35,7 @@
   height: 48px;
   margin: 0 auto 14px;
   border-radius: 14px;
-  background: #7c3aed;
+  background: var(--sm-accent);
   font-size: 26px;
   font-weight: 800;
 }
@@ -78,7 +78,7 @@ input {
 }
 
 input:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--sm-accent-hover);
   outline-offset: 2px;
 }
 
@@ -87,7 +87,7 @@ button {
   padding: 15px;
   border: 0;
   border-radius: 10px;
-  background: #7c3aed;
+  background: var(--sm-accent);
   color: white;
   font: inherit;
   font-weight: 600;
@@ -101,7 +101,7 @@ button:hover {
 .forgot-link {
   align-self: flex-end;
   font-size: 13px;
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   text-decoration: none;
 }
 
@@ -113,12 +113,12 @@ button:hover {
 }
 
 .signup-link a {
-  color: #c4b5fd;
+  color: var(--sm-accent-hover);
   font-weight: 600;
 }
 
 a:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--sm-accent-hover);
   outline-offset: 3px;
 }
 

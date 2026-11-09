@@ -39,6 +39,14 @@
           <textarea name="adresse" rows="3"
                     [(ngModel)]="formulaire.adresse"></textarea>
         </label>
+        <label>Statut client
+          <select name="statutClient" [(ngModel)]="statutFormulaire">
+            <option value="">Aucun statut</option>
+            @for (statut of statutsClients(); track statut.id) {
+              <option [value]="statut.id">{{ statut.libelle }}</option>
+            }
+          </select>
+        </label>
       </div>
 
       <div class="actions">
@@ -70,6 +78,13 @@
                       (click)="selectionner(client)">
                 <strong>{{ client.nom }}</strong>
                 <span>{{ client.entreprise || 'Particulier' }}</span>
+                @if (statutDuClient(client); as statut) {
+                  <span class="statut-client-badge"
+                        [style.border-color]="statut.couleur"
+                        [style.color]="statut.couleur">
+                    {{ statut.libelle }}
+                  </span>
+                }
               </button>
               <div class="sm-client-actions">
                 <button type="button" (click)="selectionner(client)">
@@ -103,6 +118,26 @@
             <button type="button" (click)="modifier(client)">
               Modifier
             </button>
+          </div>
+
+          <div class="section-detail">
+            <h3>Statut client</h3>
+            <label>
+              <span>Statut personnalisé</span>
+              <select
+                aria-label="Statut du client"
+                [ngModel]="client.statutPersonnaliseId ?? ''"
+                (ngModelChange)="changerStatutClient(client, $event)"
+                [disabled]="changementStatut() || statutsClients().length === 0">
+                <option value="" disabled>Sélectionner un statut</option>
+                @for (statut of statutsClients(); track statut.id) {
+                  <option [value]="statut.id">{{ statut.libelle }}</option>
+                }
+              </select>
+            </label>
+            @if (statutsClients().length === 0) {
+              <p>Aucun statut client configuré.</p>
+            }
           </div>
 
           <div class="section-detail">

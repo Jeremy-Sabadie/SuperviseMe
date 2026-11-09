@@ -1,0 +1,97 @@
+<section class="taches-page">
+  <a routerLink="/" class="retour">← Retour au tableau de bord</a>
+
+  <header>
+    <h1>Mes tâches</h1>
+    <p>Suivez les tâches de votre entreprise et leur avancement.</p>
+  </header>
+
+  @if (erreur()) {
+    <p class="erreur" role="alert">{{ erreur() }}</p>
+  }
+
+  @if (estAdmin()) {
+    <form
+      class="creation"
+      data-testid="tache-creation"
+      (ngSubmit)="creer()"
+    >
+      <h2>Nouvelle tâche</h2>
+
+      <label for="titre-tache">Titre</label>
+      <input
+        id="titre-tache"
+        name="titre"
+        maxlength="200"
+        required
+        [(ngModel)]="titre"
+        placeholder="Ex. Préparer le devis"
+      >
+
+      <label for="responsable-tache">Responsable</label>
+      <select
+        id="responsable-tache"
+        name="responsable"
+        required
+        [(ngModel)]="responsableId"
+      >
+        <option value="">Sélectionner un responsable</option>
+        @for (collaborateur of collaborateurs(); track collaborateur.id) {
+          <option [value]="collaborateur.id">
+            {{ collaborateur.email }}
+          </option>
+        }
+      </select>
+
+      <button
+        type="submit"
+        [disabled]="!titre.trim() || !responsableId || enregistrement()"
+      >
+        Créer la tâche
+      </button>
+    </form>
+  }
+
+  <div class="liste">
+    <h2>Tâches de l'entreprise ({{ taches().length }})</h2>
+
+    @if (chargement()) {
+      <p>Chargement des tâches...</p>
+    } @else {
+      @for (tache of taches(); track tache.id) {
+        <article class="tache">
+          <div class="tache-infos">
+            <h3>{{ tache.titre }}</h3>
+            <p>Responsable : {{ responsable(tache) }}</p>
+            <span class="priorite">Priorité : {{ tache.priorite }}</span>
+          </div>
+
+          <div class="tache-statut">
+            @if (peutModifier(tache)) {
+              <label [for]="'statut-' + tache.id">Statut</label>
+              <select
+                [id]="'statut-' + tache.id"
+                [attr.data-testid]="'statut-' + tache.id"
+                [ngModel]="tache.statut"
+                [disabled]="enregistrement()"
+                (ngModelChange)="changerStatut(tache, $event)"
+              >
+                @for (statut of statuts; track statut.valeur) {
+                  <option [value]="statut.valeur">
+                    {{ statut.libelle }}
+                  </option>
+                }
+              </select>
+            } @else {
+              <span class="statut-lecture">
+                {{ libelleStatut(tache.statut) }}
+              </span>
+            }
+          </div>
+        </article>
+      } @empty {
+        <p>Aucune tâche pour le moment.</p>
+      }
+    }
+  </div>
+</section>

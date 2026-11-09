@@ -54,15 +54,21 @@ class UtilisateurControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(Map.of(
                     "email", email,
-                    "motDePasse", "MotDePasseCollaborateur123!"
+                    "motDePasse", "MotDePasseCollaborateur123!",
+                    "prenom", "Jean",
+                    "nom", "Dupont"
                 ))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.email").value(email))
+            .andExpect(jsonPath("$.prenom").value("Jean"))
+            .andExpect(jsonPath("$.nom").value("Dupont"))
             .andExpect(jsonPath("$.role").value("USER"))
             .andExpect(jsonPath("$.motDePasseHash").doesNotExist());
 
         Utilisateur cree = repository.findByEmail(email).orElseThrow();
         assertEquals(RoleUtilisateur.USER, cree.getRole());
+        assertEquals("Jean", cree.getPrenom());
+        assertEquals("Dupont", cree.getNom());
         assertTrue(encoder.matches("MotDePasseCollaborateur123!", cree.getMotDePasseHash()));
     }
 

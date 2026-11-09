@@ -1,13 +1,14 @@
 import { DemandeClientApiService } from '../../core/services/demande-client-api';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, exhaustMap, of, timer } from 'rxjs';
+import { catchError, exhaustMap, forkJoin, of, timer } from 'rxjs';
 import Swal from 'sweetalert2';
 import { DossierApi, DossierApiService } from '../../core/services/dossier-api';
 import { ClientApiService } from '../../core/services/client-api';
 import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../core/auth/session';
 import { AuthApiService } from '../../core/services/auth-api';
+import { HttpClient } from '@angular/common/http';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 
 type Statut = 'A_TRAITER' | 'EN_COURS' | 'TERMINE';
@@ -18,7 +19,21 @@ interface Dossier {
   client: string;
   priorite: string;
   responsable: string;
-  statut: Statut;
+  statut: string;
+}
+
+interface StatutConfig {
+  id: string;
+  libelle: string;
+  couleur: string;
+  ordre: number;
+}
+
+/** Statut affiché dans le Kanban, historique ou personnalisé. */
+interface ColonneKanban {
+  id: string;
+  titre: string;
+  couleur: string;
 }
 
 @Component({
@@ -56,15 +71,39 @@ export class Kanban implements OnInit {
     this.router.navigateByUrl('/login');
   }
 
-  readonly colonnes = [
+  private readonly http = inject(HttpClient);
+
+  /** Statuts historiques conservés pour les dossiers non migrés. */
+  private readonly colonnesHistoriques: ColonneKanban[] = [
     { id: 'A_TRAITER', titre: 'À traiter', couleur: '#a78bfa' },
     { id: 'EN_COURS', titre: 'En cours', couleur: '#38bdf8' },
     { id: 'TERMINE', titre: 'Terminé', couleur: '#34d399' }
-  ] as const;
+  ];
+
+  readonly statutsPersonnalises = signal<StatutConfig[]>([]);
+
+  /**
+   * Affiche les étapes personnalisées et les colonnes historiques
+   * contenant encore des dossiers.
+   */
+  readonly colonnes = computed<ColonneKanban[]>(() => {
+    const anciens = this.colonnesHistoriques.filter(colonne =>
+      this.dossiers().some(dossier => dossier.statut === colonne.id)
+    );
+
+    const nouveaux = this.statutsPersonnalises().map(statut => ({
+      id: statut.id,
+      titre: statut.libelle,
+      couleur: statut.couleur
+    }));
+
+    return [...anciens, ...nouveaux];
+  });
 
   readonly dossiers = signal<Dossier[]>([]);
 
   ngOnInit(): void {
+    this.chargerStatuts();
     this.chargerDossiers();
     this.demarrerActualisationDemandes();
 
@@ -89,6 +128,42 @@ export class Kanban implements OnInit {
       // Conserver la dernière valeur connue si le serveur est indisponible.
       if (nombre !== null) {
         this.demandesEnAttente.set(nombre);
+      }
+    });
+  }
+
+  /**
+   * Charge les statuts des phases pré-signature et post-signature.
+   * Chaque catégorie conserve son ordre de configuration.
+   */
+  private chargerStatuts(): void {
+    const url = '/api/admin/statuts';
+
+    forkJoin([
+      this.http.get<StatutConfig[]>(url, {
+        params: { categorie: 'SIGNATURE_COMMERCIALE' }
+      }),
+      this.http.get<StatutConfig[]>(url, {
+        params: { categorie: 'APRES_SIGNATURE' }
+      })
+    ]).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: ([avant, apres]) => {
+        const trier = (statuts: StatutConfig[]) =>
+          [...statuts].sort((a, b) => a.ordre - b.ordre);
+
+        this.statutsPersonnalises.set([
+          ...trier(avant),
+          ...trier(apres)
+        ]);
+      },
+      error: () => {
+        void Swal.fire({
+          icon: 'error',
+          title: 'Chargement des statuts impossible',
+          text: 'Les statuts personnalisés sont indisponibles.'
+        });
       }
     });
   }
@@ -118,7 +193,7 @@ export class Kanban implements OnInit {
                     ? 'Haute'
                     : d.priorite === 'BASSE' ? 'Basse' : 'Normale',
                   responsable: d.responsableId ? 'Responsable' : 'Non assigné',
-                  statut: d.statut as Statut
+                  statut: d.statutPersonnaliseId ?? d.statut
                 }))
             );
             this.chargement.set(false);
@@ -141,11 +216,11 @@ export class Kanban implements OnInit {
     });
   }
 
-  dossiersParStatut(statut: Statut): Dossier[] {
+  dossiersParStatut(statut: string): Dossier[] {
     return this.dossiers().filter(dossier => dossier.statut === statut);
   }
 
-  deplacer(event: CdkDragDrop<Dossier[]>, statut: Statut): void {
+  deplacer(event: CdkDragDrop<Dossier[]>, statut: string): void {
     if (event.previousContainer === event.container) return;
 
     const dossier = event.previousContainer.data[event.previousIndex];
@@ -159,7 +234,19 @@ export class Kanban implements OnInit {
       )
     );
 
-    this.dossierApi.changerStatut(dossier.id, statut).subscribe({
+    const estPersonnalise = this.statutsPersonnalises()
+      .some(element => element.id === statut);
+
+    const requete = estPersonnalise
+      ? this.dossierApi.changerStatutPersonnalise(dossier.id, statut)
+      : this.dossierApi.changerStatut(
+          dossier.id,
+          statut as Statut
+        );
+
+    requete.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       error: () => {
         this.dossiers.update(dossiers =>
           dossiers.map(item =>

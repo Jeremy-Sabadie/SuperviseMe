@@ -4,6 +4,21 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'configurer-statuts',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/configuration-statuts/configuration-statuts')
+        .then(m => m.ConfigurationStatuts)
+  },
+
+  {
+    path: 'task',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/taches/taches').then(m => m.Taches)
+  },
+
+  {
     path: 'confidentialite',
     loadComponent: () => import('./features/confidentialite/confidentialite')
       .then(m => m.Confidentialite)
@@ -51,6 +66,13 @@ export const routes: Routes = [
         .then(m => m.Collaborateurs)
   },
 
+  {
+    path: 'mon-formulaire',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/formulaire-admin/formulaire-admin')
+        .then(m => m.FormulaireAdmin)
+  },
   {
     path: 'login',
     loadComponent: () =>

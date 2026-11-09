@@ -4,9 +4,151 @@
   @if (chargement()) {
     <p>Chargement du dossier...</p>
   } @else if (dossier()) {
-    <h1>Fiche dossier</h1>
-    <p class="reference">Référence : {{ dossier()!.id.slice(0, 8) }}</p>
+    <header class="us008-header">
+      <div>
+        <p class="reference">Dossier {{ dossier()!.id.slice(0, 8) }}</p>
+        <h1>{{ dossier()!.titre }}</h1>
+        <span class="us008-statut"
+              [style.color]="couleurStatutDossier(dossier()!)"
+              [style.border-color]="couleurStatutDossier(dossier()!)"
+              [style.background-color]="'color-mix(in srgb, ' + couleurStatutDossier(dossier()!) + ' 16%, #192536)'">
+          {{ libelleStatutDossier(dossier()!) }}
+        </span>
+      </div>
+      @if (estAdmin()) {
+        <button type="button" class="us008-modifier"
+          (click)="modeEdition = !modeEdition">
+          {{ modeEdition ? 'Fermer' : 'Modifier' }}
+        </button>
+      }
+    </header>
 
+    <section class="us008-resume" aria-label="Résumé du dossier">
+      <div>
+        <small>Client</small>
+        <strong>{{ nomClient(dossier()!.clientId) }}</strong>
+      </div>
+      <div>
+        <small>Responsable</small>
+        <strong>{{ nomResponsable(dossier()!.responsableId) }}</strong>
+      </div>
+      <div>
+        <small>Échéance</small>
+        <strong>{{ dossier()!.echeance || 'Non définie' }}</strong>
+      </div>
+      <div>
+        <small>Avancement des tâches</small>
+        <strong>{{ avancement() }} %</strong>
+        <progress [value]="avancement()" max="100"></progress>
+      </div>
+    </section>
+
+<details class="taches-dossier us008-section" open><summary>Tâches du dossier ({{ tachesDossier().length }})</summary><div class="us008-section-content">
+      <div class="taches-entete">
+        <div>
+          <h2 id="titre-taches">Tâches du dossier</h2>
+          <p class="reference">{{ tachesDossier().length }} tâche(s) associée(s)</p>
+        </div>
+        @if (estAdmin()) {
+          <button type="button" class="bouton-ajout"
+            (click)="formulaireTacheOuvert = !formulaireTacheOuvert">
+            {{ formulaireTacheOuvert ? 'Annuler' : '+ Ajouter une tâche' }}
+          </button>
+        }
+      </div>
+
+      @if (estAdmin() && formulaireTacheOuvert) {
+        <form class="formulaire-tache" (ngSubmit)="creerTache()">
+          <label>Titre
+            <input name="titreTache" [(ngModel)]="titreTache"
+              required maxlength="200">
+          </label>
+          <label>Responsable
+            <select name="responsableTache" [(ngModel)]="responsableTacheId" required>
+              <option value="">Sélectionner</option>
+              @for (personne of responsables(); track personne.id) {
+                @if (personne.actif) {
+                  <option [value]="personne.id">{{ personne.email }}</option>
+                }
+              }
+            </select>
+          </label>
+          <button type="submit"
+            [disabled]="enregistrementTache() || !titreTache.trim() || !responsableTacheId">
+            Créer la tâche
+          </button>
+        </form>
+      }
+
+
+      <nav class="onglets-taches" aria-label="Statuts des tâches">
+        @for (colonne of colonnesTaches; track colonne.statut) {
+          <button type="button"
+            [class.actif]="colonneMobile === colonne.statut"
+            [attr.aria-pressed]="colonneMobile === colonne.statut"
+            (click)="colonneMobile = colonne.statut">
+            {{ colonne.libelle }}
+            <span>{{ nombreTaches(colonne.statut) }}</span>
+          </button>
+        }
+      </nav>
+
+      <div class="tableau-taches">
+        @for (colonne of colonnesTaches; track colonne.statut) {
+          <div class="colonne-taches"
+            [class.colonne-mobile-active]="colonneMobile === colonne.statut">
+            <div class="colonne-entete">
+              <span class="point-statut" [class]="colonne.statut"></span>
+              <h3>{{ colonne.libelle }}</h3>
+              <span class="compteur">{{ nombreTaches(colonne.statut) }}</span>
+            </div>
+
+            @for (tache of tachesDossier(); track tache.id) {
+              @if (tache.statut === colonne.statut) {
+                <article class="carte-tache">
+                  <div class="carte-tache-entete">
+                    <strong>{{ tache.titre }}</strong>
+                    @if (estAdmin()) {
+                      <button type="button" class="bouton-statut"
+                        [attr.aria-label]="'Modifier le statut de ' + tache.titre"
+                        (click)="ouvrirStatutTache(tache)"
+                        [disabled]="enregistrementTache()">
+                        <span>Modifier</span>
+                        <span aria-hidden="true">›</span>
+                      </button>
+                    }
+                  </div>
+                  <p class="responsable-tache"
+                    [title]="nomResponsable(tache.responsableId)">
+                    <span aria-hidden="true">●</span>
+                    {{ nomResponsable(tache.responsableId) }}
+                  </p>
+                </article>
+              }
+            } @empty {
+              <p class="colonne-vide">Aucune tâche</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (erreurTaches()) {
+        <p class="erreur">{{ erreurTaches() }}</p>
+      }
+    </div>
+    </details>
+
+
+    <details class="us008-section">
+      <summary>Description du dossier</summary>
+      <div class="us008-section-content">
+        <p>{{ dossier()!.description || 'Aucune description.' }}</p>
+      </div>
+    </details>
+
+    @if (estAdmin() && modeEdition) {
+      <section class="us008-section us008-edition">
+        <h2>Modifier le dossier</h2>
     <form (ngSubmit)="enregistrer()">
       <label>Titre
         <input name="titre" [(ngModel)]="formulaire.titre" required maxlength="200">
@@ -18,12 +160,16 @@
 
       <div class="deux-colonnes">
         <label>Statut
-          <select name="statut" [(ngModel)]="formulaire.statut">
-            <option value="A_TRAITER">À traiter</option>
-            <option value="EN_COURS">En cours</option>
-            <option value="TERMINE">Terminé</option>
-            <option value="ARCHIVE">Archivé</option>
-          </select>
+          <select name="statut" [(ngModel)]="statutSelectionne">
+  @for (statut of statutsPersonnalises(); track statut.id) {
+    <option [value]="statut.id">{{ statut.libelle }}</option>
+  }
+  @if (!dossier()?.statutPersonnaliseId) {
+    <option [value]="dossier()?.statut">
+      {{ dossier()?.statut?.replaceAll('_', ' ') }} (historique)
+    </option>
+  }
+</select>
         </label>
 
         <label>Priorité
@@ -48,10 +194,13 @@
       </button>
     </form>
 
+      </section>
+    }
+
     @if (estAdmin()) {
       <!-- Attribution indépendante des modifications générales du dossier. -->
-      <section class="attribution" aria-labelledby="titre-participants">
-        <h2 id="titre-participants">Collaborateurs du dossier</h2>
+      <details class="attribution us008-section"><summary>Collaborateurs du dossier ({{ dossier()!.participantIds.length }})</summary><div class="us008-section-content">
+
         <p>Sélectionnez les collaborateurs participant à ce dossier.</p>
 
         @for (collaborateur of responsables(); track collaborateur.id) {
@@ -75,8 +224,13 @@
         @if (succesParticipants()) {
           <p class="succes">Participants enregistrés.</p>
         }
-      </section>
+      </div>
+      </details>
     }
+
+
+
+
 
     @if (succes()) { <p class="succes">Modifications enregistrées.</p> }
   }

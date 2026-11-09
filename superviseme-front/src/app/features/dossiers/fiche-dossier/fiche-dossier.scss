@@ -74,26 +74,401 @@ button:disabled { opacity: .5; }
   }
 }
 
-// Attribution des collaborateurs : cases alignées et libellés lisibles.
-.attribution {
-  margin-top: 32px;
 
-  .participant {
-    display: flex;
+/* Mini-Kanban compact, responsive */
+.taches-dossier {
+  margin-top: 36px;
+}
+
+.taches-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.taches-entete h2 { margin: 0 0 5px; }
+.taches-entete .reference { margin: 0; font-size: 13px; }
+
+.formulaire-tache {
+  margin: 0 0 18px;
+  padding: 18px;
+}
+
+.tableau-taches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+
+.colonne-taches {
+  min-width: 0;
+  min-height: 110px;
+  padding: 10px;
+  border: 1px solid #34435e;
+  border-radius: 12px;
+  background: #172236;
+}
+
+.colonne-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.colonne-entete h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+}
+
+.point-statut {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.point-statut.EN_COURS { background: #fbbf24; }
+.point-statut.TERMINEE { background: #34d399; }
+
+.compteur {
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #293b53;
+  font-size: 12px;
+}
+
+.carte-tache {
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #3b4c65;
+  border-radius: 9px;
+  background: #24334a;
+  overflow: hidden;
+}
+
+.carte-tache-entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.carte-tache strong {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.bouton-statut {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  background: #344b64;
+  font-size: 11px;
+}
+
+.responsable-tache {
+  margin: 9px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #b6c6dc;
+}
+
+.responsable-tache span {
+  color: #6cb6bd;
+  margin-right: 5px;
+}
+
+.colonne-vide {
+  margin: 16px 0;
+  color: #93a4c3;
+  font-size: 12px;
+  text-align: center;
+}
+
+.onglets-taches { display: none; }
+
+@media (max-width: 650px) {
+  .fiche { padding: 24px 14px; }
+
+  .taches-entete {
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    overflow-wrap: anywhere;
-    cursor: pointer;
   }
 
-  .participant input[type="checkbox"] {
-    display: inline-block;
-    flex: 0 0 18px;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    padding: 0;
-    accent-color: var(--sm-accent);
+  .taches-entete h2 { font-size: 20px; }
+
+  .bouton-ajout {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .onglets-taches {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+
+  .onglets-taches button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px 4px;
+    background: #1b263b;
+    color: #aab8ce;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .onglets-taches button.actif {
+    background: #34465d;
+    color: #ffffff;
+    box-shadow: inset 0 -2px #6cb6bd;
+  }
+
+  .onglets-taches button span { opacity: .8; }
+
+  .tableau-taches { display: block; }
+
+  .colonne-taches { display: none; }
+
+  .colonne-taches.colonne-mobile-active {
+    display: block;
+    min-height: 90px;
+  }
+
+  .colonne-entete { display: none; }
+
+  .carte-tache { margin-bottom: 8px; }
+}
+
+
+/* US-008 — Fiche dossier mobile first */
+.us008-section {
+  border: 1px solid rgba(74, 210, 202, .22);
+  border-radius: 12px;
+  background: rgba(10, 29, 45, .72);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.us008-section > summary {
+  cursor: pointer;
+  padding: 14px 16px;
+  color: #e8f7f7;
+  font-weight: 600;
+}
+
+.us008-section[open] > summary {
+  border-bottom: 1px solid rgba(74, 210, 202, .22);
+}
+
+.us008-section-content {
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .us008-section-content {
+    padding: 20px;
+  }
+}
+
+/* US-008 : fiche synthétique responsive */
+.us008-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.us008-header h1 {
+  margin: .25rem 0 .65rem;
+}
+
+.us008-statut {
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: rgba(79, 156, 165, .18);
+  color: #8ee4e2;
+  font-weight: 600;
+}
+
+.us008-modifier {
+  background: #234a58;
+  color: #f0ffff;
+  border: 1px solid #4f9ca5;
+  border-radius: 8px;
+  padding: .7rem 1rem;
+  cursor: pointer;
+}
+
+.us008-resume {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.us008-resume > div {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(79, 156, 165, .3);
+  border-radius: 12px;
+  background: rgba(12, 34, 49, .75);
+}
+
+.us008-resume small,
+.us008-resume strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.us008-resume small {
+  color: #a4bdc7;
+  margin-bottom: .35rem;
+}
+
+.us008-resume strong {
+  color: #f0f8fa;
+}
+
+.us008-resume progress {
+  width: 100%;
+  height: .6rem;
+  margin-top: .5rem;
+  accent-color: #4f9ca5;
+}
+
+.us008-section {
+  display: block;
+  margin-bottom: .85rem;
+  border: 1px solid rgba(79, 156, 165, .3);
+  border-radius: 12px;
+  background: rgba(12, 34, 49, .75);
+  overflow: hidden;
+}
+
+.us008-section > summary {
+  cursor: pointer;
+  padding: 1rem;
+  color: #e8f7f7;
+  font-weight: 650;
+}
+
+.us008-section[open] > summary {
+  border-bottom: 1px solid rgba(79, 156, 165, .25);
+}
+
+.us008-section-content {
+  padding: 1rem;
+}
+
+.us008-edition {
+  padding: 1rem;
+}
+
+@media (min-width: 700px) {
+  .us008-resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .us008-resume {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* US-008 — correction mobile compacte */
+.us008-resume {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.us008-resume > div {
+  padding: 10px;
+  border-radius: 9px;
+}
+
+.us008-resume small {
+  font-size: 11px;
+}
+
+.us008-resume strong {
+  font-size: 13px;
+}
+
+.us008-header {
+  margin-bottom: 12px;
+}
+
+.us008-section {
+  margin-bottom: 8px;
+}
+
+.us008-section > summary {
+  padding: 11px 12px;
+}
+
+@media (max-width: 480px) {
+  .us008-resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* US-008 : optimisation densité desktop */
+@media (min-width: 900px) {
+  .us008-header {
+    margin-bottom: 10px;
+    align-items: center;
+  }
+
+  .us008-header h1 {
+    margin: 2px 0 5px;
+    font-size: clamp(22px, 2vw, 30px);
+    line-height: 1.15;
+  }
+
+  .us008-resume {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .us008-resume > div {
+    padding: 10px 12px;
+  }
+
+  .us008-section {
+    margin-bottom: 8px;
+  }
+
+  .us008-section > summary {
+    padding: 9px 12px;
+  }
+
+  .us008-section-content {
+    padding: 10px 12px;
+  }
+
+  .taches-dossier h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
   }
 }

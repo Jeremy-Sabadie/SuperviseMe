@@ -7,7 +7,7 @@
     <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
     <div class="profil-options">
       @if (estAdmin()) {
-        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>
+        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>\n        <a routerLink="/configurer-statuts">Configurer mes statuts</a>
       }
       <button type="button" (click)="deconnecter()">Déconnexion</button>
     </div>
@@ -21,6 +21,7 @@
       <div class="section-label">ESPACE DE TRAVAIL</div>
       <div class="nav active">▦ &nbsp; Tableau de bord</div>
       <a class="nav nav-link" routerLink="/dossiers">▤ &nbsp; Mes dossiers</a>
+      <a class="nav nav-link" routerLink="/task">☑ &nbsp; Mes tâches</a>
       <div class="nav">◷ &nbsp; Calendrier</div>
       <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
       <a class="nav nav-link" routerLink="/demandes-clients">
@@ -63,7 +64,7 @@
       </div>
 
       <div class="board" cdkDropListGroup>
-        @for (colonne of colonnes; track colonne.id) {
+        @for (colonne of colonnes(); track colonne.id) {
           <section class="column">
             <div class="column-heading">
               <div class="column-title">
@@ -116,6 +117,7 @@
 <nav class="mobile-nav" aria-label="Navigation mobile">
   <span>▦ Tableau</span>
   <a class="mobile-link" routerLink="/dossiers">▤ Dossiers</a>
+  <a class="mobile-link" routerLink="/task">☑ Tâches</a>
   <span>◷ Agenda</span>
   <a class="mobile-link" routerLink="/clients">♙ Clients</a>
   <a class="mobile-link" routerLink="/demandes-clients">

@@ -1,0 +1,129 @@
+
+<main class="configuration">
+  <a routerLink="/" class="retour">← Tableau de bord</a>
+
+
+  <header class="presentation">
+    <div class="eyebrow">MA VITRINE PUBLIQUE</div>
+    <h1>Personnaliser mon formulaire de contact</h1>
+    <p class="introduction">
+      Présentez votre entreprise, valorisez votre savoir-faire
+      et permettez à vos futurs clients de vous contacter.
+    </p>
+  </header>
+
+  <section class="avantages" aria-label="Utilité du formulaire">
+    <article class="avantage">
+      <div class="icone-avantage">✉</div>
+      <h2>Recevez des demandes</h2>
+      <p>
+        Lorsqu'un prospect remplit votre formulaire,
+        une demande est automatiquement créée dans SuperviseMe.
+        Vous pouvez ensuite la suivre depuis votre tableau de bord.
+      </p>
+    </article>
+
+    <article class="avantage">
+      <div class="icone-avantage">▣</div>
+      <h2>Montrez votre savoir-faire</h2>
+      <p>
+        Publiez des photos de vos réalisations.
+        Elles apparaissent dans un carrousel visible
+        par vos futurs clients sous le formulaire.
+      </p>
+    </article>
+  </section>
+
+
+  <div class="acces-formulaire">
+    <span>Visualisez votre formulaire tel que vos clients le verront.</span>
+    <a href="/contact" target="_blank" rel="noopener noreferrer">
+      Accéder à mon formulaire de contact ↗
+    </a>
+  </div>
+
+  <nav class="onglets" aria-label="Configuration du formulaire">
+    <button type="button" [class.actif]="onglet() === 'realisations'"
+            (click)="onglet.set('realisations')">Mes réalisations</button>
+    <button type="button" [class.actif]="onglet() === 'apercu'"
+            (click)="onglet.set('apercu')">Aperçu</button>
+  </nav>
+
+  @if (erreur()) { <p role="alert" class="erreur">{{ erreur() }}</p> }
+  @if (succes()) { <p role="status" class="succes">{{ succes() }}</p> }
+
+  @if (onglet() === 'realisations') {
+    <section class="panneau">
+      <h2>Ajouter une réalisation</h2>
+      <p class="aide">
+        Sélectionnez une photo de votre travail, ajoutez un titre
+        et éventuellement une description.
+        La photo sera publiée automatiquement sur votre formulaire.
+      </p>
+      <form (ngSubmit)="ajouter()">
+        <label>Titre
+          <input name="titre" [(ngModel)]="titre" maxlength="150" required>
+        </label>
+        <label>Description
+          <textarea name="description" [(ngModel)]="description"
+                    maxlength="1000" rows="3"></textarea>
+        </label>
+        <label>Photo (JPEG ou PNG, 5 Mo maximum)
+          <input type="file" accept="image/jpeg,image/png"
+                 (change)="choisirFichier($event)">
+        </label>
+        <button type="submit" [disabled]="chargement() || !fichier || !titre.trim()">
+          {{ chargement() ? 'Envoi...' : '+ Ajouter la réalisation' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="panneau">
+      <h2>Réalisations publiées ({{ realisations().length }})</h2>
+      <p class="aide">
+        Retrouvez ici les photos visibles par vos visiteurs.
+        Vous pouvez modifier leurs informations, changer leur
+        position dans le carrousel ou les supprimer.
+      </p>
+
+      @if (!realisations().length) {
+        <p>Aucune photo publiée pour le moment.</p>
+      }
+
+      <div class="grille">
+        @for (item of realisations(); track item.id) {
+          <article class="photo">
+            <img [src]="item.imageUrl" [alt]="item.titre" loading="lazy">
+            <div class="champs">
+              <label>Titre
+                <input [(ngModel)]="item.titre" [name]="'titre-' + item.id">
+              </label>
+              <label>Description
+                <textarea [(ngModel)]="item.description"
+                          [name]="'description-' + item.id"></textarea>
+              </label>
+              <label>Position
+                <input type="number" [(ngModel)]="item.position"
+                       [name]="'position-' + item.id">
+              </label>
+              <div class="actions">
+                <button type="button" (click)="modifier(item)">Enregistrer</button>
+                <button type="button" class="danger"
+                        (click)="supprimer(item)">Supprimer</button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  } @else {
+    <section class="panneau">
+      <h2>Voir mon formulaire comme un visiteur</h2>
+      <p>Vérifiez la présentation de votre formulaire
+       et les réalisations visibles par vos futurs clients.</p>
+      <a class="lien" routerLink="/contact" target="_blank">
+        Voir mon formulaire de contact ↗
+      </a>
+    </section>
+  }
+</main>

@@ -15,6 +15,7 @@ export interface DossierApi {
   titre: string;
   description: string | null;
   statut: StatutDossier;
+  statutPersonnaliseId?: string | null;
   priorite: PrioriteDossier;
   echeance: string | null;
   clientId: string | null;
@@ -68,6 +69,20 @@ export class DossierApiService {
     return this.http.put<DossierApi>(
       `${this.url}/${id}/participants`,
       { participantIds }
+    );
+  }
+
+  /**
+   * Affecte un statut personnalisé à un dossier.
+   * Le serveur vérifie les droits et la catégorie du statut.
+   */
+  changerStatutPersonnalise(
+    dossierId: string,
+    statutId: string
+  ): Observable<DossierApi> {
+    return this.http.patch<DossierApi>(
+      `${this.url}/${encodeURIComponent(dossierId)}/statut-personnalise`,
+      { statutId }
     );
   }
 

@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 export interface CollaborateurResponse {
   id: string;
   email: string;
+  prenom: string | null;
+  nom: string | null;
   role: string;
   actif: boolean;
 }
@@ -19,18 +21,20 @@ export class UtilisateurApiService {
     return this.http.get<CollaborateurResponse[]>('/api/utilisateurs');
   }
 
-  creer(email: string, motDePasse: string): Observable<CollaborateurResponse> {
+  creer(email: string, motDePasse: string, prenom: string, nom: string): Observable<CollaborateurResponse> {
     return this.http.post<CollaborateurResponse>('/api/utilisateurs', {
       email,
-      motDePasse
+      motDePasse,
+      prenom,
+      nom
     });
   }
 
   /** Désactive un compte sans supprimer son historique. */
-  modifier(id: string, email: string) {
+  modifier(id: string, email: string, prenom: string, nom: string) {
     return this.http.put<CollaborateurResponse>(
       `/api/utilisateurs/${id}`,
-      { email }
+      { email, prenom, nom }
     );
   }
 

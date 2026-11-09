@@ -1,6 +1,8 @@
 package fr.superviseme.api.client;
 
 import fr.superviseme.api.dossier.DossierRepository;
+import fr.superviseme.api.configuration.statut.CategorieStatut;
+import fr.superviseme.api.configuration.statut.StatutPersonnaliseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +18,15 @@ public class ClientService {
 
     private final ClientRepository repository;
     private final DossierRepository dossierRepository;
+    private final StatutPersonnaliseRepository statutsRepository;
 
     public ClientService(
             ClientRepository repository,
-            DossierRepository dossierRepository) {
+            DossierRepository dossierRepository,
+            StatutPersonnaliseRepository statutsRepository) {
         this.repository = repository;
         this.dossierRepository = dossierRepository;
+        this.statutsRepository = statutsRepository;
     }
 
     /** Crée un client dans le référentiel de l'instance. */
@@ -78,6 +83,22 @@ public class ClientService {
 
         repository.delete(client);
         repository.flush();
+    }
+
+    /** Affecte uniquement un statut de catégorie CLIENT. */
+    @Transactional
+    public ClientResponse changerStatutPersonnalise(UUID id, UUID statutId) {
+        Client client = trouver(id);
+
+        var statut = statutsRepository.findById(statutId)
+                .orElseThrow(() -> new IllegalArgumentException("Statut introuvable"));
+
+        if (statut.getCategorie() != CategorieStatut.CLIENT) {
+            throw new IllegalArgumentException("Statut non autorisé pour un client");
+        }
+
+        client.changerStatutPersonnalise(statutId);
+        return ClientResponse.depuis(repository.saveAndFlush(client));
     }
 
     /** Recherche l'entité ou signale son absence. */

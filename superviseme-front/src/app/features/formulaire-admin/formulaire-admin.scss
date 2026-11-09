@@ -1,0 +1,182 @@
+
+:host { display:block; min-height:100vh; background:#101624; color:#f4f6ff; }
+.configuration { max-width:1100px; margin:auto; padding:40px 24px 80px; }
+.retour { color:#a9a1ff; text-decoration:none; }
+header { margin:30px 0; }
+.eyebrow { color:#a99aff; letter-spacing:2px; font-size:12px; }
+h1 { font-size:32px; margin:10px 0; }
+h2 { font-size:21px; }
+p { color:#aeb9d0; }
+.onglets { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
+.onglets button { background:#1b2540; }
+.onglets .actif { background:#6254b8; }
+.panneau { background:#192238; border:1px solid #34415d;
+  border-radius:16px; padding:24px; margin-bottom:24px; }
+form { max-width:540px; }
+label { display:grid; gap:8px; margin:16px 0; font-size:14px; }
+input,textarea { box-sizing:border-box; width:100%; padding:12px;
+  border-radius:8px; border:1px solid #44516b; background:#111a2d;
+  color:white; font:inherit; }
+button,.lien { border:0; border-radius:9px; padding:11px 16px;
+  background:#7060d2; color:white; cursor:pointer; text-decoration:none; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+.grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+.photo { overflow:hidden; background:#111a2d; border:1px solid #34415d;
+  border-radius:12px; }
+.photo img { display:block; width:100%; height:190px; object-fit:cover; }
+.champs { padding:16px; }
+.actions { display:flex; gap:10px; flex-wrap:wrap; }
+.danger { background:#8c3651; }
+.erreur { color:#ffb4b4; }
+.succes { color:#7de3ae; }
+
+
+/* Présentation pédagogique de la vitrine publique */
+
+.presentation {
+  margin-bottom: 26px;
+}
+
+.introduction {
+  max-width: 680px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.avantages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.avantage,
+.partage {
+  background: #192238;
+  border: 1px solid #34415d;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.avantage h2,
+.partage h2 {
+  font-size: 19px;
+  margin: 12px 0;
+}
+
+.avantage p,
+.partage p,
+.aide {
+  line-height: 1.65;
+  color: #b9c6df;
+}
+
+.icone-avantage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #34305f;
+  color: #c1b4ff;
+  font-size: 24px;
+}
+
+.partage {
+  margin-bottom: 28px;
+}
+
+.lien-public {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.lien-public input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.lien-public button {
+  flex-shrink: 0;
+}
+
+.aide {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 650px) {
+  .configuration {
+    padding: 24px 16px 60px;
+  }
+
+  .avantages {
+    grid-template-columns: 1fr;
+  }
+
+  .avantage,
+  .partage,
+  .panneau {
+    padding: 18px;
+  }
+
+  .lien-public {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lien-public button {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 27px;
+  }
+}
+
+
+.acces-formulaire {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  border: 1px solid #34415d;
+  border-radius: 12px;
+  background: #192238;
+  font-family: Arial, sans-serif;
+}
+
+.acces-formulaire span {
+  color: #b9c6df;
+  font-size: 14px;
+}
+
+.acces-formulaire a {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 9px;
+  background: #7060d2;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  .acces-formulaire {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acces-formulaire a {
+    text-align: center;
+    white-space: normal;
+  }
+}

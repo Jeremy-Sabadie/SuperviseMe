@@ -1,0 +1,3 @@
+ALTER TABLE utilisateurs
+    ADD COLUMN prenom VARCHAR(100),
+    ADD COLUMN nom VARCHAR(100);

@@ -17,6 +17,12 @@ public class Utilisateur {
     @Column(nullable = false, length = 254)
     private String email;
 
+    @Column(length = 100)
+    private String prenom;
+
+    @Column(length = 100)
+    private String nom;
+
     @Column(name = "mot_de_passe_hash", nullable = false)
     private String motDePasseHash;
 
@@ -42,6 +48,14 @@ public class Utilisateur {
 
     public UUID getId() {
         return id;
+    }
+
+    public String getPrenom() { return prenom; }
+    public String getNom() { return nom; }
+
+    public void modifierIdentite(String prenom, String nom) {
+        this.prenom = prenom;
+        this.nom = nom;
     }
 
     public String getEmail() {
