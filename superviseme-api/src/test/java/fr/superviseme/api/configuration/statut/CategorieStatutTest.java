@@ -8,7 +8,7 @@ class CategorieStatutTest {
     @Test
     void doitProposerLesTroisCategories() {
         assertArrayEquals(
-            new String[]{"CLIENT", "AVANT_SIGNATURE", "APRES_SIGNATURE"},
+            new String[]{"CLIENT", "SIGNATURE_COMMERCIALE", "APRES_SIGNATURE"},
             java.util.Arrays.stream(CategorieStatut.values())
                 .map(Enum::name)
                 .toArray(String[]::new)
