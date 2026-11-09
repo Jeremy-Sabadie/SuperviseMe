@@ -163,3 +163,56 @@ input {
   .detail-header { flex-wrap: wrap; }
   .infos { grid-template-columns: 1fr; }
 }
+
+/* US-008 : liste unique, responsive, sans aperçu intermédiaire. */
+.master {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sm-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: #0b1220;
+  border: 1px solid #35415b;
+  border-radius: 10px;
+}
+
+.dossier-card {
+  flex: 1 1 220px;
+  border: 0;
+  padding: 0;
+  cursor: default;
+}
+
+.sm-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sm-list-actions a,
+.sm-list-actions button {
+  padding: 10px 12px;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #151f33;
+  color: #e5eef2;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sm-list-actions a:hover {
+  border-color: var(--sm-accent);
+}
+
+@media (max-width: 700px) {
+  .sm-list-actions {
+    width: 100%;
+  }
+}

@@ -49,16 +49,19 @@ describe('Collaborateurs', () => {
     const creer = vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER', actif: true
-    }));
+      role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }));
 
     component.email = 'collaborateur@example.com';
     component.motDePasse = 'MotDePasse123!';
+      component.prenom = 'Jean';
+      component.nom = 'Dupont';
     component.ajouter();
 
     expect(creer).toHaveBeenCalledWith(
       'collaborateur@example.com',
-      'MotDePasse123!'
+      'MotDePasse123!',
+        'Jean',
+        'Dupont'
     );
   });
 
@@ -66,8 +69,7 @@ describe('Collaborateurs', () => {
     vi.spyOn(api, 'creer').mockReturnValue(of({
       id: 'uuid-test',
       email: 'collaborateur@example.com',
-      role: 'USER', actif: true
-    }));
+      role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }));
 
     component.email = 'collaborateur@example.com';
     component.motDePasse = 'MotDePasse123!';
@@ -96,7 +98,7 @@ describe('Collaborateurs', () => {
       id: string;
       email: string;
       role: string;
-      actif: boolean;
+      actif: boolean; prenom: string | null; nom: string | null;
     }>();
 
     const creer = vi.spyOn(api, 'creer')
@@ -116,20 +118,20 @@ describe('Collaborateurs', () => {
 
   it('charge et affiche la liste des collaborateurs', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
-      { id: '2', email: 'admin@example.com', role: 'ADMIN', actif: true }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' },
+      { id: '2', email: 'admin@example.com', role: 'ADMIN', actif: true, prenom: 'Jean', nom: 'Dupont' }
     ]);
     fixture.detectChanges();
 
     const texte = fixture.nativeElement.textContent;
-    expect(texte).toContain('alice@example.com');
-    expect(texte).toContain('admin@example.com');
+    expect(texte).toContain('Jean Dupont');
+    expect(texte).toContain('Administrateur');
   });
 
   it('filtre les collaborateurs par adresse e-mail', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER', actif: true },
-      { id: '2', email: 'bob@example.com', role: 'USER', actif: true }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' },
+      { id: '2', email: 'bob@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }
     ]);
 
     component.recherche.set('alice');
@@ -164,7 +166,7 @@ describe('Collaborateurs', () => {
   /** Un compte désactivé reste visible dans la gestion de l'équipe. */
   it('affiche le statut inactif du collaborateur', () => {
     component.collaborateurs.set([
-      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false, prenom: 'Jean', nom: 'Dupont' }
     ]);
     component.selectionner(component.collaborateurs()[0]);
     fixture.detectChanges();
@@ -175,14 +177,13 @@ describe('Collaborateurs', () => {
 
   it('confirme la désactivation avec SweetAlert2', async () => {
     const desactiver = vi.spyOn(api, 'desactiver').mockReturnValue(of({
-      id: '1', email: 'alice@example.com', role: 'USER', actif: false
-    }));
+      id: '1', email: 'alice@example.com', role: 'USER', actif: false, prenom: 'Jean', nom: 'Dupont' }));
     vi.spyOn(Swal, 'fire').mockResolvedValue({
       isConfirmed: true, isDenied: false, isDismissed: false, value: true
     });
 
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }
     ]);
     component.selectionner(component.collaborateurs()[0]);
 
@@ -199,7 +200,7 @@ describe('Collaborateurs', () => {
     });
 
     component.collaborateurs.set([
-      { id: '1', email: 'alice@example.com', role: 'USER', actif: true }
+      { id: '1', email: 'alice@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }
     ]);
     component.selectionner(component.collaborateurs()[0]);
 
@@ -212,11 +213,10 @@ describe('Collaborateurs', () => {
   it('réactive un collaborateur existant', () => {
     const reactiver = vi.spyOn(api, 'reactiver')
       .mockReturnValue(of({
-        id: '1', email: 'ancien@example.com', role: 'USER', actif: true
-      }));
+        id: '1', email: 'ancien@example.com', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }));
 
     component.collaborateurs.set([
-      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false }
+      { id: '1', email: 'ancien@example.com', role: 'USER', actif: false, prenom: 'Jean', nom: 'Dupont' }
     ]);
 
     component.selectionner(component.collaborateurs()[0]);

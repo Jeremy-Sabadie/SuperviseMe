@@ -69,10 +69,9 @@ describe('Fiche dossier - ergonomie', () => {
     fiche.responsables.set([{
       id: 'user-1',
       email: 'responsable@exemple.fr',
-      role: 'USER', actif: true
-    }]);
+      role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' }]);
 
     expect(fiche.nomClient('client-1')).toBe('Menuiserie Dupont');
-    expect(fiche.nomResponsable('user-1')).toBe('responsable@exemple.fr');
+    expect(fiche.nomResponsable('user-1')).toBe('Jean Dupont');
   });
 });

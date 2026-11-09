@@ -26,8 +26,8 @@ describe('Dossiers', () => {
 describe('Affectation des responsables', () => {
   it('propose uniquement les comptes actifs pour un nouveau dossier', () => {
     const collaborateurs: CollaborateurResponse[] = [
-      { id: 'actif', email: 'actif@test.fr', role: 'USER', actif: true },
-      { id: 'desactive', email: 'ancien@test.fr', role: 'USER', actif: false }
+      { id: 'actif', email: 'actif@test.fr', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' },
+      { id: 'desactive', email: 'ancien@test.fr', role: 'USER', actif: false, prenom: 'Jean', nom: 'Dupont' }
     ];
 
     // Un compte désactivé ne peut recevoir de nouveau dossier.
@@ -39,8 +39,8 @@ describe('Affectation des responsables', () => {
 describe('Affectation des responsables', () => {
   it('propose uniquement les comptes actifs pour un nouveau dossier', () => {
     const collaborateurs: CollaborateurResponse[] = [
-      { id: 'actif', email: 'actif@test.fr', role: 'USER', actif: true },
-      { id: 'desactive', email: 'ancien@test.fr', role: 'USER', actif: false }
+      { id: 'actif', email: 'actif@test.fr', role: 'USER', actif: true, prenom: 'Jean', nom: 'Dupont' },
+      { id: 'desactive', email: 'ancien@test.fr', role: 'USER', actif: false, prenom: 'Jean', nom: 'Dupont' }
     ];
 
     // Un compte désactivé ne peut recevoir de nouveau dossier.

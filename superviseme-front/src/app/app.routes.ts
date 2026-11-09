@@ -59,6 +59,13 @@ export const routes: Routes = [
   },
 
   {
+    path: 'mon-formulaire',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/formulaire-admin/formulaire-admin')
+        .then(m => m.FormulaireAdmin)
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login').then(m => m.Login)

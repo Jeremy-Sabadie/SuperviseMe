@@ -102,70 +102,39 @@ describe('ListeDossiers', () => {
   });
 
 
-  it('affiche le détail du dossier sélectionné sans navigation', () => {
+
+  it('ouvre directement la fiche avec Consulter', () => {
     const fixture = TestBed.createComponent(ListeDossiers);
-    fixture.detectChanges();
-
-    const dossier = fixture.nativeElement.querySelector(
-      '[data-testid="dossier-select"]'
-    ) as HTMLButtonElement;
-
-    expect(dossier).toBeTruthy();
-    dossier.click();
-    fixture.detectChanges();
-
-    const detail = fixture.nativeElement.querySelector(
-      '[data-testid="dossier-detail"]'
-    ) as HTMLElement;
-
-    expect(detail).toBeTruthy();
-    expect(detail.textContent).toContain('Rénovation escalier');
-    expect(detail.textContent).toContain('Menuiserie Dupont');
-    expect(detail.textContent).toContain('EN COURS');
-  });
-
-  it('propose un lien vers la fiche complète du dossier sélectionné', () => {
-    const fixture = TestBed.createComponent(ListeDossiers);
-    fixture.detectChanges();
-
-    const dossier = fixture.nativeElement.querySelector(
-      '[data-testid="dossier-select"]'
-    ) as HTMLButtonElement;
-
-    expect(dossier).toBeTruthy();
-    dossier.click();
     fixture.detectChanges();
 
     const lien = fixture.nativeElement.querySelector(
-      'a[href="/dossiers/dossier-1"]'
+      '[data-testid="dossier-consulter"][href="/dossiers/dossier-1"]'
+    );
+
+    expect(lien).toBeTruthy();
+    expect(lien.textContent).toContain('Consulter');
+  });
+
+  it('conserve une action Modifier distincte', () => {
+    const fixture = TestBed.createComponent(ListeDossiers);
+    fixture.detectChanges();
+
+    const lien = fixture.nativeElement.querySelector(
+      '[data-testid="dossier-modifier"][href="/dossiers/dossier-1?mode=edition"]'
     );
 
     expect(lien).toBeTruthy();
   });
 
-  it('permet de fermer le détail et de revenir à la liste', () => {
+  it('supprime la fiche intermédiaire', () => {
     const fixture = TestBed.createComponent(ListeDossiers);
-    fixture.detectChanges();
-
-    const dossier = fixture.nativeElement.querySelector(
-      '[data-testid="dossier-select"]'
-    ) as HTMLButtonElement;
-
-    expect(dossier).toBeTruthy();
-    dossier.click();
-    fixture.detectChanges();
-
-    const retour = fixture.nativeElement.querySelector(
-      '[data-testid="dossier-retour"]'
-    ) as HTMLButtonElement;
-
-    expect(retour).toBeTruthy();
-    retour.click();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector(
       '[data-testid="dossier-detail"]'
     )).toBeNull();
+    expect(fixture.nativeElement.textContent)
+      .not.toContain('Ouvrir la fiche complète');
   });
 
 });
