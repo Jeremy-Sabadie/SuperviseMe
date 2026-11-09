@@ -40,6 +40,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH,
                                 "/api/utilisateurs/*/desactiver",
                                 "/api/utilisateurs/*/reactiver").hasRole("ADMIN")
+                        // Configuration des statuts réservée au propriétaire.
+                        // Les collaborateurs ne peuvent pas modifier le référentiel.
+                        .requestMatchers("/api/admin/statuts",
+                                "/api/admin/statuts/**").hasRole("OWNER")
                         .requestMatchers("/api/admin/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .anyRequest().denyAll()
