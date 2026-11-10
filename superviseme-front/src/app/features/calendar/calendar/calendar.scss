@@ -190,3 +190,15 @@ button {
     font-size: 0.75rem;
   }
 }
+
+/* Mise en évidence du jour actuel. */
+.jour-actuel {
+  color: var(--sm-accent-hover);
+  background: rgba(14, 135, 144, 0.15);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px var(--sm-accent);
+
+  &:hover {
+    background: rgba(14, 135, 144, 0.25);
+  }
+}

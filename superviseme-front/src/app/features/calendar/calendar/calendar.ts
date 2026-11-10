@@ -45,6 +45,15 @@ export class Calendar {
     return Array.from({ length: nombre }, (_, index) => index);
   });
 
+  /** Compare une date civile avec la date du jour. */
+  estAujourdhui(date: Date): boolean {
+    const maintenant = new Date();
+
+    return date.getFullYear() === maintenant.getFullYear()
+      && date.getMonth() === maintenant.getMonth()
+      && date.getDate() === maintenant.getDate();
+  }
+
   /** Change de mois sans modifier la date d'origine. */
   changerMois(decalage: number): void {
     this.dateCourante.update(date => ajouterMois(date, decalage));

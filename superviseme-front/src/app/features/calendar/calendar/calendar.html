@@ -64,7 +64,9 @@
           <button
             type="button"
             class="jour"
-            data-testid="jour-agenda"
+            [class.jour-actuel]="estAujourdhui(jour)"
+            [attr.data-testid]="estAujourdhui(jour) ? 'aujourdhui' : 'jour-agenda'"
+            [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
             (click)="selectionnerDate(jour)">
             {{ jour.getDate() }}
           </button>
