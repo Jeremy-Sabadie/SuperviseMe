@@ -42,37 +42,57 @@
   </div>
 
   <div class="agenda-contenu">
-    <section class="calendrier" data-testid="agenda-mois">
-      <div class="jours-semaine">
-        <span>Lun</span>
-        <span>Mar</span>
-        <span>Mer</span>
-        <span>Jeu</span>
-        <span>Ven</span>
-        <span>Sam</span>
-        <span>Dim</span>
-      </div>
-
-      <div class="grille-jours">
-        @for (caseVide of casesVides(); track caseVide) {
-          <span class="case-vide"
-                data-testid="case-vide"
-                aria-hidden="true"></span>
-        }
-
-        @for (jour of jours(); track jour.getTime()) {
-          <button
-            type="button"
-            class="jour"
-            [class.jour-actuel]="estAujourdhui(jour)"
-            [attr.data-testid]="estAujourdhui(jour) ? 'aujourdhui' : 'jour-agenda'"
-            [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
-            (click)="selectionnerDate(jour)">
-            {{ jour.getDate() }}
-          </button>
-        }
-      </div>
-    </section>
+    @if (vue() === 'mois') {
+      <section class="calendrier" data-testid="agenda-mois">
+        <div class="jours-semaine">
+          <span>Lun</span><span>Mar</span><span>Mer</span>
+          <span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+        </div>
+        <div class="grille-jours">
+          @for (caseVide of casesVides(); track caseVide) {
+            <span class="case-vide" data-testid="case-vide" aria-hidden="true"></span>
+          }
+          @for (jour of jours(); track jour.getTime()) {
+            <button type="button" class="jour"
+              [class.jour-actuel]="estAujourdhui(jour)"
+              [attr.data-testid]="estAujourdhui(jour) ? 'aujourdhui' : 'jour-agenda'"
+              [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
+              (click)="selectionnerDate(jour)">
+              {{ jour.getDate() }}
+            </button>
+          }
+        </div>
+      </section>
+    } @else if (vue() === 'semaine') {
+      <section class="calendrier" data-testid="agenda-semaine">
+        <div class="grille-jours grille-semaine">
+          @for (jour of joursSemaine(); track jour.getTime()) {
+            <button type="button" class="jour"
+              [class.jour-actuel]="estAujourdhui(jour)"
+              [attr.data-testid]="estAujourdhui(jour) ? 'aujourdhui' : 'jour-agenda'"
+              [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
+              (click)="selectionnerDate(jour)">
+              <span>{{ jour | date:'EEE':'':'fr' }}</span>
+              <strong>{{ jour.getDate() }}</strong>
+            </button>
+          }
+        </div>
+      </section>
+    } @else {
+      <section class="calendrier" data-testid="agenda-jour">
+        <div class="grille-jours grille-jour">
+          @for (jour of joursJour(); track jour.getTime()) {
+            <button type="button" class="jour"
+              [class.jour-actuel]="estAujourdhui(jour)"
+              [attr.data-testid]="estAujourdhui(jour) ? 'aujourdhui' : 'jour-agenda'"
+              [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
+              (click)="selectionnerDate(jour)">
+              {{ jour | date:'EEEE d MMMM yyyy':'':'fr' }}
+            </button>
+          }
+        </div>
+      </section>
+    }
 
     <aside class="agenda-a-venir" data-testid="agenda-a-venir">
       <h2>À venir</h2>

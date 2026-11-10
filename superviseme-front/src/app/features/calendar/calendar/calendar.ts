@@ -35,6 +35,23 @@ export class Calendar {
   });
 
   /** Cases vides précédant le premier jour du mois. */
+  readonly joursSemaine = computed(() => {
+    const date = this.dateCourante();
+    const premier = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    premier.setDate(premier.getDate() - ((premier.getDay() + 6) % 7));
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const jour = new Date(premier);
+      jour.setDate(premier.getDate() + index);
+      return jour;
+    });
+  });
+
+  readonly joursJour = computed(() => {
+    const date = this.dateCourante();
+    return [new Date(date.getFullYear(), date.getMonth(), date.getDate())];
+  });
+
   readonly casesVides = computed(() => {
     const date = this.dateCourante();
     const nombre = decalagePremierJour(
@@ -56,7 +73,15 @@ export class Calendar {
 
   /** Change de mois sans modifier la date d'origine. */
   changerMois(decalage: number): void {
-    this.dateCourante.update(date => ajouterMois(date, decalage));
+    this.dateCourante.update(date => {
+      if (this.vue() === 'mois') {
+        return ajouterMois(date, decalage);
+      }
+
+      const resultat = new Date(date);
+      resultat.setDate(resultat.getDate() + decalage * (this.vue() === 'semaine' ? 7 : 1));
+      return resultat;
+    });
   }
 
   /** Sélectionne la vue demandée. */
