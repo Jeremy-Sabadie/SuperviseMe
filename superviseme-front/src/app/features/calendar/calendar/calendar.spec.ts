@@ -89,3 +89,23 @@ describe('Agenda', () => {
     });
   });
 });
+
+
+describe('Grille mensuelle', () => {
+  it('aligne le 1er novembre 2026 sous dimanche', () => {
+    const fixture = TestBed.createComponent(Calendar);
+
+    fixture.componentInstance.dateCourante.set(new Date(2026, 10, 1));
+    fixture.detectChanges();
+
+    const casesVides = fixture.nativeElement.querySelectorAll(
+      '[data-testid="case-vide"]'
+    );
+    const jours = fixture.nativeElement.querySelectorAll(
+      '[data-testid="jour-agenda"]'
+    );
+
+    expect(casesVides).toHaveLength(6);
+    expect(jours[0].textContent.trim()).toBe('1');
+  });
+});
