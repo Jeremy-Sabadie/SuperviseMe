@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Calendar } from './calendar';
+import { ajouterMois } from '../utils/calendrier';
 
 describe('Agenda', () => {
   let fixture: ComponentFixture<Calendar>;
@@ -107,5 +108,38 @@ describe('Grille mensuelle', () => {
 
     expect(casesVides).toHaveLength(6);
     expect(jours[0].textContent.trim()).toBe('1');
+  });
+});
+
+describe('Mise en évidence du jour actuel', () => {
+  it('identifie le jour actuel dans la grille', () => {
+    const maintenant = new Date();
+    const fixture = TestBed.createComponent(Calendar);
+
+    fixture.componentInstance.dateCourante.set(maintenant);
+    fixture.detectChanges();
+
+    const aujourdHui = fixture.nativeElement.querySelectorAll(
+      '[data-testid="aujourdhui"]'
+    );
+
+    expect(aujourdHui).toHaveLength(1);
+    expect(aujourdHui[0].textContent.trim()).toBe(
+      String(maintenant.getDate())
+    );
+  });
+
+  it('ne marque aucun jour actuel dans un autre mois', () => {
+    const fixture = TestBed.createComponent(Calendar);
+    const autreMois = ajouterMois(new Date(), 1);
+
+    fixture.componentInstance.dateCourante.set(autreMois);
+    fixture.detectChanges();
+
+    const aujourdHui = fixture.nativeElement.querySelectorAll(
+      '[data-testid="aujourdhui"]'
+    );
+
+    expect(aujourdHui).toHaveLength(0);
   });
 });
