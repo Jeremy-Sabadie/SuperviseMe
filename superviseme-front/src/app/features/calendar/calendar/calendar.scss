@@ -1,0 +1,192 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.agenda {
+  color: var(--sm-text);
+}
+
+.agenda-entete {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.4rem;
+    font-size: 1.8rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--sm-muted);
+  }
+}
+
+.agenda-commandes,
+.navigation-mois,
+.vues {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.agenda-commandes {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.navigation-mois h2 {
+  min-width: 165px;
+  margin: 0;
+  text-align: center;
+  font-size: 1.15rem;
+  text-transform: capitalize;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.navigation-mois button,
+.vues button,
+.formulaire-evenement button {
+  padding: 0.55rem 0.85rem;
+  color: var(--sm-text);
+  background: var(--sm-surface);
+  border: 1px solid var(--sm-border);
+  border-radius: 8px;
+
+  &:hover {
+    background: var(--sm-surface-hover);
+    border-color: var(--sm-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sm-accent-hover);
+    outline-offset: 2px;
+  }
+}
+
+.agenda-contenu {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  align-items: start;
+  gap: 1.25rem;
+}
+
+.calendrier,
+.agenda-a-venir,
+.formulaire-evenement {
+  background: var(--sm-surface);
+  border: 1px solid var(--sm-border);
+  border-radius: 12px;
+}
+
+.calendrier {
+  overflow: hidden;
+}
+
+.jours-semaine,
+.grille-jours {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.jours-semaine {
+  background: var(--sm-bg);
+  border-bottom: 1px solid var(--sm-border);
+
+  span {
+    padding: 0.9rem 0.2rem;
+    color: var(--sm-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.jour,
+.case-vide {
+  min-width: 0;
+  min-height: 94px;
+  padding: 0.75rem;
+  border: 0;
+  border-right: 1px solid var(--sm-border);
+  border-bottom: 1px solid var(--sm-border);
+}
+
+.jour {
+  color: var(--sm-text);
+  background: transparent;
+  text-align: left;
+
+  &:hover {
+    background: var(--sm-surface-hover);
+  }
+
+  &:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid var(--sm-accent-hover);
+    outline-offset: -2px;
+  }
+}
+
+.case-vide {
+  background: var(--sm-bg);
+  opacity: 0.5;
+}
+
+.agenda-a-venir {
+  padding: 1.25rem;
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+  }
+
+  p {
+    color: var(--sm-muted);
+    line-height: 1.5;
+  }
+}
+
+.formulaire-evenement {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+
+  h2 {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .agenda-contenu {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .agenda-commandes {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .navigation-mois,
+  .vues {
+    justify-content: center;
+  }
+
+  .jour,
+  .case-vide {
+    min-height: 55px;
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .jours-semaine span {
+    padding: 0.7rem 0;
+    font-size: 0.75rem;
+  }
+}
