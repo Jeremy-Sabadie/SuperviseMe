@@ -39,3 +39,16 @@ export function joursDuMois(annee: number, mois: number): Date[] {
     (_, index) => new Date(annee, mois, index + 1)
   );
 }
+
+/**
+ * Calcule les cases vides avant le premier jour du mois.
+ * Lundi = 0, mardi = 1, ..., dimanche = 6.
+ */
+export function decalagePremierJour(
+  annee: number,
+  mois: number
+): number {
+  const premierJour = new Date(annee, mois, 1).getDay();
+
+  return (premierJour + 6) % 7;
+}
