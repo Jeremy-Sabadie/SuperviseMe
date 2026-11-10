@@ -1,1 +1,88 @@
-<p>calendar works!</p>
+<section class="agenda">
+  <header class="agenda-entete">
+    <div>
+      <h1>Agenda</h1>
+      <p>Vos rendez-vous et échéances au même endroit.</p>
+    </div>
+  </header>
+
+  <div class="agenda-commandes">
+    <div class="navigation-mois">
+      <button type="button" (click)="changerMois(-1)"
+              aria-label="Mois précédent">
+        ‹
+      </button>
+
+      <h2 data-testid="mois-courant">
+        {{ dateCourante() | date:'MMMM yyyy':'':'fr' }}
+      </h2>
+
+      <button type="button"
+              data-testid="mois-suivant"
+              (click)="changerMois(1)"
+              aria-label="Mois suivant">
+        ›
+      </button>
+    </div>
+
+    <div class="vues">
+      <button type="button" data-testid="vue-mois"
+              (click)="changerVue('mois')">
+        Mois
+      </button>
+      <button type="button" data-testid="vue-semaine"
+              (click)="changerVue('semaine')">
+        Semaine
+      </button>
+      <button type="button" data-testid="vue-jour"
+              (click)="changerVue('jour')">
+        Jour
+      </button>
+    </div>
+  </div>
+
+  <div class="agenda-contenu">
+    <section class="calendrier" data-testid="agenda-mois">
+      <div class="jours-semaine">
+        <span>Lun</span>
+        <span>Mar</span>
+        <span>Mer</span>
+        <span>Jeu</span>
+        <span>Ven</span>
+        <span>Sam</span>
+        <span>Dim</span>
+      </div>
+
+      <div class="grille-jours">
+        @for (jour of jours(); track jour.getTime()) {
+          <button
+            type="button"
+            class="jour"
+            data-testid="jour-agenda"
+            (click)="selectionnerDate(jour)">
+            {{ jour.getDate() }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <aside class="agenda-a-venir" data-testid="agenda-a-venir">
+      <h2>À venir</h2>
+      <p>Les prochains rendez-vous et échéances apparaîtront ici.</p>
+    </aside>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <section class="formulaire-evenement"
+             data-testid="formulaire-evenement">
+      <h2>Nouveau rendez-vous</h2>
+      <p>
+        Date :
+        {{ dateSelectionnee() | date:'dd/MM/yyyy' }}
+      </p>
+      <button type="button" (click)="fermerFormulaire()">
+        Fermer
+      </button>
+    </section>
+  }
+</section>
