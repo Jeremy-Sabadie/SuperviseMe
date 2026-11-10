@@ -1,20 +1,20 @@
-/* SuperviseMe — Design System : Bleu pétrole */
+/* SuperviseMe — Design System : maquette validée */
 :root {
   /* Fonds */
-  --sm-bg: #101923;
-  --sm-surface: #1b2a35;
-  --sm-surface-hover: #243744;
+  --sm-bg: #0f172a;
+  --sm-surface: #1e293b;
+  --sm-surface-hover: #273449;
 
   /* Identité */
-  --sm-accent: #4f9ca5;
-  --sm-accent-hover: #65b0b8;
+  --sm-accent: #0e8790;
+  --sm-accent-hover: #20bcb8;
 
   /* Textes */
-  --sm-text: #e5eef2;
-  --sm-muted: #a6b4c0;
+  --sm-text: #f8fafc;
+  --sm-muted: #94a3b8;
 
   /* Bordures */
-  --sm-border: #344854;
+  --sm-border: #334155;
 
   /* États fonctionnels */
   --sm-success: #65b99a;
@@ -97,4 +97,696 @@
 .sm-list-actions button:disabled {
   opacity: .5;
   cursor: not-allowed;
+}
+
+/* SUPERVISEME — REFONTE DASHBOARD */
+
+app-kanban {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: #eaf4fa;
+}
+.page {
+  background: #081827;
+}
+.topbar {
+  height: auto;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 24px;
+  background: #102b3d;
+  border-bottom: 1px solid #245166;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 20px;
+  color: #f2fbff;
+  text-decoration: none;
+}
+.brand > span:last-child {
+  color: #28d4ca;
+}
+.logo {
+  background: #19bcb6;
+  color: #062936;
+  margin-right: 10px;
+}
+.ux-navigation {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+}
+.ux-navigation a {
+  padding: 10px 13px;
+  border-radius: 8px;
+  color: #bad5df;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ux-navigation a:hover {
+  background: #1d5064;
+  color: #38e1d5;
+}
+.layout {
+  display: block;
+  min-height: calc(100vh - 66px);
+}
+.layout > main {
+  width: 100%;
+  max-width: 1600px;
+  margin: auto;
+  padding: 24px 28px;
+}
+.heading h1 {
+  font-size: 26px;
+  margin: 6px 0;
+}
+.heading p {
+  font-size: 13px;
+}
+.stats {
+  gap: 12px;
+  margin: 20px 0 24px;
+}
+.stat {
+  background: #142b3d;
+  border-color: #245067;
+  padding: 15px 18px;
+}
+.stat strong {
+  margin-top: 7px;
+  font-size: 25px;
+}
+.board-heading {
+  margin-bottom: 12px;
+}
+.board {
+  gap: 12px;
+}
+.column {
+  background: #10283a;
+  border-color: #245067;
+  padding: 14px;
+}
+.ticket {
+  background: #18394b;
+  border-color: #2c6072;
+  padding: 13px;
+}
+.ticket:hover {
+  border-color: #28d4ca;
+}
+.primary {
+  background: #24bdb8;
+  color: #052936;
+  text-decoration: none;
+}
+@media (max-width: 900px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .ux-navigation {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .layout > main {
+    padding: 18px 14px 90px;
+  }
+  .board {
+    grid-template-columns: repeat(3, minmax(230px, 1fr));
+    overflow-x: auto;
+  }
+}
+
+/* SUPERVISEME — CORRECTION RESPONSIVE */
+@media (min-width: 901px) {
+  app-kanban .layout > main {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  app-kanban .stats {
+    margin: 12px 0 16px;
+  }
+
+  app-kanban .stat {
+    padding: 10px 14px;
+  }
+
+  app-kanban .heading h1 {
+    font-size: 23px;
+  }
+
+  app-kanban .board-heading {
+    margin-bottom: 8px;
+  }
+
+  app-kanban .column {
+    padding: 10px;
+  }
+
+  app-kanban .ticket {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  app-kanban,
+  app-kanban .page,
+  app-kanban .layout,
+  app-kanban .layout > main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  app-kanban .layout > main {
+    padding: 12px 12px 80px;
+  }
+
+  app-kanban .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 0 18px;
+  }
+
+  app-kanban .stat {
+    min-width: 0;
+    padding: 10px;
+  }
+
+  app-kanban .board {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding-bottom: 12px;
+  }
+
+  app-kanban .column {
+    flex: 0 0 calc(100vw - 48px);
+    min-width: 0;
+    max-width: calc(100vw - 48px);
+    scroll-snap-align: start;
+  }
+
+  app-kanban .topbar {
+    padding: 10px 12px;
+  }
+
+  app-kanban .ux-navigation {
+    max-width: 100%;
+  }
+}
+
+
+/* UX-ACCUEIL-SEPARE */
+app-kanban .ux-accueil {
+  margin-top: 22px;
+}
+app-kanban .ux-accueil-titre h2 {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+app-kanban .ux-accueil-titre p {
+  color: #9db9ca;
+  margin: 0 0 16px;
+}
+app-kanban .ux-acces {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+app-kanban .ux-acces a {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #285368;
+  border-radius: 12px;
+  background: #173349;
+  color: #e9f7fb;
+  text-decoration: none;
+}
+app-kanban .ux-acces a:hover {
+  border-color: #24c9c2;
+  background: #1b4055;
+}
+app-kanban .ux-acces strong {
+  font-size: 16px;
+}
+app-kanban .ux-acces span {
+  color: #a9c7d4;
+  font-size: 13px;
+}
+@media (max-width: 1000px) {
+  app-kanban .ux-acces {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  app-kanban .ux-acces a {
+    padding: 14px;
+  }
+  app-kanban .ux-acces strong {
+    font-size: 14px;
+  }
+}
+
+/* UX-MAQUETTE-ACCUEIL-CLAIR */
+app-kanban .page {
+  background: #f7f9fc !important;
+  color: #102342 !important;
+  min-height: 100vh;
+}
+app-kanban .topbar {
+  background: #071c3d !important;
+  border-bottom: 0;
+}
+app-kanban .layout {
+  background: #f7f9fc !important;
+}
+app-kanban .layout > main {
+  max-width: 1600px;
+  padding: 26px 32px !important;
+}
+app-kanban .heading {
+  color: #102342;
+}
+app-kanban .heading h1 {
+  font-size: 30px !important;
+  color: #102342 !important;
+}
+app-kanban .heading p,
+app-kanban .eyebrow {
+  color: #60738f !important;
+}
+app-kanban .ux-indicateurs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 26px 0 34px;
+}
+app-kanban .ux-indicateurs .stat {
+  background: #fff !important;
+  color: #102342 !important;
+  border: 1px solid #dce6f1 !important;
+  border-radius: 13px;
+  padding: 19px !important;
+  box-shadow: 0 3px 12px #1023420a;
+}
+app-kanban .ux-indicateurs .stat span {
+  color: #506783 !important;
+}
+app-kanban .ux-indicateurs .stat strong {
+  color: #073e80 !important;
+  font-size: 30px;
+}
+app-kanban .ux-accueil h2 {
+  color: #102342;
+  font-size: 23px;
+  margin: 0 0 18px;
+}
+app-kanban .ux-acces-principaux {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+app-kanban .ux-acces-principaux a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  min-height: 145px;
+  padding: 26px 32px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(115deg, #092a62, #0c418b);
+  color: white;
+  text-decoration: none;
+}
+app-kanban .ux-acces-principaux a:nth-child(2) {
+  background: linear-gradient(115deg, #07969d, #007b87);
+}
+app-kanban .ux-acces-principaux strong {
+  font-size: 25px;
+  color: white;
+}
+app-kanban .ux-acces-principaux span {
+  color: #e2f3ff;
+}
+app-kanban .ux-fleche {
+  position: absolute;
+  right: 25px;
+  font-size: 30px;
+}
+app-kanban .ux-panneaux {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 24px;
+}
+app-kanban .ux-panneaux section {
+  background: #fff;
+  border: 1px solid #dce6f1;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 3px 12px #1023420a;
+}
+app-kanban .ux-panneaux h3 {
+  color: #102342;
+  font-size: 19px;
+  margin: 0 0 18px;
+}
+app-kanban .ux-panneaux p {
+  color: #60738f;
+}
+app-kanban .ux-panneaux a {
+  display: block;
+  margin-top: 14px;
+  color: #0873bf;
+  text-decoration: none;
+  font-weight: 600;
+}
+@media (max-width: 760px) {
+  app-kanban .layout > main {
+    padding: 16px !important;
+  }
+  app-kanban .heading h1 {
+    font-size: 23px !important;
+  }
+  app-kanban .ux-indicateurs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin: 18px 0 24px;
+  }
+  app-kanban .ux-indicateurs .stat {
+    padding: 12px !important;
+  }
+  app-kanban .ux-acces-principaux,
+  app-kanban .ux-panneaux {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  app-kanban .ux-acces-principaux a {
+    min-height: 110px;
+    padding: 18px;
+  }
+  app-kanban .ux-acces-principaux strong {
+    font-size: 20px;
+  }
+}
+
+/* Harmonisation du tableau de bord avec les pages métier */
+app-kanban .main-content,
+app-kanban .content {
+  background: #121925;
+}
+
+app-kanban .ux-indicateurs .stat {
+  background: #252f40 !important;
+  border: 1px solid #35445b !important;
+  box-shadow: none !important;
+}
+
+app-kanban .ux-indicateurs .stat span,
+app-kanban .ux-indicateurs .stat small {
+  color: #a8bacf !important;
+}
+
+app-kanban .ux-indicateurs .stat strong {
+  color: #f1f5fb !important;
+}
+
+app-kanban .ux-accueil h2 {
+  color: #f1f5fb !important;
+}
+
+app-kanban a.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 48px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: #188d99;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+app-kanban a.primary:hover {
+  background: #1ca5ae;
+}
+
+@media (max-width: 650px) {
+  app-kanban a.primary {
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+
+/* UX-DASHBOARD-SOMBRE — harmonisation avec Clients/Dossiers/Tâches */
+app-kanban .page,
+app-kanban .layout {
+  background: #121925 !important;
+  color: #f1f5fb !important;
+}
+
+app-kanban .layout > main {
+  background: #121925 !important;
+}
+
+app-kanban .heading,
+app-kanban .heading h1,
+app-kanban .ux-accueil h2 {
+  color: #f1f5fb !important;
+}
+
+app-kanban .heading p,
+app-kanban .eyebrow {
+  color: #9fb3cd !important;
+}
+
+app-kanban .ux-panneaux section {
+  background: #252f40 !important;
+  border-color: #35445b !important;
+  box-shadow: none !important;
+}
+
+app-kanban .ux-panneaux h3 {
+  color: #f1f5fb !important;
+}
+
+app-kanban .ux-panneaux p {
+  color: #a8bacf !important;
+}
+
+app-kanban .ux-panneaux a {
+  color: #39c5c8 !important;
+}
+
+app-kanban .heading a.primary {
+  width: auto !important;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 11px 18px !important;
+  background: #188d99 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  app-kanban .heading a.primary {
+    align-self: flex-start !important;
+    width: auto !important;
+    max-width: 100%;
+    min-height: 40px;
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* Bouton principal du tableau de bord — bleu ardoise */
+app-kanban .heading a.primary {
+  background: #344b6b !important;
+  color: #ffffff !important;
+  border: 1px solid #526684 !important;
+}
+
+app-kanban .heading a.primary:hover {
+  background: #405a7e !important;
+}
+
+/* Mobile : navigation supérieure masquée, barre inférieure conservée */
+@media (max-width: 650px) {
+  app-kanban .topbar .ux-navigation {
+    display: none !important;
+  }
+}
+
+
+/* Menu hamburger mobile SuperviseMe */
+app-kanban .menu-hamburger {
+  display: none;
+}
+
+@media (max-width: 650px) {
+  app-kanban .topbar .ux-navigation {
+    display: none !important;
+  }
+
+  app-kanban .menu-hamburger {
+    display: block;
+    position: relative;
+    margin-left: auto;
+  }
+
+  app-kanban .menu-hamburger summary {
+    cursor: pointer;
+    list-style: none;
+    color: #fff;
+    font-size: 26px;
+    padding: 8px 12px;
+  }
+
+  app-kanban .menu-hamburger summary::-webkit-details-marker {
+    display: none;
+  }
+
+  app-kanban .menu-hamburger nav {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1000;
+    width: 210px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #202b3e;
+    border: 1px solid #39465d;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px #0006;
+  }
+
+  app-kanban .menu-hamburger nav a {
+    display: block;
+    padding: 12px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 7px;
+  }
+
+  app-kanban .menu-hamburger nav a:hover {
+    background: #34435b;
+  }
+}
+
+/* Navigation inférieure : six onglets visibles sur petit écran */
+@media (max-width: 650px) {
+  app-kanban .mobile-nav {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 6px 2px env(safe-area-inset-bottom) !important;
+    overflow: hidden !important;
+  }
+
+  app-kanban .mobile-nav a {
+    min-width: 0 !important;
+    padding: 4px 1px !important;
+    font-size: 10px !important;
+    text-align: center;
+  }
+
+  app-kanban .mobile-nav a span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+}
+
+
+/* Pastille des demandes dans le hamburger */
+@media (max-width: 650px) {
+  app-kanban .menu-hamburger .menu-demandes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  app-kanban .menu-hamburger .badge-demandes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: white !important;
+    font-size: 12px;
+    font-weight: 700;
+  }
+}
+
+
+/* Notification visible sur le hamburger fermé */
+@media (max-width: 760px) {
+  app-kanban .menu-hamburger > summary {
+    position: relative;
+  }
+
+  app-kanban .hamburger-notification {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    display: grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff !important;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    box-sizing: border-box;
+  }
 }

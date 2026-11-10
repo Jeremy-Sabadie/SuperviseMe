@@ -1,0 +1,108 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #0f172a;
+  color: var(--sm-text);
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: #0d203f;
+  border-bottom: 1px solid #244a58;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: .65rem;
+  background: #16b8b2;
+  color: #08202e;
+}
+
+.brand-accent {
+  color: #20d2ca;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.main-nav a {
+  padding: .7rem 1rem;
+  border-radius: .55rem;
+  color: #b5cbd3;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background .2s, color .2s;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+  background: #174455;
+  color: #37ded4;
+}
+
+.app-content {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .main-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .main-nav a {
+    white-space: nowrap;
+  }
+}
+
+:host {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+}
+
+.app-header {
+  min-height: 64px;
+  padding: 0.75rem 1.5rem;
+}
+
+.brand {
+  font-family: inherit;
+}
+
+.main-nav a {
+  font-family: inherit;
+  font-size: 14px;
+}

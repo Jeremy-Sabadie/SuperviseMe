@@ -43,6 +43,7 @@ describe('Fiche dossier - ergonomie', () => {
       clientId: 'client-1'
     };
 
+    fiche.statutSelectionne = 'A_TRAITER';
     expect(fiche.estModifie()).toBe(false);
 
     fiche.formulaire.titre = 'Nouveau titre';
@@ -59,6 +60,7 @@ describe('Fiche dossier - ergonomie', () => {
       id: 'client-1',
       nom: 'Dupont',
       entreprise: 'Menuiserie Dupont',
+      statutPersonnaliseId: null,
       email: null,
       telephone: null,
       adresse: null,

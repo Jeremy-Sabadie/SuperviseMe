@@ -133,7 +133,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
     right: 0;
     z-index: 100;
     justify-content: space-around;
-    align-items: center;
+    align-items: stretch;
     min-height: 66px;
     padding-bottom: env(safe-area-inset-bottom);
     background: #10192c;
@@ -259,4 +259,118 @@ h2 { font-size: 19px; margin: 0 0 8px; }
 
 .heading a.primary:hover {
   background: var(--sm-accent-hover);
+}
+
+
+/* REFONTE — NAVIGATION ET DENSITÉ */
+:host {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+.page {
+  background: #081829;
+}
+.topbar {
+  height: auto;
+  min-height: 66px;
+  padding: 10px 24px;
+  gap: 24px;
+  background: #10283b;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: #eefaff;
+}
+.logo {
+  background: #18b8b3;
+  color: #082331;
+}
+.ux-navigation {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+}
+.ux-navigation a {
+  padding: 10px 13px;
+  color: #b9d4df;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 8px;
+}
+.ux-navigation a:hover {
+  background: #20516a;
+  color: #3ce3da;
+}
+.layout {
+  display: block;
+  min-height: calc(100vh - 66px);
+}
+.layout > main {
+  width: 100%;
+  max-width: 1600px;
+  padding: 24px 28px;
+}
+.stats {
+  gap: 12px;
+  margin: 20px 0 24px;
+}
+.stat {
+  padding: 14px 18px;
+}
+.stat strong {
+  margin-top: 6px;
+  font-size: 25px;
+}
+.heading h1 {
+  font-size: 26px;
+}
+.primary {
+  background: #22bcb7;
+  color: #062330;
+}
+@media (max-width: 900px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .ux-navigation {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .layout > main {
+    padding: 20px 16px 90px;
+  }
+}
+
+/* ALIGNEMENT-NAV-MOBILE */
+@media (max-width: 760px) {
+  .mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .mobile-nav > span,
+  .mobile-nav > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 8px 2px;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
 }

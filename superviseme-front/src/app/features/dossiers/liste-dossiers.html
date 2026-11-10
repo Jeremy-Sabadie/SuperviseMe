@@ -16,22 +16,24 @@
   } @else if (erreur()) {
     <p class="error" role="alert">{{ erreur() }}</p>
   } @else {
-    <section class="master" aria-label="Liste des dossiers">
-      <div class="master-heading">
-        <h2>Dossiers</h2>
-        <span class="compteur">{{ dossiersFiltres().length }}</span>
-      </div>
+    <div class="dossiers-master-detail">
+      <section class="master" aria-label="Liste des dossiers">
+        <div class="master-heading">
+          <h2>Dossiers ({{ dossiersFiltres().length }})</h2>
+        </div>
 
-      <input type="search"
-             placeholder="Rechercher un dossier ou un client..."
-             aria-label="Rechercher un dossier"
-             [ngModel]="recherche()"
-             (ngModelChange)="recherche.set($event)">
+        <input type="search"
+               placeholder="Rechercher un dossier ou un client..."
+               aria-label="Rechercher un dossier"
+               [ngModel]="recherche()"
+               (ngModelChange)="recherche.set($event)">
 
-      <div class="dossiers-list">
-        @for (dossier of dossiersFiltres(); track dossier.id) {
-          <article class="sm-list-item">
-            <div class="dossier-card">
+        <div class="dossiers-list">
+          @for (dossier of dossiersFiltres(); track dossier.id) {
+            <div
+                    class="dossier-selection"
+                    [class.actif]="dossierSelectionneId() === dossier.id"
+                    (click)="selectionner(dossier)">
               <strong>{{ dossier.titre }}</strong>
               <span>{{ nomClient(dossier.clientId) }}</span>
               <span>Responsable : {{ nomResponsable(dossier.responsableId) }}</span>
@@ -40,31 +42,66 @@
                      [style.border-color]="statutDuDossier(dossier)?.couleur || '#65c7d0'">
                 {{ libelleStatutDossier(dossier) }}
               </small>
-            </div>
 
-            <div class="sm-list-actions">
-              <a data-testid="dossier-consulter"
-                 [routerLink]="['/dossiers', dossier.id]">
-                Consulter
-              </a>
+  <div class="dossier-actions">
+    <a [routerLink]="['/dossiers', dossier.id]"
+       (click)="$event.stopPropagation()">Consulter</a>
+    @if (estAdmin()) {
+      <a [routerLink]="['/dossiers', dossier.id]"
+         [queryParams]="{ mode: 'edition' }"
+         (click)="$event.stopPropagation()">Modifier</a>
+      <button type="button" class="sm-delete"
+              (click)="$event.stopPropagation(); supprimer(dossier)">
+        Supprimer
+      </button>
+    }
+  </div>
+</div>
+          } @empty {
+            <p>Aucun dossier trouvé.</p>
+          }
+        </div>
+      </section>
 
-              @if (estAdmin()) {
-                <a data-testid="dossier-modifier"
-                   [routerLink]="['/dossiers', dossier.id]"
-                   [queryParams]="{ mode: 'edition' }">
-                  Modifier
-                </a>
-                <button type="button" class="sm-danger"
-                        (click)="supprimer(dossier)">
-                  Supprimer
-                </button>
-              }
-            </div>
-          </article>
-        } @empty {
-          <p>Aucun dossier trouvé.</p>
+      <section class="detail" aria-label="Aperçu du dossier">
+        <h2>Fiche dossier</h2>
+
+        @if (dossierSelectionne(); as dossier) {
+          <div class="dossier-apercu">
+            <h3>{{ dossier.titre }}</h3>
+            <p><strong>Client :</strong> {{ nomClient(dossier.clientId) }}</p>
+            <p><strong>Responsable :</strong> {{ nomResponsable(dossier.responsableId) }}</p>
+            <p><strong>Priorité :</strong> {{ dossier.priorite }}</p>
+            <p><strong>Échéance :</strong> {{ dossier.echeance || 'Non renseignée' }}</p>
+            <p>
+              <strong>Statut :</strong>
+              <span class="statut-dossier-badge"
+                    [style.color]="statutDuDossier(dossier)?.couleur || '#65c7d0'"
+                    [style.border-color]="statutDuDossier(dossier)?.couleur || '#65c7d0'">
+                {{ libelleStatutDossier(dossier) }}
+              </span>
+            </p>
+            @if (dossier.description) {
+              <p class="description">{{ dossier.description }}</p>
+            }
+          </div>
+
+          <div class="sm-list-actions">
+            <a data-testid="dossier-consulter"
+               [routerLink]="['/dossiers', dossier.id]">Consulter</a>
+
+            @if (estAdmin()) {
+              <a data-testid="dossier-modifier"
+                 [routerLink]="['/dossiers', dossier.id]"
+                 [queryParams]="{ mode: 'edition' }">Modifier</a>
+              <button type="button" class="sm-danger"
+                      (click)="supprimer(dossier)">Supprimer</button>
+            }
+          </div>
+        } @else {
+          <p class="detail-vide">Sélectionnez un dossier pour consulter ses informations.</p>
         }
-      </div>
-    </section>
+      </section>
+    </div>
   }
 </section>

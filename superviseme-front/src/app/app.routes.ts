@@ -4,6 +4,13 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'suivi',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/kanban/kanban').then(m => m.Kanban)
+  },
+
+  {
     path: 'configurer-statuts',
     canActivate: [authGuard, adminGuard],
     loadComponent: () =>
@@ -47,15 +54,32 @@ export const routes: Routes = [
   {
     path: 'dossiers',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/dossiers/liste-dossiers')
-      .then(m => m.ListeDossiers)
+    loadComponent: () =>
+      import('./layout/main-layout/main-layout')
+        .then(m => m.MainLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/dossiers/liste-dossiers')
+            .then(m => m.ListeDossiers)
+      }
+    ]
   },
   {
     path: 'clients',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/clients/clients/clients')
-        .then(m => m.Clients)
+      import('./layout/main-layout/main-layout')
+        .then(m => m.MainLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/clients/clients/clients')
+            .then(m => m.Clients)
+      }
+    ]
   },
 
   {

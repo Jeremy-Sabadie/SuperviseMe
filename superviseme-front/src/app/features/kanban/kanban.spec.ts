@@ -15,10 +15,10 @@ describe('Kanban', () => {
     });
     component = TestBed.createComponent(Kanban).componentInstance;
     component.dossiers.set([
-      { id: '1', titre: 'Dossier 1', client: 'Client A', priorite: 'Normale', responsable: 'Admin', statut: 'A_TRAITER' },
-      { id: '2', titre: 'Dossier 2', client: 'Client B', priorite: 'Normale', responsable: 'Admin', statut: 'A_TRAITER' },
-      { id: '3', titre: 'Dossier 3', client: 'Client C', priorite: 'Normale', responsable: 'Admin', statut: 'EN_COURS' },
-      { id: '4', titre: 'Dossier 4', client: 'Client D', priorite: 'Normale', responsable: 'Admin', statut: 'TERMINE' }
+      { id: '1', titre: 'Dossier 1', client: 'Client A', priorite: 'Normale', responsable: 'Admin', statut: 'A_TRAITER', echeance: null, },
+      { id: '2', titre: 'Dossier 2', client: 'Client B', priorite: 'Normale', responsable: 'Admin', statut: 'A_TRAITER', echeance: null, },
+      { id: '3', titre: 'Dossier 3', client: 'Client C', priorite: 'Normale', responsable: 'Admin', statut: 'EN_COURS', echeance: null, },
+      { id: '4', titre: 'Dossier 4', client: 'Client D', priorite: 'Normale', responsable: 'Admin', statut: 'TERMINE', echeance: null, }
     ]);
   });
 
@@ -68,7 +68,7 @@ describe('Kanban', () => {
     );
 
     expect(bouton).not.toBeNull();
-    expect(bouton.textContent.trim()).toBe('+ Ouvrir un nouveau dossier');
+    expect(bouton.textContent.trim()).toBe('+ Nouveau dossier');
   });
 
 });

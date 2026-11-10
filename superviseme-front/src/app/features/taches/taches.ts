@@ -27,6 +27,21 @@ export class Taches implements OnInit {
   private readonly utilisateursApi = inject(UtilisateurApiService);
 
   readonly taches = signal<TacheApi[]>([]);
+  readonly selectionId = signal<string | null>(null);
+  readonly formulaireOuvert = signal(false);
+  readonly recherche = signal('');
+
+  get tachesFiltrees(): TacheApi[] {
+    const terme = this.recherche().trim().toLocaleLowerCase('fr');
+    return this.taches().filter(t =>
+      t.titre.toLocaleLowerCase('fr').includes(terme)
+      || this.responsable(t).toLocaleLowerCase('fr').includes(terme)
+    );
+  }
+
+  get tacheSelectionnee(): TacheApi | undefined {
+    return this.taches().find(t => t.id === this.selectionId());
+  }
   readonly collaborateurs = signal<CollaborateurResponse[]>([]);
   readonly utilisateurId = signal('');
   readonly estAdmin = signal(false);
@@ -100,6 +115,8 @@ export class Taches implements OnInit {
     }).subscribe({
       next: tache => {
         this.taches.update(liste => [...liste, tache]);
+        this.selectionId.set(tache.id);
+        this.formulaireOuvert.set(false);
         this.titre = '';
         this.responsableId = '';
         this.enregistrement.set(false);

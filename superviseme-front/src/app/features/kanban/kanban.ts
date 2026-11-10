@@ -20,6 +20,7 @@ interface Dossier {
   priorite: string;
   responsable: string;
   statut: string;
+  echeance: string | null;
 }
 
 interface StatutConfig {
@@ -44,6 +45,8 @@ interface ColonneKanban {
   styleUrl: './kanban.scss'
 })
 export class Kanban implements OnInit {
+  readonly vueSuivi = inject(Router).url.startsWith('/suivi');
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly demandesApi = inject(DemandeClientApiService);
   readonly demandesEnAttente = signal(0);
@@ -101,6 +104,40 @@ export class Kanban implements OnInit {
   });
 
   readonly dossiers = signal<Dossier[]>([]);
+
+  /** Dates comparées au jour local, sans décalage UTC. */
+  private dateLocale(decalageJours = 0): string {
+    const date = new Date();
+    date.setDate(date.getDate() + decalageJours);
+    const annee = date.getFullYear();
+    const mois = String(date.getMonth() + 1).padStart(2, '0');
+    const jour = String(date.getDate()).padStart(2, '0');
+    return `${annee}-${mois}-${jour}`;
+  }
+
+  /** Dossiers non terminés dont l'échéance est dépassée. */
+  readonly dossiersEnRetard = computed(() => {
+    const aujourdHui = this.dateLocale();
+    return this.dossiers().filter(d =>
+      !!d.echeance &&
+      d.echeance.slice(0, 10) < aujourdHui &&
+      d.statut !== 'TERMINE'
+    ).length;
+  });
+
+  /** Échéances des sept prochains jours, aujourd'hui inclus. */
+  readonly prochainesEcheances = computed(() => {
+    const debut = this.dateLocale();
+    const fin = this.dateLocale(7);
+    return this.dossiers().filter(d => {
+      const date = d.echeance?.slice(0, 10);
+      return !!date &&
+        date >= debut &&
+        date <= fin &&
+        d.statut !== 'TERMINE';
+    }).length;
+  });
+
 
   ngOnInit(): void {
     this.chargerStatuts();
@@ -193,7 +230,8 @@ export class Kanban implements OnInit {
                     ? 'Haute'
                     : d.priorite === 'BASSE' ? 'Basse' : 'Normale',
                   responsable: d.responsableId ? 'Responsable' : 'Non assigné',
-                  statut: d.statutPersonnaliseId ?? d.statut
+                  statut: d.statutPersonnaliseId ?? d.statut,
+                  echeance: d.echeance
                 }))
             );
             this.chargement.set(false);
