@@ -30,6 +30,18 @@ export class ListeDossiers implements OnInit {
   readonly clients = signal(new Map<string, string>());
   readonly responsables = signal(new Map<string, string>());
   readonly recherche = signal('');
+  readonly dossierSelectionneId = signal<string | null>(null);
+
+  readonly dossierSelectionne = computed(() =>
+    this.dossiersFiltres().find(
+      dossier => dossier.id === this.dossierSelectionneId()
+    ) ?? null
+  );
+
+  selectionner(dossier: DossierApi): void {
+    this.dossierSelectionneId.set(dossier.id);
+  }
+
   readonly chargement = signal(true);
   readonly erreur = signal('');
 
@@ -73,6 +85,8 @@ export class ListeDossiers implements OnInit {
           clients.map(c => [c.id, c.entreprise || c.nom])
         ));
         this.dossiers.set(dossiers);
+        this.dossierSelectionneId.set(dossiers[0]?.id ?? null);
+
         this.chargement.set(false);
       },
       error: () => {
@@ -118,6 +132,12 @@ export class ListeDossiers implements OnInit {
         this.dossiers.update(liste =>
           liste.filter(item => item.id !== dossier.id)
         );
+        if (this.dossierSelectionneId() === dossier.id) {
+          this.dossierSelectionneId.set(
+            this.dossiers()[0]?.id ?? null
+          );
+        }
+
         void Swal.fire({
           title: 'Dossier supprimé',
           icon: 'success',

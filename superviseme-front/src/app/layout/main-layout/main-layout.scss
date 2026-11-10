@@ -1,8 +1,8 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #081b2a;
-  color: #eaf5f8;
+  background: #0f172a;
+  color: var(--sm-text);
 }
 
 .app-shell {
@@ -15,7 +15,7 @@
   justify-content: space-between;
   gap: 2rem;
   padding: 1rem 2rem;
-  background: #102b3b;
+  background: #0d203f;
   border-bottom: 1px solid #244a58;
 }
 
@@ -86,4 +86,23 @@
   .main-nav a {
     white-space: nowrap;
   }
+}
+
+:host {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+}
+
+.app-header {
+  min-height: 64px;
+  padding: 0.75rem 1.5rem;
+}
+
+.brand {
+  font-family: inherit;
+}
+
+.main-nav a {
+  font-family: inherit;
+  font-size: 14px;
 }

@@ -1,3 +1,4 @@
+import { StatutPersonnaliseApiService } from '../../../core/services/statut-personnalise-api';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -23,6 +24,11 @@ describe('Clients - Master Detail', () => {
     await TestBed.configureTestingModule({
       imports: [Clients],
       providers: [
+        {
+          provide: StatutPersonnaliseApiService,
+          useValue: { lister: () => of([]) }
+        },
+
         provideRouter([]),
         {
           provide: ClientApiService,

@@ -1,97 +1,118 @@
 <section class="taches-page">
   <a routerLink="/" class="retour">← Retour au tableau de bord</a>
 
-  <header>
-    <h1>Mes tâches</h1>
-    <p>Suivez les tâches de votre entreprise et leur avancement.</p>
+  <header class="page-header">
+    <div>
+      <h1>Mes tâches</h1>
+      <p>Suivez les tâches de votre entreprise et leur avancement.</p>
+    </div>
+    @if (estAdmin()) {
+      <button type="button" class="primary"
+        (click)="formulaireOuvert.set(!formulaireOuvert())">
+        {{ formulaireOuvert() ? 'Fermer' : '+ Nouvelle tâche' }}
+      </button>
+    }
   </header>
 
   @if (erreur()) {
     <p class="erreur" role="alert">{{ erreur() }}</p>
   }
 
-  @if (estAdmin()) {
-    <form
-      class="creation"
-      data-testid="tache-creation"
-      (ngSubmit)="creer()"
-    >
+  @if (estAdmin() && formulaireOuvert()) {
+    <form class="creation" data-testid="tache-creation" (ngSubmit)="creer()">
       <h2>Nouvelle tâche</h2>
-
       <label for="titre-tache">Titre</label>
-      <input
-        id="titre-tache"
-        name="titre"
-        maxlength="200"
-        required
-        [(ngModel)]="titre"
-        placeholder="Ex. Préparer le devis"
-      >
+      <input id="titre-tache" name="titre" maxlength="200" required
+        [(ngModel)]="titre" placeholder="Ex. Préparer le devis">
 
       <label for="responsable-tache">Responsable</label>
-      <select
-        id="responsable-tache"
-        name="responsable"
-        required
-        [(ngModel)]="responsableId"
-      >
+      <select id="responsable-tache" name="responsable" required
+        [(ngModel)]="responsableId">
         <option value="">Sélectionner un responsable</option>
         @for (collaborateur of collaborateurs(); track collaborateur.id) {
-          <option [value]="collaborateur.id">
-            {{ collaborateur.email }}
-          </option>
+          <option [value]="collaborateur.id">{{ collaborateur.email }}</option>
         }
       </select>
 
-      <button
-        type="submit"
-        [disabled]="!titre.trim() || !responsableId || enregistrement()"
-      >
+      <button type="submit" class="primary"
+        [disabled]="!titre.trim() || !responsableId || enregistrement()">
         Créer la tâche
       </button>
     </form>
   }
 
-  <div class="liste">
-    <h2>Tâches de l'entreprise ({{ taches().length }})</h2>
+  <div class="master-detail" [class.detail-ouvert]="selectionId() !== null">
+    <section class="master">
+      <h2>Tâches de l'entreprise ({{ taches().length }})</h2>
+      <input type="search" aria-label="Rechercher une tâche"
+        placeholder="Rechercher une tâche..."
+        [ngModel]="recherche()"
+        (ngModelChange)="recherche.set($event)">
 
-    @if (chargement()) {
-      <p>Chargement des tâches...</p>
-    } @else {
-      @for (tache of taches(); track tache.id) {
-        <article class="tache">
-          <div class="tache-infos">
-            <h3>{{ tache.titre }}</h3>
-            <p>Responsable : {{ responsable(tache) }}</p>
-            <span class="priorite">Priorité : {{ tache.priorite }}</span>
-          </div>
-
-          <div class="tache-statut">
-            @if (peutModifier(tache)) {
-              <label [for]="'statut-' + tache.id">Statut</label>
-              <select
-                [id]="'statut-' + tache.id"
-                [attr.data-testid]="'statut-' + tache.id"
-                [ngModel]="tache.statut"
-                [disabled]="enregistrement()"
-                (ngModelChange)="changerStatut(tache, $event)"
-              >
-                @for (statut of statuts; track statut.valeur) {
-                  <option [value]="statut.valeur">
-                    {{ statut.libelle }}
-                  </option>
+      @if (chargement()) {
+        <p>Chargement des tâches...</p>
+      } @else {
+        <div class="liste">
+          @for (tache of tachesFiltrees; track tache.id) {
+            <div class="sm-tache-item">
+              <div class="tache">
+                <strong>{{ tache.titre }}</strong>
+                <span>Responsable : {{ responsable(tache) }}</span>
+                <span class="statut">{{ libelleStatut(tache.statut) }}</span>
+              </div>
+              <div class="sm-tache-actions">
+                <button type="button" (click)="selectionId.set(tache.id)">
+                  Consulter
+                </button>
+                @if (peutModifier(tache)) {
+                  <button type="button" (click)="selectionId.set(tache.id)">
+                    Modifier
+                  </button>
                 }
-              </select>
-            } @else {
-              <span class="statut-lecture">
-                {{ libelleStatut(tache.statut) }}
-              </span>
-            }
-          </div>
-        </article>
-      } @empty {
-        <p>Aucune tâche pour le moment.</p>
+              </div>
+            </div>
+          } @empty {
+            <p>Aucune tâche trouvée.</p>
+          }
+        </div>
       }
-    }
+    </section>
+
+    <section class="detail">
+      @if (tacheSelectionnee; as tache) {
+        <button type="button" class="retour-mobile"
+          (click)="selectionId.set(null)">← Liste des tâches</button>
+
+        <h2>Fiche tâche</h2>
+        <div class="section-detail">
+          <h3>{{ tache.titre }}</h3>
+          <p>Responsable : {{ responsable(tache) }}</p>
+          <p>Priorité : {{ tache.priorite }}</p>
+        </div>
+
+        <div class="section-detail">
+          <h3>Statut</h3>
+          @if (peutModifier(tache)) {
+            <label [for]="'statut-' + tache.id">Modifier le statut</label>
+            <select [id]="'statut-' + tache.id"
+              [attr.data-testid]="'statut-' + tache.id"
+              [ngModel]="tache.statut"
+              [disabled]="enregistrement()"
+              (ngModelChange)="changerStatut(tache, $event)">
+              @for (statut of statuts; track statut.valeur) {
+                <option [value]="statut.valeur">{{ statut.libelle }}</option>
+              }
+            </select>
+          } @else {
+            <p>{{ libelleStatut(tache.statut) }}</p>
+          }
+        </div>
+      } @else {
+        <div class="empty-detail">
+          <h2>Fiche tâche</h2>
+          <p>Sélectionnez une tâche pour consulter ses informations et son statut.</p>
+        </div>
+      }
+    </section>
   </div>
 </section>
