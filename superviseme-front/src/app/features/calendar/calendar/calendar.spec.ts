@@ -188,3 +188,87 @@ describe('Vues du calendrier', () => {
     )).not.toBeNull();
   });
 });
+
+describe('Création des rendez-vous', () => {
+  let fixture: ComponentFixture<Calendar>;
+  let element: HTMLElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Calendar]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(Calendar);
+    element = fixture.nativeElement;
+    fixture.componentInstance.dateCourante.set(new Date(2026, 10, 11));
+    fixture.detectChanges();
+  });
+
+  function remplir(champ: string, valeur: string): void {
+    const input = element.querySelector(
+      `[data-testid="${champ}"]`
+    ) as HTMLInputElement | HTMLTextAreaElement;
+
+    expect(input).not.toBeNull();
+    input.value = valeur;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+  }
+
+  function ouvrirEtRemplir(): void {
+    (element.querySelector('[data-testid="ajouter-rendez-vous"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    remplir('rdv-titre', 'Visite chantier');
+    remplir('rdv-debut', '09:00');
+    remplir('rdv-fin', '10:00');
+    remplir('rdv-lieu', 'Bordeaux');
+    remplir('rdv-description', 'Rencontre client');
+  }
+
+  it('ouvre le formulaire avec le bouton Ajouter', () => {
+    (element.querySelector('[data-testid="ajouter-rendez-vous"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(element.querySelector('[data-testid="formulaire-evenement"]')).not.toBeNull();
+  });
+
+  it('propose les champs du rendez-vous', () => {
+    ouvrirEtRemplir();
+
+    for (const champ of ['rdv-titre', 'rdv-date', 'rdv-debut', 'rdv-fin', 'rdv-lieu', 'rdv-description']) {
+      expect(element.querySelector(`[data-testid="${champ}"]`)).not.toBeNull();
+    }
+  });
+
+  it('refuse un rendez-vous sans titre', () => {
+    ouvrirEtRemplir();
+    remplir('rdv-titre', '');
+
+    (element.querySelector('[data-testid="enregistrer-rdv"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.rendezVous()).toHaveLength(0);
+  });
+
+  it('refuse une heure de fin antérieure au début', () => {
+    ouvrirEtRemplir();
+    remplir('rdv-fin', '08:00');
+
+    (element.querySelector('[data-testid="enregistrer-rdv"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.rendezVous()).toHaveLength(0);
+  });
+
+  it('enregistre et affiche un rendez-vous', () => {
+    ouvrirEtRemplir();
+
+    (element.querySelector('[data-testid="enregistrer-rdv"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.rendezVous()).toHaveLength(1);
+    expect(element.textContent).toContain('Visite chantier');
+    expect(element.querySelector('[data-testid="formulaire-evenement"]')).toBeNull();
+  });
+});
