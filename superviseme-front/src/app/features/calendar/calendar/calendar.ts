@@ -5,6 +5,7 @@ import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
 import {
   ajouterMois,
+  decalagePremierJour,
   joursDuMois
 } from '../utils/calendrier';
 
@@ -31,6 +32,17 @@ export class Calendar {
       date.getFullYear(),
       date.getMonth()
     );
+  });
+
+  /** Cases vides précédant le premier jour du mois. */
+  readonly casesVides = computed(() => {
+    const date = this.dateCourante();
+    const nombre = decalagePremierJour(
+      date.getFullYear(),
+      date.getMonth()
+    );
+
+    return Array.from({ length: nombre }, (_, index) => index);
   });
 
   /** Change de mois sans modifier la date d'origine. */

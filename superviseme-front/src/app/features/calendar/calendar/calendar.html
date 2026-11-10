@@ -54,6 +54,12 @@
       </div>
 
       <div class="grille-jours">
+        @for (caseVide of casesVides(); track caseVide) {
+          <span class="case-vide"
+                data-testid="case-vide"
+                aria-hidden="true"></span>
+        }
+
         @for (jour of jours(); track jour.getTime()) {
           <button
             type="button"
