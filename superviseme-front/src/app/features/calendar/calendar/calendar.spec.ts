@@ -143,3 +143,48 @@ describe('Mise en évidence du jour actuel', () => {
     expect(aujourdHui).toHaveLength(0);
   });
 });
+
+describe('Vues du calendrier', () => {
+  it('affiche sept jours en vue semaine', () => {
+    const fixture = TestBed.createComponent(Calendar);
+    fixture.componentInstance.dateCourante.set(new Date(2026, 10, 11));
+    fixture.componentInstance.changerVue('semaine');
+    fixture.detectChanges();
+
+    const jours = fixture.nativeElement.querySelectorAll(
+      '[data-testid="jour-agenda"], [data-testid="aujourdhui"]'
+    );
+
+    expect(jours).toHaveLength(7);
+    expect(fixture.nativeElement.querySelector(
+      '[data-testid="agenda-semaine"]'
+    )).not.toBeNull();
+  });
+
+  it('affiche un seul jour en vue jour', () => {
+    const fixture = TestBed.createComponent(Calendar);
+    fixture.componentInstance.dateCourante.set(new Date(2026, 10, 11));
+    fixture.componentInstance.changerVue('jour');
+    fixture.detectChanges();
+
+    const jours = fixture.nativeElement.querySelectorAll(
+      '[data-testid="jour-agenda"], [data-testid="aujourdhui"]'
+    );
+
+    expect(jours).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector(
+      '[data-testid="agenda-jour"]'
+    )).not.toBeNull();
+  });
+
+  it('revient à la grille mensuelle', () => {
+    const fixture = TestBed.createComponent(Calendar);
+    fixture.componentInstance.changerVue('semaine');
+    fixture.componentInstance.changerVue('mois');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector(
+      '[data-testid="agenda-mois"]'
+    )).not.toBeNull();
+  });
+});
