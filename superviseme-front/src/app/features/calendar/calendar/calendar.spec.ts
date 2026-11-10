@@ -20,9 +20,10 @@ describe('Agenda', () => {
   function cliquerSur(identifiant: string): void {
     const bouton = trouverElement(identifiant);
 
-    expect(bouton)
-      .withContext(`Élément introuvable : ${identifiant}`)
-      .not.toBeNull();
+    expect(
+      bouton,
+      `Élément introuvable : ${identifiant}`
+    ).not.toBeNull();
 
     if (!bouton) {
       throw new Error(`Impossible de cliquer sur : ${identifiant}`);
