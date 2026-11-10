@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ajouterMois,
+  decalagePremierJour,
   debutSemaine,
   joursDuMois
 } from './calendrier';
@@ -41,5 +42,19 @@ describe('Navigation du calendrier', () => {
 
     expect(jours[0].getDate()).toBe(1);
     expect(jours[29].getDate()).toBe(30);
+  });
+});
+
+describe('Alignement de la grille mensuelle', () => {
+  it('place le 1er novembre 2026 dans la colonne dimanche', () => {
+    expect(decalagePremierJour(2026, 10)).toBe(6);
+  });
+
+  it('place le 1er juin 2026 dans la colonne lundi', () => {
+    expect(decalagePremierJour(2026, 5)).toBe(0);
+  });
+
+  it('place le 1er décembre 2026 dans la colonne mardi', () => {
+    expect(decalagePremierJour(2026, 11)).toBe(1);
   });
 });
