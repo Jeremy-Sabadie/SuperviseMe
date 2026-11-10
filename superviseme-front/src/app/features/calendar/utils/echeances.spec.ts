@@ -76,6 +76,30 @@ describe('Extraction des échéances pour l’Agenda', () => {
     expect(echeances).toEqual([]);
   });
 
+  it.each([
+    '0004-02-29',
+    '2000-02-29',
+    '2024-02-29'
+  ])('accepte une date bissextile valide : %s', date => {
+    const echeances = extraireEcheances([
+      creerDossier({ echeance: date })
+    ]);
+
+    expect(echeances[0]?.date).toBe(date);
+  });
+
+  it.each([
+    '0001-02-29',
+    '1900-02-29',
+    '2025-02-29'
+  ])('rejette un 29 février non bissextile : %s', date => {
+    const echeances = extraireEcheances([
+      creerDossier({ echeance: date })
+    ]);
+
+    expect(echeances).toEqual([]);
+  });
+
   it('conserve uniquement les échéances des dossiers actifs', () => {
     const echeances = extraireEcheances([
       creerDossier({ id: 'actif' }),
