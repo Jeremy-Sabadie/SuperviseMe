@@ -106,3 +106,68 @@
   font-family: inherit;
   font-size: 14px;
 }
+
+
+/* Navigation mobile du layout partagé. */
+.layout-hamburger {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    gap: 0.5rem;
+  }
+
+  .main-nav {
+    display: none;
+  }
+
+  .layout-hamburger {
+    display: block;
+    margin-left: auto;
+    position: relative;
+  }
+
+  .layout-hamburger summary {
+    cursor: pointer;
+    list-style: none;
+    color: #fff;
+    font-size: 26px;
+    padding: 8px 12px;
+  }
+
+  .layout-hamburger summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .layout-hamburger nav {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1000;
+    width: min(240px, 85vw);
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #202b3e;
+    border: 1px solid #39465d;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px #0006;
+  }
+
+  .layout-hamburger nav a {
+    display: block;
+    padding: 12px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 7px;
+  }
+
+  .layout-hamburger nav a:hover {
+    background: #34435b;
+  }
+}

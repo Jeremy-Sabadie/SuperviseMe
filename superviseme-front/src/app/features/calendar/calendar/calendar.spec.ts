@@ -1,3 +1,5 @@
+import { ActivatedRoute } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { NgModel } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -45,7 +47,8 @@ describe('Agenda', () => {
       isConfirmed: false, isDismissed: true, isDenied: false
     });
     await TestBed.configureTestingModule({
-      imports: [Calendar]
+      imports: [Calendar],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     // Simule un utilisateur ADMIN avant la création du composant.
@@ -107,6 +110,14 @@ describe('Agenda', () => {
 
 
 describe('Grille mensuelle', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } }
+      ]
+    });
+  });
+
   it('aligne le 1er novembre 2026 sous dimanche', () => {
     const fixture = TestBed.createComponent(Calendar);
 
@@ -126,6 +137,12 @@ describe('Grille mensuelle', () => {
 });
 
 describe('Mise en évidence du jour actuel', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([])]
+    });
+  });
+
   it('identifie le jour actuel dans la grille', () => {
     const maintenant = new Date();
     const fixture = TestBed.createComponent(Calendar);
@@ -159,6 +176,12 @@ describe('Mise en évidence du jour actuel', () => {
 });
 
 describe('Vues du calendrier', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([])]
+    });
+  });
+
   it('affiche sept jours en vue semaine', () => {
     const fixture = TestBed.createComponent(Calendar);
     fixture.componentInstance.dateCourante.set(new Date(2026, 10, 11));
@@ -209,7 +232,8 @@ describe('Création des rendez-vous', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Calendar]
+      imports: [Calendar],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     // Simule un utilisateur ADMIN avant la création du composant.
@@ -336,7 +360,8 @@ describe('Permissions Agenda', () => {
    */
   async function creerAgenda(roles: string[]) {
     await TestBed.configureTestingModule({
-      imports: [Calendar]
+      imports: [Calendar],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     // Simule la réponse du backend concernant les rôles.
