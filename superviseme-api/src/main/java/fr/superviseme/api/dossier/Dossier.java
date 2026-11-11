@@ -26,6 +26,9 @@ public class Dossier {
     @Column(nullable = false, length = 30)
     private StatutDossier statut = StatutDossier.A_TRAITER;
 
+    @Column(name = "statut_personnalise_id")
+    private UUID statutPersonnaliseId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private PrioriteDossier priorite = PrioriteDossier.NORMALE;
@@ -82,11 +85,15 @@ public class Dossier {
     }
 
     /**
-     * Change uniquement le statut du dossier.
-     * Les autres propriétés métier restent inchangées.
+     * Affecte un statut historique au dossier.
+     * Supprime l'association personnalisée pour éviter toute incohérence
+     * lors du prochain chargement du Kanban.
+     *
+     * @param nouveauStatut statut historique à appliquer
      */
     public void changerStatut(StatutDossier nouveauStatut) {
         this.statut = java.util.Objects.requireNonNull(nouveauStatut);
+        this.statutPersonnaliseId = null;
     }
 
     @PrePersist
@@ -139,6 +146,24 @@ public class Dossier {
     public String getTitre() { return titre; }
     public String getDescription() { return description; }
     public StatutDossier getStatut() { return statut; }
+    /**
+     * Retourne l'identifiant du statut personnalisé associé au dossier.
+     * Une valeur nulle indique un dossier utilisant encore l'ancien statut.
+     *
+     * @return identifiant du statut personnalisé, ou null
+     */
+    public UUID getStatutPersonnaliseId() { return statutPersonnaliseId; }
+
+    /**
+     * Associe un statut personnalisé au dossier.
+     * L'existence et les droits d'utilisation du statut sont vérifiés
+     * par le service métier avant cet appel.
+     *
+     * @param id identifiant du statut personnalisé
+     */
+    public void changerStatutPersonnalise(UUID id) {
+        this.statutPersonnaliseId = java.util.Objects.requireNonNull(id);
+    }
     public PrioriteDossier getPriorite() { return priorite; }
     public UUID getClientId() { return clientId; }
     public UUID getResponsableId() { return responsableId; }

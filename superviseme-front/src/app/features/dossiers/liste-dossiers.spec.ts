@@ -1,3 +1,4 @@
+import { StatutPersonnaliseApiService } from '../../core/services/statut-personnalise-api';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -13,6 +14,11 @@ describe('ListeDossiers', () => {
     await TestBed.configureTestingModule({
       imports: [ListeDossiers],
       providers: [
+        {
+          provide: StatutPersonnaliseApiService,
+          useValue: { lister: () => of([]) }
+        },
+
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),

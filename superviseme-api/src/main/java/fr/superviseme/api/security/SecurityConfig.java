@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/public/realisations",
                                 "/api/public/realisations/*/image").permitAll()
                         .requestMatchers("/api/realisations", "/api/realisations/**").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers("/api/agenda", "/api/agenda/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/dossiers", "/api/dossiers/**").hasAnyRole("ADMIN", "USER")
                         // Consultation partagée ; création réservée à ADMIN au niveau métier.
                         .requestMatchers("/api/taches", "/api/taches/**").hasAnyRole("ADMIN", "USER")
@@ -40,6 +41,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH,
                                 "/api/utilisateurs/*/desactiver",
                                 "/api/utilisateurs/*/reactiver").hasRole("ADMIN")
+                        // Configuration des statuts réservée à l'administrateur client.
+                        // Le rôle OWNER reste réservé à l'administration globale.
+                        .requestMatchers(HttpMethod.GET, "/api/admin/statuts",
+                                "/api/admin/statuts/**").authenticated()
+                        .requestMatchers("/api/admin/statuts",
+                                "/api/admin/statuts/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("OWNER")
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .anyRequest().denyAll()

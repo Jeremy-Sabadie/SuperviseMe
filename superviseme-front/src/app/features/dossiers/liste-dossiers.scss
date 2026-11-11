@@ -216,3 +216,325 @@ input {
     width: 100%;
   }
 }
+
+
+.statut-dossier-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, currentColor 16%, #192536);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Présentation liste / aperçu, alignée sur la page Tâches. */
+.dossiers-master-detail {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 1.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.dossiers-master-detail .master,
+.dossiers-master-detail .detail {
+  min-width: 0;
+  background: #232e40;
+  border: 1px solid #34435b;
+  border-radius: 18px;
+  padding: 28px;
+}
+
+.dossiers-master-detail .dossiers-list {
+  display: grid;
+  gap: 12px;
+}
+
+.dossier-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 20px;
+  text-align: left;
+  font: inherit;
+  color: #fff;
+  background: #151d30;
+  border: 1px solid #35415b;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.dossier-selection span {
+  color: #94a3b8;
+  overflow-wrap: anywhere;
+}
+
+.dossier-selection.actif,
+.dossier-selection:hover {
+  background: #1b3443;
+  border-color: #20b4bc;
+}
+
+.dossiers-master-detail .detail h2 {
+  margin-bottom: 24px;
+}
+
+.dossier-apercu {
+  padding: 24px;
+  margin-bottom: 20px;
+  background: #151d30;
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+}
+
+.dossier-apercu h3 {
+  font-size: 20px;
+  margin: 0 0 20px;
+}
+
+.dossier-apercu .description {
+  white-space: pre-wrap;
+}
+
+.dossiers-master-detail .sm-list-actions {
+  justify-content: flex-start;
+}
+
+@media (max-width: 800px) {
+  .dossiers-master-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Correctif mobile : afficher le détail du dossier sélectionné */
+@media (max-width: 700px) {
+  .dossiers-master-detail .master,
+  .dossiers-master-detail .detail {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dossiers-master-detail .detail {
+    margin-top: 16px;
+  }
+
+  .dossiers-master-detail .sm-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+.dossier-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dossier-actions a {
+  display: inline-flex;
+  padding: 8px 12px;
+  border: 1px solid #64748b;
+  border-radius: 7px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+/* UX-DOSSIERS-LISTE-UNIQUE */
+.dossiers-master-detail {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dossiers-master-detail > .master {
+  display: block !important;
+  width: 100%;
+}
+
+.dossiers-master-detail > .detail {
+  display: none !important;
+}
+
+.dossiers-master-detail .dossiers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 12px;
+}
+
+.dossiers-master-detail .dossier-selection {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.dossiers-master-detail .dossier-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (max-width: 700px) {
+  .dossiers-master-detail .dossiers-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* HARMONISATION-DOSSIERS-CLIENTS-V2 */
+
+.dossiers-master-detail {
+  display: block;
+}
+
+.dossiers-master-detail > .master {
+  background: #1b2537;
+  border: 1px solid #34435b;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.dossiers-master-detail > .detail {
+  display: none !important;
+}
+
+.dossiers-master-detail .master-heading {
+  margin-bottom: 12px;
+}
+
+.dossiers-master-detail .dossiers-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.dossiers-master-detail .dossier-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  background: #111827;
+  border: 1px solid #34435b;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.dossiers-master-detail .dossier-selection:hover,
+.dossiers-master-detail .dossier-selection.actif {
+  background: #111827;
+  border-color: #34435b;
+}
+
+.dossiers-master-detail .dossier-selection strong {
+  font-size: 13px;
+}
+
+.dossiers-master-detail .dossier-selection span {
+  font-size: 12px;
+}
+
+.dossiers-master-detail .dossier-actions {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dossiers-master-detail .dossier-actions a {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 5px;
+  background: #253247;
+  border: 1px solid #34435b;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.dossiers-master-detail .dossier-actions a:first-child {
+  color: #20b4bc;
+}
+
+@media (max-width: 700px) {
+  .dossiers-master-detail > .master {
+    padding: 16px;
+  }
+}
+
+/* ALIGNEMENT-VISUEL-CLIENTS-V3 */
+
+/* Cartes : mêmes espacements que Clients */
+.dossiers-master-detail .dossier-selection {
+  padding: 8px;
+  gap: 6px;
+  background: #0b1220;
+  border-color: var(--sm-border);
+}
+
+/* Actions : présentation identique à Clients */
+.dossiers-master-detail .dossier-actions {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dossiers-master-detail .dossier-actions a,
+.dossiers-master-detail .dossier-actions button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 4px;
+  border: 1px solid var(--sm-border);
+  border-radius: 7px;
+  background: var(--sm-surface);
+  color: var(--sm-text);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Consulter : turquoise */
+.dossiers-master-detail .dossier-actions a:first-child {
+  color: var(--sm-accent-hover);
+}
+
+/* Supprimer : rouge comme Clients */
+.dossiers-master-detail .dossier-actions button.sm-delete {
+  color: #f1a1a1;
+  border-color: #70414a;
+  background: #422a32;
+}
+
+.dossiers-master-detail .dossier-actions button.sm-delete:hover {
+  background: #60353e;
+}
+
+/* Badges : fond teinté et forme pilule */
+.dossiers-master-detail .statut-dossier-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  background: color-mix(in srgb, currentColor 12%, #111827);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}

@@ -52,6 +52,14 @@ public class ClientController {
         return service.modifier(id, request);
     }
 
+    /** PATCH : changement du statut personnalisé d'un client. */
+    @PatchMapping("/{id}/statut-personnalise")
+    public ClientResponse changerStatutPersonnalise(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangerStatutClientRequest request) {
+        return service.changerStatutPersonnalise(id, request.statutId());
+    }
+
     /** DELETE : suppression d'un client non référencé. */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

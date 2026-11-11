@@ -1,0 +1,60 @@
+<div class="configuration-page">
+  <header class="page-header">
+    <a routerLink="/" class="retour">← Tableau de bord</a>
+    <h1>Configurer mes statuts</h1>
+    <p>Personnalisez les étapes de suivi de votre entreprise.</p>
+  </header>
+
+  <nav class="categories" aria-label="Catégories de statuts">
+    @for (item of categories; track item.id) {
+      <button type="button"
+              [class.active]="categorie() === item.id"
+              (click)="choisir(item.id)">
+        {{ item.titre }}
+      </button>
+    }
+  </nav>
+
+  <section class="panneau">
+    <h2>Statuts personnalisés — {{ categorie() === "CLIENT" ? "Client" : categorie() === "SIGNATURE_COMMERCIALE" ? "Pré-signature commerciale" : "Post-signature commerciale" }}</h2>
+
+    @if (chargement()) {
+      <p>Chargement...</p>
+    } @else if (statuts().length === 0) {
+      <p class="vide">Aucun statut pour cette catégorie. Ajoutez votre première étape ci-dessous.</p>
+    }
+
+    @for (statut of statuts(); track statut.id; let i = $index) {
+      <div class="statut">
+        <span class="libelle">{{ statut.libelle }}</span>
+
+        <label class="selecteur-couleur">
+          <span>Couleur</span>
+          <input type="color"
+                 [value]="statut.couleur"
+                 (change)="changerCouleur(statut, $any($event.target).value)"
+                 [attr.aria-label]="'Modifier la couleur de ' + statut.libelle"
+                 title="Cliquer pour modifier la couleur">
+        </label>
+
+        <div class="actions">
+          <button type="button" (click)="deplacer(statut, -1)"
+                  [disabled]="i === 0" aria-label="Monter">↑</button>
+          <button type="button" (click)="deplacer(statut, 1)"
+                  [disabled]="i === statuts().length - 1" aria-label="Descendre">↓</button>
+          <button type="button" (click)="modifier(statut)">Modifier</button>
+        </div>
+      </div>
+    }
+
+    <form class="ajout" (ngSubmit)="ajouter()">
+      <input name="libelle" [(ngModel)]="libelle"
+             maxlength="100" required placeholder="Nouveau statut">
+      <input name="couleur" type="color" [(ngModel)]="couleur"
+             aria-label="Couleur du nouveau statut">
+      <button type="submit" [disabled]="chargement() || !libelle.trim() || libelle.trim().length > 100">+ Ajouter</button>
+    </form>
+
+    <p class="note">La suppression sera activée après sécurisation des statuts utilisés par les dossiers.</p>
+  </section>
+</div>

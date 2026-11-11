@@ -62,6 +62,18 @@ public class DossierController {
      * PATCH /api/dossiers/{id}/statut : déplacement Kanban.
      * Ne modifie aucune autre propriété du dossier.
      */
+    /**
+     * Modifie le statut personnalisé d'un dossier depuis le suivi Kanban.
+     * Le contrôle des autorisations est délégué au service métier.
+     */
+    @PatchMapping("/{id}/statut-personnalise")
+    public DossierResponse changerStatutPersonnalise(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangerStatutPersonnaliseRequest demande) {
+        return DossierResponse.depuis(
+                service.changerStatutPersonnalise(id, demande.statutId()));
+    }
+
     @PatchMapping("/{id}/statut")
     public DossierResponse changerStatut(
             @PathVariable UUID id,

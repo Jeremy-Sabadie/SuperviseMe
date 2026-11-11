@@ -2,9 +2,11 @@ import Swal from 'sweetalert2';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, switchMap, of } from 'rxjs';
 import { DossierApi, DossierApiService } from '../../../core/services/dossier-api';
 import { Client, ClientApiService, ClientRequest } from '../../../core/services/client-api';
+import { StatutPersonnaliseApiService } from '../../../core/services/statut-personnalise-api';
+import { StatutPersonnalise } from '../../../core/services/statut-personnalise.model';
 
 @Component({
   selector: 'app-clients',
@@ -15,6 +17,9 @@ import { Client, ClientApiService, ClientRequest } from '../../../core/services/
 export class Clients implements OnInit {
   private readonly api = inject(ClientApiService);
   private readonly dossiersApi = inject(DossierApiService);
+  private readonly statutsApi = inject(StatutPersonnaliseApiService);
+  readonly statutsClients = signal<StatutPersonnalise[]>([]);
+  readonly changementStatut = signal(false);
 
   readonly clients = signal<Client[]>([]);
   readonly dossiers = signal<DossierApi[]>([]);
@@ -40,6 +45,7 @@ export class Clients implements OnInit {
 
   clientId: string | null = null;
   formulaire: ClientRequest = this.formulaireVide();
+  statutFormulaire = '';
 
   ngOnInit(): void {
     this.charger();
@@ -61,9 +67,11 @@ export class Clients implements OnInit {
 
     forkJoin({
       clients: this.api.lister(),
-      dossiers: this.dossiersApi.lister()
+      dossiers: this.dossiersApi.lister(),
+      statuts: this.statutsApi.lister('CLIENT')
     }).subscribe({
-      next: ({ clients, dossiers }) => {
+      next: ({ clients, dossiers, statuts }) => {
+        this.statutsClients.set(statuts);
         this.clients.set(clients);
         this.dossiers.set(dossiers);
         const id = this.clientSelectionne()?.id;
@@ -79,6 +87,38 @@ export class Clients implements OnInit {
     });
   }
 
+  changerStatutClient(client: Client, statutId: string): void {
+    if (!statutId || this.changementStatut()) return;
+
+    this.changementStatut.set(true);
+
+    this.api.changerStatutPersonnalise(client.id, statutId).subscribe({
+      next: clientActualise => {
+        this.clients.update(clients =>
+          clients.map(c => c.id === clientActualise.id ? clientActualise : c)
+        );
+        this.clientSelectionne.set(clientActualise);
+        this.changementStatut.set(false);
+      },
+      error: () => {
+        this.changementStatut.set(false);
+        void Swal.fire({
+          icon: 'error',
+          title: 'Statut non enregistré',
+          text: 'Impossible de modifier le statut de ce client.',
+          background: '#151d30',
+          color: '#ffffff'
+        });
+      }
+    });
+  }
+
+  statutDuClient(client: Client): StatutPersonnalise | undefined {
+    return this.statutsClients().find(
+      statut => statut.id === client.statutPersonnaliseId
+    );
+  }
+
   selectionner(client: Client): void {
     this.clientSelectionne.set(client);
     this.edition.set(false);
@@ -92,6 +132,7 @@ export class Clients implements OnInit {
   nouveau(): void {
     this.clientId = null;
     this.formulaire = this.formulaireVide();
+    this.statutFormulaire = '';
     this.erreur.set('');
     this.message.set('');
     this.edition.set(true);
@@ -99,6 +140,7 @@ export class Clients implements OnInit {
 
   modifier(client: Client): void {
     this.clientId = client.id;
+    this.statutFormulaire = client.statutPersonnaliseId ?? '';
     this.formulaire = {
       nom: client.nom,
       entreprise: client.entreprise ?? '',
@@ -194,7 +236,17 @@ export class Clients implements OnInit {
       ? this.api.modifier(this.clientId, this.formulaire)
       : this.api.creer(this.formulaire);
 
-    requete.subscribe({
+    requete.pipe(
+      switchMap(client => {
+        if (!this.statutFormulaire ||
+            client.statutPersonnaliseId === this.statutFormulaire) {
+          return of(client);
+        }
+        return this.api.changerStatutPersonnalise(
+          client.id, this.statutFormulaire
+        );
+      })
+    ).subscribe({
       next: () => {
         this.enregistrement.set(false);
         this.edition.set(false);

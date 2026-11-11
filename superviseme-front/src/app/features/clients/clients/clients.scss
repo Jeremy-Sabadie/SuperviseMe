@@ -243,3 +243,26 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .sm-client-actions .sm-delete:hover {
   background: #60353e;
 }
+
+/* Étiquette de statut — charte SuperviseMe */
+.client-card .statut-client-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.3rem 0.7rem;
+  margin-top: 0.4rem;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, currentColor 16%, #192536);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.client-card .statut-client-badge {
+  border-radius: 9999px;
+}
+
+
+/* SUPERVISEME — CHARTE CLAIRE CLIENTS */

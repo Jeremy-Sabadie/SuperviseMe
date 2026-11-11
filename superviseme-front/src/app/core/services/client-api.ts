@@ -11,6 +11,7 @@ export interface Client {
   adresse: string | null;
   dateCreation: string;
   dateModification: string;
+  statutPersonnaliseId: string | null;
 }
 
 export type ClientRequest = Pick<
@@ -37,6 +38,14 @@ export class ClientApiService {
 
   supprimer(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  /** Affecte un statut personnalisé à un client. */
+  changerStatutPersonnalise(id: string, statutId: string): Observable<Client> {
+    return this.http.patch<Client>(
+      `${this.url}/${id}/statut-personnalise`,
+      { statutId }
+    );
   }
 
   modifier(id: string, client: ClientRequest): Observable<Client> {

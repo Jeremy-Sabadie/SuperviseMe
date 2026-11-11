@@ -8,8 +8,11 @@
       <div>
         <p class="reference">Dossier {{ dossier()!.id.slice(0, 8) }}</p>
         <h1>{{ dossier()!.titre }}</h1>
-        <span class="us008-statut">
-          {{ dossier()!.statut.replaceAll('_', ' ') }}
+        <span class="us008-statut"
+              [style.color]="couleurStatutDossier(dossier()!)"
+              [style.border-color]="couleurStatutDossier(dossier()!)"
+              [style.background-color]="'color-mix(in srgb, ' + couleurStatutDossier(dossier()!) + ' 16%, #192536)'">
+          {{ libelleStatutDossier(dossier()!) }}
         </span>
       </div>
       @if (estAdmin()) {
@@ -157,12 +160,16 @@
 
       <div class="deux-colonnes">
         <label>Statut
-          <select name="statut" [(ngModel)]="formulaire.statut">
-            <option value="A_TRAITER">À traiter</option>
-            <option value="EN_COURS">En cours</option>
-            <option value="TERMINE">Terminé</option>
-            <option value="ARCHIVE">Archivé</option>
-          </select>
+          <select name="statut" [(ngModel)]="statutSelectionne">
+  @for (statut of statutsPersonnalises(); track statut.id) {
+    <option [value]="statut.id">{{ statut.libelle }}</option>
+  }
+  @if (!dossier()?.statutPersonnaliseId) {
+    <option [value]="dossier()?.statut">
+      {{ dossier()?.statut?.replaceAll('_', ' ') }} (historique)
+    </option>
+  }
+</select>
         </label>
 
         <label>Priorité

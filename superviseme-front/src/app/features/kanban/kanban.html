@@ -1,60 +1,85 @@
 <div class="page">
-  <header class="topbar">
-    <div class="brand"><span class="logo">S</span> Supervise<span>Me</span></div>
-    <div class="user">
+
+<header class="topbar">
+  <a class="brand" routerLink="/">
+    <span class="logo">S</span>Supervise<span>Me</span>
+  </a>
+  <nav class="ux-navigation" aria-label="Navigation principale">
+    <a routerLink="/">Accueil</a>
+    <a routerLink="/clients">Clients</a>
+    <a routerLink="/dossiers">Dossiers</a>
+    <a routerLink="/suivi">Suivi des dossiers</a>
+    <a routerLink="/task">Tâches</a>
+    <a routerLink="/demandes-clients">Demandes</a>
+    @if (estAdmin()) {
+      <a routerLink="/collaborateurs">Équipe</a>
+    }
+  </nav>
+<details class="menu-hamburger">
+  <summary aria-label="Ouvrir le menu de navigation">
+    ☰
+    @if (demandesEnAttente() > 0) {
+      <span class="hamburger-notification">{{ demandesEnAttente() }}</span>
+    }
+  </summary>
+  <nav aria-label="Menu mobile">
+    <a routerLink="/">Accueil</a>
+    <a routerLink="/clients">Clients</a>
+    <a routerLink="/dossiers">Dossiers</a>
+    <a routerLink="/suivi">Suivi des dossiers</a>
+    <a routerLink="/task">Tâches</a>
+    <a routerLink="/demandes-clients" class="menu-demandes">
+      Mes demandes
+      @if (demandesEnAttente() > 0) {
+        <span class="badge-demandes">{{ demandesEnAttente() }}</span>
+      }
+    </a>
+    @if (estAdmin()) {
+      <a routerLink="/collaborateurs">Équipe</a>
+    }
+  </nav>
+</details>
+
+<div class="user">
   <span class="user-label">Espace entreprise</span>
   <details class="profil-menu">
     <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
     <div class="profil-options">
       @if (estAdmin()) {
-        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>
+        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>\n        <a routerLink="/configurer-statuts">Configurer mes statuts</a>
       }
       <button type="button" (click)="deconnecter()">Déconnexion</button>
     </div>
   </details>
   <button type="button" class="logout" (click)="deconnecter()">Déconnexion</button>
 </div>
-  </header>
+</header>
+
 
   <div class="layout">
-    <aside class="sidebar">
-      <div class="section-label">ESPACE DE TRAVAIL</div>
-      <div class="nav active">▦ &nbsp; Tableau de bord</div>
-      <a class="nav nav-link" routerLink="/dossiers">▤ &nbsp; Mes dossiers</a>
-      <a class="nav nav-link" routerLink="/task">☑ &nbsp; Mes tâches</a>
-      <div class="nav">◷ &nbsp; Calendrier</div>
-      <a class="nav nav-link" routerLink="/clients">♙ &nbsp; Clients</a>
-      <a class="nav nav-link" routerLink="/demandes-clients">
-        ✉ &nbsp; Demandes clients
-        @if (demandesEnAttente() > 0) {
-          <span class="badge-demandes">{{ demandesEnAttente() }}</span>
-        }
-      </a>
-      <div class="separator"></div>
-      <div class="section-label">GESTION</div>
-      @if (estAdmin()) {
-        <a class="nav nav-link" routerLink="/collaborateurs">♙ &nbsp; Collaborateurs</a>
-      }
-      <div class="nav">⚙ &nbsp; Paramètres</div>
-    </aside>
+
 
     <main>
       <div class="heading">
         <div>
-          <div class="eyebrow">VUE D'ENSEMBLE</div>
-          <h1>Tableau de bord</h1>
+
+          <h1>{{ vueSuivi ? 'Suivi des dossiers' : 'Tableau de bord' }}</h1>
           <p>Pilotez votre activité et suivez vos dossiers en temps réel.</p>
         </div>
-        @if (estAdmin()) { <a class="primary" routerLink="/dossiers/nouveau">+ Ouvrir un nouveau dossier</a> }
+        @if (estAdmin()) { <a class="primary" routerLink="/dossiers/nouveau">+ Nouveau dossier</a> }
       </div>
 
-      <div class="stats">
-        <div class="stat"><span>Dossiers actifs</span><strong>{{ dossiersParStatut('A_TRAITER').length + dossiersParStatut('EN_COURS').length }}</strong></div>
-        <div class="stat"><span>À traiter</span><strong>{{ dossiersParStatut('A_TRAITER').length }}</strong></div>
-        <div class="stat"><span>En cours</span><strong>{{ dossiersParStatut('EN_COURS').length }}</strong></div>
-        <div class="stat"><span>Terminés</span><strong>{{ dossiersParStatut('TERMINE').length }}</strong></div>
-      </div>
 
+
+<div class="stats ux-indicateurs">
+  <div class="stat">
+    <span>Échéances à venir</span>
+    <strong>{{ prochainesEcheances() }}</strong>
+    <small>Dossiers à échéance dans les 7 prochains jours</small>
+  </div>
+</div>
+
+@if (vueSuivi) {
       <div class="board-heading">
         <div>
           <h2>Suivi des dossiers</h2>
@@ -64,7 +89,7 @@
       </div>
 
       <div class="board" cdkDropListGroup>
-        @for (colonne of colonnes; track colonne.id) {
+        @for (colonne of colonnes(); track colonne.id) {
           <section class="column">
             <div class="column-heading">
               <div class="column-title">
@@ -110,6 +135,41 @@
           </section>
         }
       </div>
+      } @else {
+
+
+<section class="ux-accueil">
+  <h2>Accès rapides</h2>
+
+  <div class="ux-acces ux-acces-principaux">
+    <a routerLink="/clients">
+      <strong>♧ Clients</strong>
+      <span>Gérez vos clients, leurs dossiers et vos échanges.</span>
+      <span class="ux-fleche">›</span>
+    </a>
+    <a routerLink="/suivi">
+      <strong>▤ Dossiers</strong>
+      <span>Suivez leur avancement, leurs statuts et les prochaines étapes.</span>
+      <span class="ux-fleche">›</span>
+    </a>
+  </div>
+
+  <div class="ux-panneaux">
+    <section>
+      <h3>◈ Activité récente</h3>
+      <p>Consultez les dossiers et les demandes de vos clients.</p>
+      <a routerLink="/suivi">Voir les dossiers ›</a>
+      <a routerLink="/demandes-clients">Voir les demandes ›</a>
+    </section>
+    <section>
+      <h3>▦ À venir cette semaine</h3>
+      <p>Retrouvez les tâches et les échéances à suivre.</p>
+      <a routerLink="/task">Consulter mes tâches ›</a>
+    </section>
+  </div>
+</section>
+
+      }
     </main>
   </div>
 </div>
@@ -120,12 +180,7 @@
   <a class="mobile-link" routerLink="/task">☑ Tâches</a>
   <span>◷ Agenda</span>
   <a class="mobile-link" routerLink="/clients">♙ Clients</a>
-  <a class="mobile-link" routerLink="/demandes-clients">
-    ✉ Demandes
-    @if (demandesEnAttente() > 0) {
-      <span class="badge-demandes">{{ demandesEnAttente() }}</span>
-    }
-  </a>
+
   @if (estAdmin()) {
     <a class="mobile-link" routerLink="/collaborateurs">♙ Collaborateurs</a>
   }

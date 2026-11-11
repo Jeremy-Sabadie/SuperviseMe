@@ -2,7 +2,9 @@ import Swal from 'sweetalert2';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, switchMap } from 'rxjs';
+import { StatutPersonnaliseApiService } from '../../../core/services/statut-personnalise-api';
+import { StatutPersonnalise } from '../../../core/services/statut-personnalise.model';
 import { TacheApi, TacheApiService, StatutTache } from '../../../core/services/tache-api';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { Client, ClientApiService } from '../../../core/services/client-api';
@@ -18,6 +20,21 @@ import { DossierApi, DossierApiService, PrioriteDossier, StatutDossier } from '.
 export class FicheDossier implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(DossierApiService);
+  private readonly statutsApi = inject(StatutPersonnaliseApiService);
+  readonly statutsPersonnalises = signal<StatutPersonnalise[]>([]);
+  statutSelectionne = '';
+
+  couleurStatutDossier(dossier: DossierApi): string {
+    return this.statutsPersonnalises()
+      .find(s => s.id === dossier.statutPersonnaliseId)?.couleur ?? '#65c7d0';
+  }
+
+  libelleStatutDossier(dossier: DossierApi): string {
+    const statut = this.statutsPersonnalises()
+      .find(s => s.id === dossier.statutPersonnaliseId);
+
+    return statut?.libelle ?? dossier.statut.replaceAll('_', ' ');
+  }
   private readonly clientsApi = inject(ClientApiService);
   private readonly utilisateursApi = inject(UtilisateurApiService);
   private readonly authApi = inject(AuthApiService);
@@ -89,9 +106,15 @@ export class FicheDossier implements OnInit {
       dossier: this.api.consulter(id),
       clients: this.clientsApi.lister(),
       responsables: this.utilisateursApi.lister(),
-      utilisateur: this.authApi.moi()
+      utilisateur: this.authApi.moi(),
+    statutsAvant: this.statutsApi.lister('SIGNATURE_COMMERCIALE'),
+    statutsApres: this.statutsApi.lister('APRES_SIGNATURE')
     }).subscribe({
-      next: ({ dossier, clients, responsables, utilisateur }) => {
+      next: ({ dossier, clients, responsables, utilisateur, statutsAvant, statutsApres }) => {
+      this.statutsPersonnalises.set(
+        [...statutsAvant, ...statutsApres].sort((a, b) => a.ordre - b.ordre)
+      );
+      this.statutSelectionne = dossier.statutPersonnaliseId ?? dossier.statut;
         this.clients.set(clients);
         this.responsables.set(responsables);
         this.estAdmin.set(utilisateur.roles.includes('ADMIN'));
@@ -175,42 +198,115 @@ export class FicheDossier implements OnInit {
       : 'Identité à renseigner';
   }
 
+  /** Détecte les modifications des informations ou du statut du dossier. */
   estModifie(): boolean {
     const original = this.dossier();
     if (!original) return false;
 
+    return this.informationsModifiees(original)
+      || this.statutSelectionne !== (original.statutPersonnaliseId ?? original.statut);
+  }
+
+  /** Compare les informations indépendamment du statut personnalisé. */
+  private informationsModifiees(original: DossierApi): boolean {
     return this.formulaire.titre.trim() !== original.titre
       || this.formulaire.description !== (original.description ?? '')
-      || this.formulaire.statut !== original.statut
       || this.formulaire.priorite !== original.priorite
       || this.formulaire.echeance !== (original.echeance ?? '')
       || this.formulaire.clientId !== (original.clientId ?? '');
   }
 
-  enregistrer(): void {
+  /** Enregistre les informations puis, si nécessaire, le statut sélectionné. */
+  async enregistrer(): Promise<void> {
     const dossier = this.dossier();
-    if (!dossier || !this.formulaire.titre.trim() || !this.estModifie() || this.enregistrement()) return;
+    if (!dossier || !this.formulaire.titre.trim()
+      || !this.estModifie() || this.enregistrement()) return;
+
+    const confirmation = await Swal.fire({
+      title: 'Modifier ce dossier ?',
+      text: 'Les modifications seront enregistrées.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#4f9ca5',
+      cancelButtonColor: '#344854',
+      background: '#151d30',
+      color: '#ffffff',
+      reverseButtons: true
+    });
+
+    if (!confirmation.isConfirmed || this.enregistrement()) return;
+
+    const statutChange =
+      this.statutSelectionne !== (dossier.statutPersonnaliseId ?? dossier.statut);
+
+    const informationsChangees = this.informationsModifiees(dossier);
 
     this.enregistrement.set(true);
     this.erreur.set('');
     this.succes.set(false);
 
-    this.api.modifier(dossier.id, {
-      titre: this.formulaire.titre.trim(),
-      description: this.formulaire.description,
-      statut: this.formulaire.statut,
-      priorite: this.formulaire.priorite,
-      echeance: this.formulaire.echeance || null,
-      clientId: this.formulaire.clientId || null
-    }).subscribe({
+    const sauvegarde = informationsChangees
+      ? this.api.modifier(dossier.id, {
+          titre: this.formulaire.titre.trim(),
+          description: this.formulaire.description,
+          statut: dossier.statut,
+          priorite: this.formulaire.priorite,
+          echeance: this.formulaire.echeance || null,
+          clientId: this.formulaire.clientId || null
+        })
+      : of(dossier);
+
+    sauvegarde.pipe(
+      switchMap(resultat => {
+        if (!statutChange) return of(resultat);
+
+        const statutPersonnalise = this.statutsPersonnalises()
+          .find(statut => statut.id === this.statutSelectionne);
+
+        if (statutPersonnalise) {
+          return this.api.changerStatutPersonnalise(
+            dossier.id, statutPersonnalise.id
+          );
+        }
+
+        if (this.statutSelectionne === dossier.statut) {
+          return this.api.changerStatut(dossier.id, dossier.statut);
+        }
+
+        throw new Error('Statut sélectionné non reconnu.');
+      })
+    ).subscribe({
       next: resultat => {
         this.dossier.set(resultat);
+        this.formulaire.statut = resultat.statut;
+        this.statutSelectionne =
+          resultat.statutPersonnaliseId ?? resultat.statut;
         this.enregistrement.set(false);
         this.succes.set(true);
+
+        void Swal.fire({
+          title: 'Dossier modifié avec succès',
+          icon: 'success',
+          timer: 1800,
+          showConfirmButton: false,
+          background: '#151d30',
+          color: '#ffffff'
+        });
       },
       error: () => {
         this.enregistrement.set(false);
-        this.erreur.set('Modification impossible. Vérifiez vos droits.');
+        this.erreur.set('Modification impossible. Vérifiez le statut et vos droits.');
+
+        void Swal.fire({
+          title: 'Modification impossible',
+          text: 'Vérifiez le statut sélectionné et vos droits.',
+          icon: 'error',
+          confirmButtonColor: '#4f9ca5',
+          background: '#151d30',
+          color: '#ffffff'
+        });
       }
     });
   }

@@ -37,6 +37,17 @@ public class Client {
     @Column(nullable = false)
     private Instant dateModification;
 
+    @Column(name = "statut_personnalise_id")
+    private UUID statutPersonnaliseId;
+
+    public UUID getStatutPersonnaliseId() {
+        return statutPersonnaliseId;
+    }
+
+    public void changerStatutPersonnalise(UUID statutId) {
+        this.statutPersonnaliseId = statutId;
+    }
+
     /** Constructeur requis par JPA. */
     protected Client() {
     }

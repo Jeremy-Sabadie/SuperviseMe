@@ -100,6 +100,9 @@ describe('Taches', () => {
     const fixture = TestBed.createComponent(Taches);
     fixture.detectChanges();
 
+    fixture.componentInstance.formulaireOuvert.set(true);
+    fixture.detectChanges();
+
     expect(
       fixture.nativeElement.querySelector(
         '[data-testid="tache-creation"]'
@@ -109,6 +112,8 @@ describe('Taches', () => {
 
   it('autorise le changement de statut de sa tâche', () => {
     const fixture = TestBed.createComponent(Taches);
+    fixture.detectChanges();
+    fixture.componentInstance.selectionId.set('tache-1');
     fixture.detectChanges();
 
     expect(
@@ -135,11 +140,17 @@ describe('Taches', () => {
     const fixture = TestBed.createComponent(Taches);
     fixture.detectChanges();
 
+    fixture.componentInstance.selectionId.set('tache-1');
+    fixture.detectChanges();
+
     expect(
       fixture.nativeElement.querySelector(
         '[data-testid="statut-tache-1"]'
       )
     ).toBeTruthy();
+
+    fixture.componentInstance.selectionId.set('tache-2');
+    fixture.detectChanges();
 
     expect(
       fixture.nativeElement.querySelector(
