@@ -4,6 +4,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { DossierApiService } from '../../../core/services/dossier-api';
 import {
@@ -29,7 +30,7 @@ type VueAgenda = 'mois' | 'semaine' | 'jour';
 /** Affichage et navigation du calendrier. */
 @Component({
   selector: 'app-calendar',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './calendar.html',
   styleUrl: './calendar.scss'
 })

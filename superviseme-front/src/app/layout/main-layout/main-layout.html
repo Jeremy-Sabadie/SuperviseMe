@@ -5,12 +5,26 @@
       <span>Supervise<span class="brand-accent">Me</span></span>
     </a>
 
+    <details class="layout-hamburger">
+      <summary aria-label="Ouvrir le menu de navigation">☰</summary>
+      <nav aria-label="Menu mobile">
+        <a routerLink="/">Accueil</a>
+        <a routerLink="/clients">Clients</a>
+        <a routerLink="/dossiers">Dossiers</a>
+        <a routerLink="/suivi">Suivi des dossiers</a>
+        <a routerLink="/task">Tâches</a>
+        <a routerLink="/agenda">Agenda</a>
+        <a routerLink="/demandes-clients">Demandes</a>
+      </nav>
+    </details>
+
     <nav class="main-nav" aria-label="Navigation principale">
       <a routerLink="/" routerLinkActive="active"
          [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
       <a routerLink="/clients" routerLinkActive="active">Clients</a>
       <a routerLink="/dossiers" routerLinkActive="active">Dossiers</a>
       <a routerLink="/task" routerLinkActive="active">Tâches</a>
+      <a routerLink="/agenda" routerLinkActive="active">Agenda</a>
     </nav>
   </header>
 
