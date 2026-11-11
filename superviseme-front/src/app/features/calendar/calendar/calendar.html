@@ -4,6 +4,13 @@
       <h1>Agenda</h1>
       <p>Vos rendez-vous et échéances au même endroit.</p>
     </div>
+    @if (estAdmin()) {
+      <button type="button" class="bouton-ajout-rdv"
+              data-testid="ajouter-rendez-vous"
+              (click)="selectionnerDate(dateCourante())">
+        + Rendez-vous
+      </button>
+    }
   </header>
 
   <div class="agenda-commandes">
@@ -59,6 +66,25 @@
               [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
               (click)="selectionnerDate(jour)">
               {{ jour.getDate() }}
+              @for (echeance of echeancesDuJour(jour); track echeance.dossierId) {
+                <span class="rdv-calendrier">
+                  Échéance : {{ echeance.titre }}
+                </span>
+              }
+              @for (rdv of rendezVousDuJour(jour); track rdv.id) {
+                <span class="rdv-calendrier"
+                      role="button"
+                      tabindex="0"
+                      (click)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.enter)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); modifierRendezVous(rdv)">
+                  {{ rdv.heureDebut.slice(0, 5) }} {{ rdv.titre }}
+                  @if (estEnConflit(rdv)) {
+                    <span title="Conflit horaire"
+                          aria-label="Conflit horaire">⚠</span>
+                  }
+                </span>
+              }
             </button>
           }
         </div>
@@ -74,6 +100,25 @@
               (click)="selectionnerDate(jour)">
               <span>{{ jour | date:'EEE':'':'fr' }}</span>
               <strong>{{ jour.getDate() }}</strong>
+              @for (echeance of echeancesDuJour(jour); track echeance.dossierId) {
+                <span class="rdv-calendrier">
+                  Échéance : {{ echeance.titre }}
+                </span>
+              }
+              @for (rdv of rendezVousDuJour(jour); track rdv.id) {
+                <span class="rdv-calendrier"
+                      role="button"
+                      tabindex="0"
+                      (click)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.enter)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); modifierRendezVous(rdv)">
+                  {{ rdv.heureDebut.slice(0, 5) }} {{ rdv.titre }}
+                  @if (estEnConflit(rdv)) {
+                    <span title="Conflit horaire"
+                          aria-label="Conflit horaire">⚠</span>
+                  }
+                </span>
+              }
             </button>
           }
         </div>
@@ -88,6 +133,25 @@
               [attr.aria-current]="estAujourdhui(jour) ? 'date' : null"
               (click)="selectionnerDate(jour)">
               {{ jour | date:'EEEE d MMMM yyyy':'':'fr' }}
+              @for (echeance of echeancesDuJour(jour); track echeance.dossierId) {
+                <span class="rdv-calendrier">
+                  Échéance : {{ echeance.titre }}
+                </span>
+              }
+              @for (rdv of rendezVousDuJour(jour); track rdv.id) {
+                <span class="rdv-calendrier"
+                      role="button"
+                      tabindex="0"
+                      (click)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.enter)="$event.stopPropagation(); modifierRendezVous(rdv)"
+                      (keydown.space)="$event.preventDefault(); $event.stopPropagation(); modifierRendezVous(rdv)">
+                  {{ rdv.heureDebut.slice(0, 5) }} {{ rdv.titre }}
+                  @if (estEnConflit(rdv)) {
+                    <span title="Conflit horaire"
+                          aria-label="Conflit horaire">⚠</span>
+                  }
+                </span>
+              }
             </button>
           }
         </div>
@@ -96,21 +160,94 @@
 
     <aside class="agenda-a-venir" data-testid="agenda-a-venir">
       <h2>À venir</h2>
-      <p>Les prochains rendez-vous et échéances apparaîtront ici.</p>
+      @for (echeance of prochainesEcheances(); track echeance.dossierId) {
+        <article class="rdv-prochain">
+          <strong>Échéance : {{ echeance.titre }}</strong>
+          <span>{{ echeance.date | date:'dd/MM/yyyy' }}</span>
+        </article>
+      }
+      @if (prochainsRendezVous().length === 0 && prochainesEcheances().length === 0) {
+        <p>Aucun rendez-vous à venir.</p>
+      } @else {
+        @for (rdv of prochainsRendezVous(); track rdv.id) {
+          <article class="rdv-prochain">
+            <strong>{{ rdv.titre }}</strong>
+            <span>{{ rdv.date | date:'dd/MM/yyyy' }}
+              à {{ rdv.heureDebut.slice(0, 5) }}</span>
+            @if (estAdmin()) {
+              <div class="actions-rdv">
+                <button type="button" (click)="modifierRendezVous(rdv)">
+                  Modifier
+                </button>
+                <button type="button" (click)="supprimerRendezVous(rdv)">
+                  Supprimer
+                </button>
+              </div>
+            }
+          </article>
+        }
+      }
     </aside>
   </div>
 
-  @if (formulaireOuvert()) {
-    <section class="formulaire-evenement"
-             data-testid="formulaire-evenement">
-      <h2>Nouveau rendez-vous</h2>
-      <p>
-        Date :
-        {{ dateSelectionnee() | date:'dd/MM/yyyy' }}
-      </p>
-      <button type="button" (click)="fermerFormulaire()">
-        Fermer
-      </button>
-    </section>
+  @if (erreur()) {
+    <p class="erreur-agenda" role="alert">{{ erreur() }}</p>
+  }
+
+  @if (formulaireOuvert() && estAdmin()) {
+    <dialog class="agenda-modal-overlay" open>
+      <section class="formulaire-evenement" role="dialog"
+               aria-modal="true" aria-labelledby="titre-formulaire-rdv"
+               data-testid="formulaire-evenement">
+      <h2 id="titre-formulaire-rdv">{{ editionId() ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous' }}</h2>
+
+      <form (submit)="$event.preventDefault()">
+        <label>Titre
+          <input name="titre" data-testid="rdv-titre"
+                 [(ngModel)]="formulaire.titre" required maxlength="200">
+        </label>
+
+        <label>Date
+          <input name="date" data-testid="rdv-date" type="date"
+                 [(ngModel)]="formulaire.date" required>
+        </label>
+
+        <label>Heure de début
+          <input name="debut" data-testid="rdv-debut" type="time"
+                 [(ngModel)]="formulaire.heureDebut" required>
+        </label>
+
+        <label>Heure de fin
+          <input name="fin" data-testid="rdv-fin" type="time"
+                 [(ngModel)]="formulaire.heureFin" required>
+        </label>
+
+        <label>Lieu
+          <input name="lieu" data-testid="rdv-lieu"
+                 [(ngModel)]="formulaire.lieu" maxlength="255">
+        </label>
+
+        <label>Description
+          <textarea name="description" data-testid="rdv-description"
+                    [(ngModel)]="formulaire.description"></textarea>
+        </label>
+
+        <label class="option-partage">
+          <input name="partage" type="checkbox"
+                 [(ngModel)]="formulaire.partage">
+          Partager avec les collaborateurs (lecture seule)
+        </label>
+
+        <div class="actions-formulaire">
+          <button type="button" (click)="fermerFormulaire()">Annuler</button>
+          <button type="button" (click)="enregistrerRendezVous()"
+                  data-testid="enregistrer-rdv"
+                  [disabled]="enregistrement()">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+      </section>
+    </dialog>
   }
 </section>

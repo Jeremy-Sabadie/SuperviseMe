@@ -4,6 +4,19 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'agenda',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./layout/main-layout/main-layout').then(m => m.MainLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/calendar/calendar/calendar').then(m => m.Calendar)
+      }
+    ]
+  },
+  {
     path: 'suivi',
     canActivate: [authGuard],
     loadComponent: () =>

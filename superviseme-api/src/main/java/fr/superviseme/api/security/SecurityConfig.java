@@ -29,6 +29,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/public/realisations",
                                 "/api/public/realisations/*/image").permitAll()
                         .requestMatchers("/api/realisations", "/api/realisations/**").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers("/api/agenda", "/api/agenda/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/dossiers", "/api/dossiers/**").hasAnyRole("ADMIN", "USER")
                         // Consultation partagée ; création réservée à ADMIN au niveau métier.
                         .requestMatchers("/api/taches", "/api/taches/**").hasAnyRole("ADMIN", "USER")
