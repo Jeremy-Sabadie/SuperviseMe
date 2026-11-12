@@ -71,4 +71,19 @@ describe('Kanban', () => {
     expect(bouton.textContent.trim()).toBe('+ Nouveau dossier');
   });
 
+
+  /**
+   * Un utilisateur doit pouvoir modifier le statut d'un dossier
+   * sans utiliser le glisser-déposer, notamment au clavier.
+   */
+  it('change le statut depuis une action accessible sur la carte', () => {
+    const dossier = component.dossiers()[0];
+
+    component.changerStatutCarte(dossier.id, 'EN_COURS');
+
+    expect(component.dossiers().find(d => d.id === dossier.id)?.statut)
+      .toBe('EN_COURS');
+  });
+
+
 });

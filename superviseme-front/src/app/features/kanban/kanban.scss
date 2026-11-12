@@ -418,3 +418,26 @@ h2 { font-size: 19px; margin: 0 0 8px; }
     display: none;
   }
 }
+
+
+/* UX — Sélecteur compact, accessible et adapté aux cartes. */
+.ticket-statut-select {
+  box-sizing: border-box;
+  width: 145px;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: auto;
+  padding: 7px 26px 7px 12px;
+  appearance: none;
+  border: 1px solid #416180;
+  border-radius: 999px;
+  color: #d9edff;
+  background: #172e46;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: #21b8c8; }
+  &:focus-visible { outline: 2px solid #21b8c8; outline-offset: 3px; }
+  option { color: #eaf4ff; background: #172e46; }
+}

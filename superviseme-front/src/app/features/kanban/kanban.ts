@@ -295,6 +295,17 @@ export class Kanban implements OnInit {
     const dossier = event.previousContainer.data[event.previousIndex];
     if (!dossier) return;
 
+    this.changerStatutCarte(dossier.id, statut);
+  }
+
+  /**
+   * Modifie le statut depuis une carte ou un glisser-déposer.
+   * Conserve la restauration du statut si l'API refuse la modification.
+   */
+  changerStatutCarte(dossierId: string, statut: string): void {
+    const dossier = this.dossiers().find(item => item.id === dossierId);
+    if (!dossier || dossier.statut === statut) return;
+
     const ancienStatut = dossier.statut;
 
     this.dossiers.update(dossiers =>
