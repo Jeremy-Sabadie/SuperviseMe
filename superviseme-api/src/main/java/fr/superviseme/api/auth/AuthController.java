@@ -16,9 +16,12 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService service;
+    private final JwtRevocationService revocations;
 
-    public AuthController(AuthService service) {
+    public AuthController(AuthService service,
+                          JwtRevocationService revocations) {
         this.service = service;
+        this.revocations = revocations;
     }
 
     public record LoginRequest(
@@ -30,6 +33,12 @@ public class AuthController {
     public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
         return Map.of("accessToken",
                 service.connecter(request.email(), request.motDePasse()));
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@AuthenticationPrincipal Jwt jwt) {
+        revocations.revoquer(jwt.getTokenValue(), jwt.getExpiresAt());
     }
 
     @GetMapping("/me")

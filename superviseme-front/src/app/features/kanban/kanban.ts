@@ -74,8 +74,21 @@ export class Kanban implements OnInit {
   }
 
   deconnecter(): void {
+    if (!this.session.token()) {
+      this.session.deconnecter();
+      void this.router.navigateByUrl('/login');
+      return;
+    }
+
+    this.http.post<void>('/api/auth/logout', {}).subscribe({
+      next: () => this.terminerDeconnexion(),
+      error: () => this.terminerDeconnexion()
+    });
+  }
+
+  private terminerDeconnexion(): void {
     this.session.deconnecter();
-    this.router.navigateByUrl('/login');
+    void this.router.navigateByUrl('/login');
   }
 
   private readonly http = inject(HttpClient);
