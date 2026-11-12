@@ -21,6 +21,30 @@ class PasswordResetIntegrationTest {
     @Autowired
     MockMvc mvc;
 
+
+    /**
+     * Un jeton inexistant ne doit jamais permettre de changer
+     * le mot de passe d'un utilisateur.
+     */
+    @Test
+    void unJetonInexistantEstRefuse() throws Exception {
+        mvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+                        + "\"motDePasse\":\"NouveauMotDePasse123!\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    /** La politique impose au minimum douze caractères. */
+    @Test
+    void unMotDePasseTropCourtEstRefuse() throws Exception {
+        mvc.perform(post("/api/auth/reset-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+                        + "\"motDePasse\":\"court\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
     @Test
     void uneAdresseInconnueRecoitUneReponseNeutre() throws Exception {
         mvc.perform(post("/api/auth/forgot-password")
