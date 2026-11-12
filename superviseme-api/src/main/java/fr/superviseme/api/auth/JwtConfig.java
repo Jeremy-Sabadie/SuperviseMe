@@ -53,10 +53,14 @@ public class JwtConfig {
     @Bean
     JwtDecoder jwtDecoder(
             RSAKey rsaKey,
-            UtilisateurRepository utilisateurs
+            UtilisateurRepository utilisateurs,
+            @Value("${superviseme.jwt.issuer:superviseme}") String issuer,
+            @Value("${superviseme.jwt.audience:superviseme-api}") String audience
     ) throws Exception {
         NimbusJwtDecoder decoder = NimbusJwtDecoder
                 .withPublicKey(rsaKey.toRSAPublicKey())
+                .signatureAlgorithm(
+                        org.springframework.security.oauth2.jose.jws.SignatureAlgorithm.RS256)
                 .build();
 
         /*
@@ -84,9 +88,25 @@ public class JwtConfig {
             );
         };
 
-        // Conserve également les vérifications standard d'expiration.
+        // Refuse une audience absente ou étrangère à cette instance.
+        OAuth2TokenValidator<Jwt> audienceValide = token ->
+                token.getAudience().contains(audience)
+                        ? OAuth2TokenValidatorResult.success()
+                        : OAuth2TokenValidatorResult.failure(
+                                new OAuth2Error("invalid_token", "Audience invalide", null));
+
+        // L'expiration doit être explicitement présente.
+        OAuth2TokenValidator<Jwt> expirationPresente = token ->
+                token.getExpiresAt() != null
+                        ? OAuth2TokenValidatorResult.success()
+                        : OAuth2TokenValidatorResult.failure(
+                                new OAuth2Error("invalid_token", "Expiration absente", null));
+
+        // Validation de l'émetteur, de l'expiration et du contexte.
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
-                JwtValidators.createDefault(),
+                JwtValidators.createDefaultWithIssuer(issuer),
+                audienceValide,
+                expirationPresente,
                 compteActif
         ));
 

@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -16,6 +17,19 @@ public class AuthService {
     private final UtilisateurRepository repository;
     private final PasswordEncoder encoder;
     private final JwtEncoder jwtEncoder;
+
+    private String jwtIssuer = "superviseme";
+    private String jwtAudience = "superviseme-api";
+
+    @Value("${superviseme.jwt.issuer:superviseme}")
+    void configurerIssuer(String issuer) {
+        this.jwtIssuer = issuer;
+    }
+
+    @Value("${superviseme.jwt.audience:superviseme-api}")
+    void configurerAudience(String audience) {
+        this.jwtAudience = audience;
+    }
 
     public AuthService(
             UtilisateurRepository repository,
@@ -46,7 +60,8 @@ public class AuthService {
         Instant maintenant = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("superviseme")
+                .issuer(jwtIssuer)
+                .audience(java.util.List.of(jwtAudience))
                 .subject(utilisateur.getId().toString())
                 .issuedAt(maintenant)
                 .expiresAt(maintenant.plus(30, ChronoUnit.MINUTES))
