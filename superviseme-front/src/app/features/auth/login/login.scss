@@ -132,3 +132,21 @@ button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
+
+
+.auth-return-link {
+  display: inline-block;
+  color: var(--sm-accent-hover);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-return-link:hover {
+  text-decoration: underline;
+}
+
+.auth-return-link:focus-visible {
+  outline: 2px solid var(--sm-accent-hover);
+  outline-offset: 3px;
+}
