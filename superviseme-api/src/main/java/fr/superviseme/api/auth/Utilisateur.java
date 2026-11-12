@@ -66,6 +66,17 @@ public class Utilisateur {
         return motDePasseHash;
     }
 
+    /**
+     * Remplace uniquement le hash du mot de passe.
+     * Le service appelant doit utiliser PasswordEncoder (BCrypt).
+     */
+    public void modifierMotDePasseHash(String nouveauHash) {
+        if (nouveauHash == null || nouveauHash.isBlank()) {
+            throw new IllegalArgumentException("Hash de mot de passe invalide");
+        }
+        this.motDePasseHash = nouveauHash;
+    }
+
     public RoleUtilisateur getRole() {
         return role;
     }
