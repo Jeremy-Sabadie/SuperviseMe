@@ -33,7 +33,7 @@ class JwtValidationSecuriteTest {
         JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .issuer(issuer)
                 .subject(utilisateur.getId().toString())
-                .issuedAt(Instant.now().minusSeconds(10))
+                .issuedAt(Instant.now().minusSeconds(3600))
                 .audience(audiences)
                 .claim("roles", List.of("ADMIN"));
 
@@ -98,6 +98,46 @@ class JwtValidationSecuriteTest {
                 List.of("superviseme-api"),
                 null
         );
+
+        assertThrows(JwtException.class, () -> decoder.decode(token));
+    }
+
+    @Test
+    void signatureAutreCleRsaRefusee() throws Exception {
+        var generateur = java.security.KeyPairGenerator.getInstance("RSA");
+        generateur.initialize(2048);
+        var paire = generateur.generateKeyPair();
+
+        var autreCle = new com.nimbusds.jose.jwk.RSAKey.Builder(
+                (java.security.interfaces.RSAPublicKey) paire.getPublic())
+                .privateKey((java.security.interfaces.RSAPrivateKey) paire.getPrivate())
+                .keyID("cle-etrangere")
+                .build();
+
+        JwtEncoder autreEncodeur = new NimbusJwtEncoder(
+                new com.nimbusds.jose.jwk.source.ImmutableJWKSet<>(
+                        new com.nimbusds.jose.jwk.JWKSet(autreCle)));
+
+        Utilisateur utilisateur = new Utilisateur(
+                "jwt-rsa-" + UUID.randomUUID() + "@test.local",
+                "hash-test",
+                RoleUtilisateur.ADMIN
+        );
+        utilisateurs.saveAndFlush(utilisateur);
+
+        Instant maintenant = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("superviseme")
+                .audience(List.of("superviseme-api"))
+                .subject(utilisateur.getId().toString())
+                .issuedAt(maintenant)
+                .expiresAt(maintenant.plusSeconds(1800))
+                .build();
+
+        String token = autreEncodeur.encode(
+                JwtEncoderParameters.from(
+                        JwsHeader.with(SignatureAlgorithm.RS256).build(),
+                        claims)).getTokenValue();
 
         assertThrows(JwtException.class, () -> decoder.decode(token));
     }
