@@ -34,6 +34,36 @@ public class DossierService {
         this.statutRepository = statutRepository;
     }
 
+    /**
+     * Enrichit un dossier autorisé avec l'identité minimale du responsable.
+     * Ne divulgue ni email, ni informations d'authentification.
+     */
+    @Transactional(readOnly = true)
+    public DossierResponse versReponse(Dossier dossier) {
+        // Les dossiers historiques peuvent ne pas avoir de responsable.
+        // Ne jamais transmettre un identifiant null à JpaRepository.
+        if (dossier.getResponsableId() == null) {
+            return DossierResponse.depuis(dossier, "Non assigné");
+        }
+
+        String nomResponsable = utilisateurRepository
+                .findById(dossier.getResponsableId())
+                .map(utilisateur -> {
+                    String prenom = utilisateur.getPrenom();
+                    String nom = utilisateur.getNom();
+
+                    if (prenom == null || prenom.isBlank()
+                            || nom == null || nom.isBlank()) {
+                        return "Identité à renseigner";
+                    }
+
+                    return prenom.trim() + " " + nom.trim();
+                })
+                .orElse("Responsable indisponible");
+
+        return DossierResponse.depuis(dossier, nomResponsable);
+    }
+
     /** Crée un dossier avec ses valeurs métier par défaut. */
     public Dossier creer(CreerDossierRequest demande) {
         if (demande.clientId() == null) {
