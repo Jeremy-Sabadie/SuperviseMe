@@ -420,11 +420,7 @@ h2 { font-size: 19px; margin: 0 0 8px; }
 }
 
 
-/* UX — Sélecteur de statut des cartes Kanban */
-/*
- * Alternative compacte au drag & drop.
- * La largeur est limitée pour ne pas dépasser des cartes.
- */
+/* UX — Sélecteur compact, accessible et adapté aux cartes. */
 .ticket-statut-select {
   box-sizing: border-box;
   width: 145px;
@@ -432,40 +428,16 @@ h2 { font-size: 19px; margin: 0 0 8px; }
   min-width: 0;
   margin-left: auto;
   padding: 7px 26px 7px 12px;
-
   appearance: none;
   border: 1px solid #416180;
   border-radius: 999px;
-
   color: #d9edff;
-  background-color: #172e46;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #83c5e7 50%),
-    linear-gradient(135deg, #83c5e7 50%, transparent 50%);
-  background-position:
-    calc(100% - 17px) 50%,
-    calc(100% - 12px) 50%;
-  background-size: 5px 5px;
-  background-repeat: no-repeat;
-
-  font: inherit;
+  background: #172e46;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 150ms, background-color 150ms;
 
-  &:hover {
-    border-color: #21b8c8;
-    background-color: #213e59;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #21b8c8;
-    outline-offset: 3px;
-  }
-
-  option {
-    color: #eaf4ff;
-    background: #172e46;
-  }
+  &:hover { border-color: #21b8c8; }
+  &:focus-visible { outline: 2px solid #21b8c8; outline-offset: 3px; }
+  option { color: #eaf4ff; background: #172e46; }
 }
