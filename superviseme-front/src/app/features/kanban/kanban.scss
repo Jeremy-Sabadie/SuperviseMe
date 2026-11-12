@@ -374,3 +374,47 @@ h2 { font-size: 19px; margin: 0 0 8px; }
     white-space: nowrap;
   }
 }
+
+
+/* FIX HEADER RESPONSIVE DESKTOP */
+/*
+ * Navigation desktop : les onglets restent visibles sans défilement.
+ * Le retour à la ligne absorbe les variations de largeur sur laptop.
+ * Les styles mobile (<= 760 px) ne sont pas modifiés.
+ */
+@media (min-width: 761px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .ux-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    gap: 4px;
+    overflow: visible;
+    order: initial;
+    flex-basis: auto;
+  }
+
+  .ux-navigation a {
+    padding: 8px 9px;
+  }
+
+  .user {
+    flex-shrink: 0;
+  }
+}
+
+/* Libérer de l'espace pour la navigation sur les petits laptops. */
+@media (min-width: 761px) and (max-width: 1200px) {
+  .user-label {
+    display: none;
+  }
+}
