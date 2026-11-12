@@ -41,6 +41,12 @@ describe('FicheDossier - accès collaborateur USER', () => {
       dateModification: ''
     };
 
+    // L'API transmet uniquement l'identité du responsable du dossier.
+    // Aucun accès à l'annuaire complet n'est nécessaire.
+    Object.assign(dossier, {
+      responsableNom: 'Alice Martin'
+    });
+
     // Simule un endpoint ADMIN qui refuse l'accès au collaborateur.
     const listerAnnuaire = vi.fn().mockReturnValue(
       throwError(() => ({ status: 403 }))
@@ -112,6 +118,10 @@ describe('FicheDossier - accès collaborateur USER', () => {
 
     // Un collaborateur USER ne doit pas interroger l'annuaire complet.
     expect(listerAnnuaire).not.toHaveBeenCalled();
+
+    // Le nom doit provenir du dossier et non de l'annuaire ADMIN.
+    expect(composant.nomResponsable('user-test'))
+      .toBe('Alice Martin');
   });
 
 });
