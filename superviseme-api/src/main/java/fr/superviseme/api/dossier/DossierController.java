@@ -32,21 +32,21 @@ public class DossierController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DossierResponse creer(@Valid @RequestBody CreerDossierRequest demande) {
-        return DossierResponse.depuis(service.creer(demande));
+        return service.versReponse(service.creer(demande));
     }
 
     /** GET /api/dossiers : consultation de la liste. */
     @GetMapping
     public List<DossierResponse> lister() {
         return service.lister().stream()
-                .map(DossierResponse::depuis)
+                .map(service::versReponse)
                 .toList();
     }
 
     /** GET /api/dossiers/{id} : consultation individuelle. */
     @GetMapping("/{id}")
     public DossierResponse consulter(@PathVariable UUID id) {
-        return DossierResponse.depuis(service.consulter(id));
+        return service.versReponse(service.consulter(id));
     }
 
     /** PUT /api/dossiers/{id} : modification complète. */
@@ -55,7 +55,7 @@ public class DossierController {
     public DossierResponse modifier(
             @PathVariable UUID id,
             @Valid @RequestBody ModifierDossierRequest demande) {
-        return DossierResponse.depuis(service.modifier(id, demande));
+        return service.versReponse(service.modifier(id, demande));
     }
 
     /**
@@ -70,7 +70,7 @@ public class DossierController {
     public DossierResponse changerStatutPersonnalise(
             @PathVariable UUID id,
             @Valid @RequestBody ChangerStatutPersonnaliseRequest demande) {
-        return DossierResponse.depuis(
+        return service.versReponse(
                 service.changerStatutPersonnalise(id, demande.statutId()));
     }
 
@@ -78,7 +78,7 @@ public class DossierController {
     public DossierResponse changerStatut(
             @PathVariable UUID id,
             @Valid @RequestBody ChangerStatutDossierRequest demande) {
-        return DossierResponse.depuis(
+        return service.versReponse(
                 service.changerStatut(id, demande.statut()));
     }
 
@@ -102,7 +102,7 @@ public class DossierController {
     public DossierResponse affecterParticipants(
             @PathVariable UUID id,
             @Valid @RequestBody AffecterParticipantsRequest demande) {
-        return DossierResponse.depuis(
+        return service.versReponse(
                 service.affecterParticipants(id, demande.participantIds()));
     }
 

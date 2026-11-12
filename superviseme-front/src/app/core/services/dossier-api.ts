@@ -20,6 +20,8 @@ export interface DossierApi {
   echeance: string | null;
   clientId: string | null;
   responsableId: string | null;
+  /** Identité du responsable fournie par l'API du dossier. */
+  responsableNom?: string | null;
   participantIds: string[];
   dateCreation: string;
   dateModification: string;
