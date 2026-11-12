@@ -54,6 +54,7 @@ public class JwtConfig {
     JwtDecoder jwtDecoder(
             RSAKey rsaKey,
             UtilisateurRepository utilisateurs,
+            JwtRevocationService revocations,
             @Value("${superviseme.jwt.issuer:superviseme}") String issuer,
             @Value("${superviseme.jwt.audience:superviseme-api}") String audience
     ) throws Exception {
@@ -102,12 +103,20 @@ public class JwtConfig {
                         : OAuth2TokenValidatorResult.failure(
                                 new OAuth2Error("invalid_token", "Expiration absente", null));
 
+        OAuth2TokenValidator<Jwt> nonRevoque = jwt ->
+                !revocations.estRevoque(jwt.getTokenValue())
+                        ? OAuth2TokenValidatorResult.success()
+                        : OAuth2TokenValidatorResult.failure(
+                                new OAuth2Error("invalid_token",
+                                        "JWT révoqué", null));
+
         // Validation de l'émetteur, de l'expiration et du contexte.
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                 JwtValidators.createDefaultWithIssuer(issuer),
                 audienceValide,
                 expirationPresente,
-                compteActif
+                compteActif,
+                nonRevoque
         ));
 
         return decoder;
