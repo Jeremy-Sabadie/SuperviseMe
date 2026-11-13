@@ -16,7 +16,7 @@
   } @else if (erreur()) {
     <p class="error" role="alert">{{ erreur() }}</p>
   } @else {
-    <div class="dossiers-master-detail">
+    <div class="dossiers-master-detail" [class.detail-ouvert]="dossierSelectionne()">
       <section class="master" aria-label="Liste des dossiers">
         <div class="master-heading">
           <h2>Dossiers ({{ dossiersFiltres().length }})</h2>
@@ -44,10 +44,12 @@
               </small>
 
   <div class="dossier-actions">
-    <a [routerLink]="['/dossiers', dossier.id]"
+    <a data-testid="dossier-consulter"
+       [routerLink]="['/dossiers', dossier.id]"
        (click)="$event.stopPropagation()">Consulter</a>
     @if (estAdmin()) {
-      <a [routerLink]="['/dossiers', dossier.id]"
+      <a data-testid="dossier-modifier"
+         [routerLink]="['/dossiers', dossier.id]"
          [queryParams]="{ mode: 'edition' }"
          (click)="$event.stopPropagation()">Modifier</a>
       <button type="button" class="sm-delete"
@@ -64,6 +66,12 @@
       </section>
 
       <section class="detail" aria-label="Aperçu du dossier">
+        @if (dossierSelectionne()) {
+          <button type="button" class="retour"
+                  (click)="fermerFiche()">
+            ← Retour aux dossiers
+          </button>
+        }
         <h2>Fiche dossier</h2>
 
         @if (dossierSelectionne(); as dossier) {
@@ -87,12 +95,10 @@
           </div>
 
           <div class="sm-list-actions">
-            <a data-testid="dossier-consulter"
-               [routerLink]="['/dossiers', dossier.id]">Consulter</a>
+            <a [routerLink]="['/dossiers', dossier.id]">Consulter</a>
 
             @if (estAdmin()) {
-              <a data-testid="dossier-modifier"
-                 [routerLink]="['/dossiers', dossier.id]"
+              <a [routerLink]="['/dossiers', dossier.id]"
                  [queryParams]="{ mode: 'edition' }">Modifier</a>
               <button type="button" class="sm-danger"
                       (click)="supprimer(dossier)">Supprimer</button>

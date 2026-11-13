@@ -44,13 +44,26 @@ interface ColonneKanban {
   standalone: true,
   imports: [DragDropModule, RouterLink],
   templateUrl: './kanban.html',
-  styleUrl: './kanban.scss'
+  styleUrls: ['./kanban.scss', './kanban-suite.scss']
 })
 export class Kanban implements OnInit {
 
   /** Référence au menu hamburger HTML natif. */
   @ViewChild('menuHamburger')
   private menuHamburger?: ElementRef<HTMLDetailsElement>;
+
+  /** Référence au menu de l'avatar utilisateur. */
+  @ViewChild('menuProfil')
+  private menuProfil?: ElementRef<HTMLDetailsElement>;
+
+  /** Ferme le menu du profil sans interférer avec le hamburger. */
+  fermerMenuProfil(): void {
+    const menu = this.menuProfil?.nativeElement;
+
+    if (menu) {
+      menu.open = false;
+    }
+  }
 
   /** Ferme le menu sans modifier les autres panneaux. */
   fermerMenuMobile(): void {
@@ -78,12 +91,24 @@ export class Kanban implements OnInit {
     ) {
       this.fermerMenuMobile();
     }
+
+    // Cliquer hors de l'avatar ferme son menu.
+    const profil = this.menuProfil?.nativeElement;
+
+    if (
+      profil?.open &&
+      cible instanceof Node &&
+      !profil.contains(cible)
+    ) {
+      this.fermerMenuProfil();
+    }
   }
 
-  /** Échap ferme le menu, conformément aux usages clavier. */
+  /** Échap ferme les menus, conformément aux usages clavier. */
   @HostListener('document:keydown.escape')
   gererEchap(): void {
     this.fermerMenuMobile();
+    this.fermerMenuProfil();
   }
 
   readonly vueSuivi = inject(Router).url.startsWith('/suivi');
@@ -198,17 +223,33 @@ export class Kanban implements OnInit {
     ).length;
   });
 
+
+  /**
+   * Dossiers à échéance dans les sept prochains jours.
+   * Même règle que le compteur d'origine.
+   */
+  readonly dossiersProchainesEcheances = computed(() => {
+    const debut = this.dateLocale();
+    const fin = this.dateLocale(7);
+
+    return this.dossiers()
+      .filter(d => {
+        const date = d.echeance?.slice(0, 10);
+        return !!date &&
+          date >= debut &&
+          date <= fin &&
+          d.statut !== 'TERMINE';
+      })
+      .sort((a, b) =>
+        (a.echeance ?? '').localeCompare(b.echeance ?? '')
+      );
+  });
+
   /** Échéances des sept prochains jours, aujourd'hui inclus. */
   readonly prochainesEcheances = computed(() => {
     const debut = this.dateLocale();
     const fin = this.dateLocale(7);
-    return this.dossiers().filter(d => {
-      const date = d.echeance?.slice(0, 10);
-      return !!date &&
-        date >= debut &&
-        date <= fin &&
-        d.statut !== 'TERMINE';
-    }).length;
+    return this.dossiersProchainesEcheances().length;
   });
 
 
