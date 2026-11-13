@@ -42,6 +42,10 @@ export class ListeDossiers implements OnInit {
     this.dossierSelectionneId.set(dossier.id);
   }
 
+  fermerFiche(): void {
+    this.dossierSelectionneId.set(null);
+  }
+
   readonly chargement = signal(true);
   readonly erreur = signal('');
 
@@ -85,7 +89,7 @@ export class ListeDossiers implements OnInit {
           clients.map(c => [c.id, c.entreprise || c.nom])
         ));
         this.dossiers.set(dossiers);
-        this.dossierSelectionneId.set(dossiers[0]?.id ?? null);
+        this.dossierSelectionneId.set(null);
 
         this.chargement.set(false);
       },

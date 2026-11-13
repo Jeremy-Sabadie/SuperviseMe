@@ -168,3 +168,61 @@ button[type="submit"]:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* SUPERVISEME - SELECT MOTIF */
+/* Harmonisation visuelle sans modifier le contrôle natif. */
+
+select#motif {
+  appearance: none;
+  -webkit-appearance: none;
+
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 44px 12px 14px;
+
+  border: 1px solid #405575;
+  border-radius: 10px;
+
+  background-color: #0d192c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2358d4d1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 20px;
+
+  color: #f1f6ff;
+  font: inherit;
+  line-height: 1.4;
+
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+select#motif:hover {
+  border-color: #58d4d1;
+}
+
+select#motif:focus-visible {
+  outline: 2px solid #58d4d1;
+  outline-offset: 2px;
+  border-color: #58d4d1;
+}
+
+select#motif:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Les couleurs des options dépendent aussi du navigateur. */
+select#motif option {
+  background: #17263c;
+  color: #f1f6ff;
+}
+
+@media (max-width: 600px) {
+  select#motif {
+    min-height: 48px;
+    font-size: 16px;
+  }
+}

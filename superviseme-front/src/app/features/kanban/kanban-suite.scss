@@ -1,0 +1,326 @@
+.ux-navigation a:hover {
+  background: #20516a;
+  color: #3ce3da;
+}
+.layout {
+  display: block;
+  min-height: calc(100vh - 66px);
+}
+.layout > main {
+  width: 100%;
+  max-width: 1600px;
+  padding: 24px 28px;
+}
+.stats {
+  gap: 12px;
+  margin: 20px 0 24px;
+}
+.stat {
+  padding: 14px 18px;
+}
+.stat strong {
+  margin-top: 6px;
+  font-size: 25px;
+}
+.heading h1 {
+  font-size: 26px;
+}
+.primary {
+  background: #22bcb7;
+  color: #062330;
+}
+@media (max-width: 900px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .ux-navigation {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .layout > main {
+    padding: 20px 16px 90px;
+  }
+}
+
+/* ALIGNEMENT-NAV-MOBILE */
+@media (max-width: 760px) {
+  .mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .mobile-nav > span,
+  .mobile-nav > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 8px 2px;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+
+/* FIX HEADER RESPONSIVE DESKTOP */
+/*
+ * Navigation desktop : les onglets restent visibles sans défilement.
+ * Le retour à la ligne absorbe les variations de largeur sur laptop.
+ * Les styles mobile (<= 760 px) ne sont pas modifiés.
+ */
+@media (min-width: 761px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .ux-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    gap: 4px;
+    overflow: visible;
+    order: initial;
+    flex-basis: auto;
+  }
+
+  .ux-navigation a {
+    padding: 8px 9px;
+  }
+
+  .user {
+    flex-shrink: 0;
+  }
+}
+
+/* Libérer de l'espace pour la navigation sur les petits laptops. */
+@media (min-width: 761px) and (max-width: 1200px) {
+  .user-label {
+    display: none;
+  }
+}
+
+
+/* UX — Sélecteur compact, accessible et adapté aux cartes. */
+.ticket-statut-select {
+  box-sizing: border-box;
+  width: 145px;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: auto;
+  padding: 7px 26px 7px 12px;
+  appearance: none;
+  border: 1px solid #416180;
+  border-radius: 999px;
+  color: #d9edff;
+  background: #172e46;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: #21b8c8; }
+  &:focus-visible { outline: 2px solid #21b8c8; outline-offset: 3px; }
+  option { color: #eaf4ff; background: #172e46; }
+}
+
+
+/* Échéances navigables depuis le tableau de bord. */
+a.stat.echeance-cliquable {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.echeance-cliquable:hover,
+.echeance-cliquable:focus-visible {
+  border-color: #55c5d7;
+}
+
+.echeances-multiples summary {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.echeances-multiples nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.echeances-multiples nav a {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  color: #e8f4ff;
+  text-decoration: none;
+  border: 1px solid #425879;
+  border-radius: 8px;
+}
+
+.echeances-multiples nav a:hover,
+.echeances-multiples nav a:focus-visible {
+  border-color: #55c5d7;
+}
+
+
+/* Notifications clients : source unique demandesEnAttente(). */
+.notification-demandes-desktop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-demandes-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: #ed3b51;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.notification-demandes-dashboard {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border: 1px solid #b84461;
+  border-radius: 10px;
+  background: #352036;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.notification-demandes-dashboard:hover,
+.notification-demandes-dashboard:focus-visible {
+  border-color: #ff7081;
+  background: #462841;
+}
+
+@media (max-width: 760px) {
+  .notification-demandes-dashboard {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* SUIVI-COMPACT-V2
+   Optimisation spécifique à /suivi.
+   Le tableau de bord principal reste inchangé.
+*/
+@media (min-width: 761px) {
+
+  /* Les indicateurs restent disponibles sur l'accueil. */
+  .page.suivi-compact .stats {
+    display: none;
+  }
+
+  /* Réduire la place prise par le haut de page. */
+  .page.suivi-compact main {
+    padding-top: 16px;
+  }
+
+  .page.suivi-compact .heading {
+    margin-bottom: 8px;
+  }
+
+  .page.suivi-compact .heading h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+
+  .page.suivi-compact .heading p {
+    margin: 4px 0 0;
+  }
+
+  .page.suivi-compact .board-heading {
+    margin: 12px 0;
+  }
+
+  .page.suivi-compact .board-heading h2 {
+    margin: 0 0 4px;
+  }
+
+  .page.suivi-compact .board {
+    align-items: start;
+    gap: 12px;
+  }
+
+  .page.suivi-compact .column {
+    padding: 12px;
+  }
+
+  /* Afficher davantage de dossiers sans allonger la page. */
+  .page.suivi-compact .dropzone {
+    min-height: 180px;
+    max-height: max(240px, calc(100dvh - 260px));
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+  }
+
+  .page.suivi-compact .ticket {
+    margin-bottom: 8px;
+  }
+}
+
+/* Aucun scroll vertical imbriqué sur téléphone. */
+@media (max-width: 760px) {
+  .page.suivi-compact .dropzone {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+
+/* SUIVI-ALIGNEMENT-V1 : colonnes uniformes sur ordinateur. */
+@media (min-width: 761px) {
+  .page.suivi-compact .board {
+    align-items: stretch;
+  }
+
+  .page.suivi-compact .column {
+    box-sizing: border-box;
+    height: 440px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page.suivi-compact .dropzone {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}

@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page" [class.suivi-compact]="vueSuivi">
 
 <header class="topbar">
   <a class="brand" routerLink="/">
@@ -11,7 +11,16 @@
     <a routerLink="/suivi">Suivi des dossiers</a>
     <a routerLink="/task">Tâches</a>
     <a routerLink="/agenda">Agenda</a>
-    <a routerLink="/demandes-clients">Demandes</a>
+    <a routerLink="/demandes-clients"
+       class="notification-demandes-desktop">
+      Demandes
+      @if (demandesEnAttente() > 0) {
+        <span class="notification-demandes-badge"
+              aria-label="Demandes à traiter">
+          {{ demandesEnAttente() }}
+        </span>
+      }
+    </a>
     @if (estAdmin()) {
       <a routerLink="/collaborateurs">Équipe</a>
     }
@@ -41,12 +50,23 @@
     @if (estAdmin()) {
       <a routerLink="/collaborateurs" (click)="fermerMenuMobile()">Équipe</a>
     }
-  </nav>
+
+    @if (estAdmin()) {
+      <a routerLink="/configurer-statuts"
+         (click)="fermerMenuMobile()">
+        Configurer mes statuts
+      </a>
+      <a routerLink="/mon-formulaire"
+         (click)="fermerMenuMobile()">
+        Mon formulaire de contact
+      </a>
+    }
+</nav>
 </details>
 
 <div class="user">
   <span class="user-label">Espace entreprise</span>
-  <details class="profil-menu">
+  <details #menuProfil class="profil-menu">
     <summary class="avatar" aria-label="Ouvrir mon profil">
       {{ initialeUtilisateur() }}
     </summary>
@@ -79,12 +99,55 @@
 
 
 
+@if (!vueSuivi && demandesEnAttente() > 0) {
+  <a routerLink="/demandes-clients"
+     class="notification-demandes-dashboard">
+    <span class="notification-demandes-badge">
+      {{ demandesEnAttente() }}
+    </span>
+    <span>
+      {{ demandesEnAttente() === 1
+        ? 'Demande client à traiter'
+        : 'Demandes clients à traiter' }}
+    </span>
+    <span aria-hidden="true">→</span>
+  </a>
+}
+
 <div class="stats ux-indicateurs">
-  <div class="stat">
-    <span>Échéances à venir</span>
-    <strong>{{ prochainesEcheances() }}</strong>
-    <small>Dossiers à échéance dans les 7 prochains jours</small>
-  </div>
+  @if (prochainesEcheances() === 1) {
+    @if (dossiersProchainesEcheances()[0]; as dossier) {
+      <a class="stat echeance-cliquable"
+         [routerLink]="['/dossiers', dossier.id]"
+         aria-label="Consulter le dossier à échéance">
+        <span>Échéances à venir</span>
+        <strong>1</strong>
+        <small>{{ dossier.titre }} — Voir le dossier</small>
+      </a>
+    }
+  } @else if (prochainesEcheances() > 1) {
+    <details class="stat echeances-multiples">
+      <summary>
+        <span>Échéances à venir</span>
+        <strong>{{ prochainesEcheances() }}</strong>
+        <small>Afficher les dossiers concernés</small>
+      </summary>
+      <nav aria-label="Liste des échéances">
+        @for (dossier of dossiersProchainesEcheances(); track dossier.id) {
+          <a [routerLink]="['/dossiers', dossier.id]">
+            {{ dossier.titre }}
+            <small>{{ dossier.echeance?.slice(0, 10) }}</small>
+          </a>
+        }
+      </nav>
+    </details>
+  } @else {
+    <div class="stat">
+      <span>Échéances à venir</span>
+      <strong>0</strong>
+      <small>Dossiers à échéance dans les 7 prochains jours</small>
+    </div>
+  }
   <a class="stat" routerLink="/agenda"
      data-testid="rdv-a-venir" style="text-decoration:none;color:inherit">
     <span>RDV à venir</span>
@@ -154,7 +217,11 @@
                       (touchstart)="$event.stopPropagation()"
                       (change)="changerStatutCarte(dossier.id, $any($event.target).value)">
                       @for (statut of colonnes(); track statut.id) {
-                        <option [value]="statut.id">{{ statut.titre }}</option>
+                        <option
+                          [value]="statut.id"
+                          [selected]="statut.id === dossier.statut">
+                          {{ statut.titre }}
+                        </option>
                       }
                     </select>
                     <span class="drag-hint">⠿</span>
