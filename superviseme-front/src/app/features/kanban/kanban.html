@@ -16,7 +16,7 @@
       <a routerLink="/collaborateurs">Équipe</a>
     }
   </nav>
-<details class="menu-hamburger">
+<details #menuHamburger class="menu-hamburger">
   <summary aria-label="Ouvrir le menu de navigation">
     ☰
     @if (demandesEnAttente() > 0) {
@@ -24,20 +24,22 @@
     }
   </summary>
   <nav aria-label="Menu mobile">
-    <a routerLink="/">Accueil</a>
-    <a routerLink="/clients">Clients</a>
-    <a routerLink="/dossiers">Dossiers</a>
-    <a routerLink="/suivi">Suivi des dossiers</a>
-    <a routerLink="/task">Tâches</a>
-    <a routerLink="/agenda">Agenda</a>
-    <a routerLink="/demandes-clients" class="menu-demandes">
+    <a routerLink="/" (click)="fermerMenuMobile()">Accueil</a>
+    <a routerLink="/profil"
+       (click)="fermerMenuMobile()">Mon profil</a>
+    <a routerLink="/clients" (click)="fermerMenuMobile()">Clients</a>
+    <a routerLink="/dossiers" (click)="fermerMenuMobile()">Dossiers</a>
+    <a routerLink="/suivi" (click)="fermerMenuMobile()">Suivi des dossiers</a>
+    <a routerLink="/task" (click)="fermerMenuMobile()">Tâches</a>
+    <a routerLink="/agenda" (click)="fermerMenuMobile()">Agenda</a>
+    <a routerLink="/demandes-clients" class="menu-demandes" (click)="fermerMenuMobile()">
       Mes demandes
       @if (demandesEnAttente() > 0) {
         <span class="badge-demandes">{{ demandesEnAttente() }}</span>
       }
     </a>
     @if (estAdmin()) {
-      <a routerLink="/collaborateurs">Équipe</a>
+      <a routerLink="/collaborateurs" (click)="fermerMenuMobile()">Équipe</a>
     }
   </nav>
 </details>
@@ -45,7 +47,9 @@
 <div class="user">
   <span class="user-label">Espace entreprise</span>
   <details class="profil-menu">
-    <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
+    <summary class="avatar" aria-label="Ouvrir mon profil">
+      {{ initialeUtilisateur() }}
+    </summary>
     <div class="profil-options">
       <a routerLink="/profil">Mon profil</a>
       @if (estAdmin()) {
