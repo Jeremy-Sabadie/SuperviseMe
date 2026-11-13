@@ -1,6 +1,13 @@
 package fr.superviseme.api.auth;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import java.util.ArrayList;
+import java.util.List;
+import java.security.interfaces.RSAPrivateCrtKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +34,8 @@ public class JwtConfig {
     @Bean
     RSAKey rsaKey(
             @Value("${superviseme.jwt.private-key}") String privateKey,
-            @Value("${superviseme.jwt.public-key}") String publicKey
+            @Value("${superviseme.jwt.public-key}") String publicKey,
+            @Value("${superviseme.jwt.active-key-id:superviseme-1}") String activeKeyId
     ) throws Exception {
         KeyFactory factory = KeyFactory.getInstance("RSA");
 
@@ -37,9 +45,17 @@ public class JwtConfig {
         RSAPublicKey publicRsa = (RSAPublicKey) factory.generatePublic(
                 new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey)));
 
+        if (!(privateRsa instanceof RSAPrivateCrtKey crt)
+                || !crt.getModulus().equals(publicRsa.getModulus())) {
+            throw new IllegalStateException("Paire RSA incohérente");
+        }
+        if (activeKeyId.isBlank()) {
+            throw new IllegalStateException("Identifiant RSA actif absent");
+        }
+
         return new RSAKey.Builder(publicRsa)
                 .privateKey(privateRsa)
-                .keyID("superviseme-1")
+                .keyID(activeKeyId)
                 .build();
     }
 
@@ -56,13 +72,43 @@ public class JwtConfig {
             UtilisateurRepository utilisateurs,
             JwtRevocationService revocations,
             @Value("${superviseme.jwt.issuer:superviseme}") String issuer,
-            @Value("${superviseme.jwt.audience:superviseme-api}") String audience
+            @Value("${superviseme.jwt.audience:superviseme-api}") String audience,
+            @Value("${superviseme.jwt.previous-public-key:}") String previousPublicKey,
+            @Value("${superviseme.jwt.previous-key-id:}") String previousKeyId
     ) throws Exception {
-        NimbusJwtDecoder decoder = NimbusJwtDecoder
-                .withPublicKey(rsaKey.toRSAPublicKey())
-                .signatureAlgorithm(
-                        org.springframework.security.oauth2.jose.jws.SignatureAlgorithm.RS256)
-                .build();
+        List<com.nimbusds.jose.jwk.JWK> verificationKeys = new ArrayList<>();
+        verificationKeys.add(new RSAKey.Builder(rsaKey.toRSAPublicKey())
+                .keyID(rsaKey.getKeyID())
+                .build());
+
+        if (!previousPublicKey.isBlank()) {
+            if (previousKeyId.isBlank()
+                    || previousKeyId.equals(rsaKey.getKeyID())) {
+                throw new IllegalStateException("Identifiant RSA précédent invalide");
+            }
+
+            RSAPublicKey previous = (RSAPublicKey) KeyFactory
+                    .getInstance("RSA")
+                    .generatePublic(new X509EncodedKeySpec(
+                            Base64.getDecoder().decode(previousPublicKey)));
+
+            verificationKeys.add(new RSAKey.Builder(previous)
+                    .keyID(previousKeyId)
+                    .build());
+        } else if (!previousKeyId.isBlank()) {
+            throw new IllegalStateException("Clé RSA précédente absente");
+        }
+
+        var processor = new DefaultJWTProcessor<SecurityContext>();
+        processor.setJWSKeySelector(
+                new JWSVerificationKeySelector<>(
+                        JWSAlgorithm.RS256,
+                        new ImmutableJWKSet<>(
+                                new JWKSet(verificationKeys))
+                )
+        );
+
+        NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
 
         /*
          * Un JWT correctement signé ne suffit pas :
