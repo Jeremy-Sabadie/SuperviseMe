@@ -1,5 +1,5 @@
 import { DemandeClientApiService } from '../../core/services/demande-client-api';
-import { Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
+import { ElementRef, HostListener, ViewChild, Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, exhaustMap, forkJoin, of, timer } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -9,6 +9,7 @@ import { AgendaApiService, RendezVous } from '../calendar/agenda-api.service';
 import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../core/auth/session';
 import { AuthApiService } from '../../core/services/auth-api';
+import { initialeAvatar } from './initiale-avatar';
 import { HttpClient } from '@angular/common/http';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -46,6 +47,45 @@ interface ColonneKanban {
   styleUrl: './kanban.scss'
 })
 export class Kanban implements OnInit {
+
+  /** Référence au menu hamburger HTML natif. */
+  @ViewChild('menuHamburger')
+  private menuHamburger?: ElementRef<HTMLDetailsElement>;
+
+  /** Ferme le menu sans modifier les autres panneaux. */
+  fermerMenuMobile(): void {
+    const menu = this.menuHamburger?.nativeElement;
+
+    if (menu) {
+      menu.open = false;
+    }
+  }
+
+  /**
+   * Un clic extérieur referme le menu.
+   * Un clic sur le bouton ou à l'intérieur conserve
+   * le comportement natif de details/summary.
+   */
+  @HostListener('document:click', ['$event'])
+  gererClicExterieur(event: MouseEvent): void {
+    const menu = this.menuHamburger?.nativeElement;
+    const cible = event.target;
+
+    if (
+      menu?.open &&
+      cible instanceof Node &&
+      !menu.contains(cible)
+    ) {
+      this.fermerMenuMobile();
+    }
+  }
+
+  /** Échap ferme le menu, conformément aux usages clavier. */
+  @HostListener('document:keydown.escape')
+  gererEchap(): void {
+    this.fermerMenuMobile();
+  }
+
   readonly vueSuivi = inject(Router).url.startsWith('/suivi');
 
   private readonly destroyRef = inject(DestroyRef);
@@ -63,8 +103,24 @@ export class Kanban implements OnInit {
   private readonly auth = inject(AuthApiService);
   readonly estAdmin = signal(false);
 
+  /** Initiale calculée à partir du compte authentifié. */
+  readonly initialeUtilisateur = signal('?');
+
   constructor() {
     if (this.session.token()) {
+      // Ne jamais utiliser d'initiale arbitraire.
+      // Le profil est relu lorsque le tableau de bord est recréé.
+      this.auth.profil()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: profil => {
+            this.initialeUtilisateur.set(
+              initialeAvatar(profil.prenom, profil.email)
+            );
+          },
+          error: () => this.initialeUtilisateur.set('?')
+        });
+
       this.auth.moi().subscribe({
         next: utilisateur =>
           this.estAdmin.set(utilisateur.roles.includes('ADMIN')),
