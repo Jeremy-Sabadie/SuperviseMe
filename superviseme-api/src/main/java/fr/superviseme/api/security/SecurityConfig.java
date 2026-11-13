@@ -54,6 +54,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/statuts",
                                 "/api/admin/statuts/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("OWNER")
+                        // Profil individuel : authentification obligatoire.
+                        // L'identité provient uniquement du JWT.
+                        .requestMatchers(
+                                "/api/profil",
+                                "/api/profil/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .anyRequest().denyAll()
                 )

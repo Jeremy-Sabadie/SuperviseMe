@@ -1,0 +1,156 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: #101d30;
+  color: #e8edf8;
+}
+
+.profil-page {
+  max-width: 760px;
+  margin: auto;
+  padding: 28px 18px 60px;
+}
+
+.retour {
+  color: #55c9ca;
+  text-decoration: none;
+}
+
+.entete {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 26px 0;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.7rem, 4vw, 2.2rem);
+  }
+
+  p {
+    color: #afbed1;
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #207c84;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.carte {
+  margin-bottom: 16px;
+  padding: 24px;
+  border: 1px solid #394d64;
+  border-radius: 16px;
+  background: #1d3045;
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 1.12rem;
+  }
+
+  p {
+    color: #afbed1;
+  }
+}
+
+.titre-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.information {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-bottom: 1px solid #394d64;
+
+  span {
+    color: #afbed1;
+  }
+
+  strong {
+    overflow-wrap: anywhere;
+  }
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  margin-top: 8px;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #60728a;
+  border-radius: 8px;
+  background: #101d30;
+  color: #fff;
+  font: inherit;
+}
+
+button {
+  padding: 10px 14px;
+  border: 1px solid #408f98;
+  border-radius: 8px;
+  background: transparent;
+  color: #8de5e6;
+  font: inherit;
+  cursor: pointer;
+
+  &.primaire {
+    margin-top: 12px;
+    background: #207c84;
+    color: white;
+    font-weight: 600;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+input:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #64e2e2;
+  outline-offset: 3px;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+
+  &.erreur {
+    background: #5e2532;
+  }
+
+  &.succes {
+    background: #195349;
+  }
+}
+
+@media (max-width: 600px) {
+  .carte {
+    padding: 18px;
+  }
+
+  .entete {
+    align-items: flex-start;
+  }
+}
