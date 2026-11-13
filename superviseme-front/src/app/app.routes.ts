@@ -4,6 +4,12 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'profil',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profil/profil').then(m => m.Profil)
+  },
+  {
     path: 'agenda',
     canActivate: [authGuard],
     loadComponent: () =>

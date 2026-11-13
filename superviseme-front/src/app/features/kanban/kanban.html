@@ -47,8 +47,10 @@
   <details class="profil-menu">
     <summary class="avatar" aria-label="Ouvrir mon profil">R</summary>
     <div class="profil-options">
+      <a routerLink="/profil">Mon profil</a>
       @if (estAdmin()) {
-        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>\n        <a routerLink="/configurer-statuts">Configurer mes statuts</a>
+        <a routerLink="/mon-formulaire">Personnaliser mon formulaire de contact</a>
+        <a routerLink="/configurer-statuts">Configurer mes statuts</a>
       }
       <button type="button" (click)="deconnecter()">Déconnexion</button>
     </div>

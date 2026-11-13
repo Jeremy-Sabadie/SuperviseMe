@@ -1,0 +1,145 @@
+<main class="profil-page">
+  <a routerLink="/" class="retour">← Tableau de bord</a>
+
+  <header class="entete">
+    <div class="avatar" aria-hidden="true">
+      {{ (profil()?.prenom || profil()?.email || 'U').charAt(0).toUpperCase() }}
+    </div>
+    <div>
+      <h1>Mon profil</h1>
+      <p>Mes informations personnelles et la sécurité de mon compte</p>
+    </div>
+  </header>
+
+  @if (erreur()) {
+    <p class="message erreur" role="alert">{{ erreur() }}</p>
+  }
+
+  @if (succes()) {
+    <p class="message succes" role="status">{{ succes() }}</p>
+  }
+
+  @if (chargement()) {
+    <p>Chargement du profil…</p>
+  } @else if (profil(); as compte) {
+
+    <!-- Les informations personnelles sont librement complétables. -->
+    <section class="carte">
+      <div class="titre-section">
+        <h2>Informations personnelles</h2>
+        <button type="button"
+          (click)="editionIdentite ? annulerIdentite() : editionIdentite = true">
+          {{ editionIdentite ? 'Annuler' : 'Modifier' }}
+        </button>
+      </div>
+
+      @if (editionIdentite) {
+        <form (ngSubmit)="enregistrerIdentite()">
+          <label for="prenom">Prénom</label>
+          <input id="prenom" name="prenom" [(ngModel)]="prenom"
+            maxlength="100" autocomplete="given-name">
+
+          <label for="nom">Nom</label>
+          <input id="nom" name="nom" [(ngModel)]="nom"
+            maxlength="100" autocomplete="family-name">
+
+          <button class="primaire" type="submit"
+            [disabled]="enregistrement()">Enregistrer</button>
+        </form>
+      } @else {
+        <div class="information">
+          <span>Prénom</span>
+          <strong>{{ compte.prenom || 'À renseigner' }}</strong>
+        </div>
+        <div class="information">
+          <span>Nom</span>
+          <strong>{{ compte.nom || 'À renseigner' }}</strong>
+        </div>
+      }
+    </section>
+
+    <!-- Modification sensible : confirmation du mot de passe actuel. -->
+    <section class="carte">
+      <div class="titre-section">
+        <h2>Adresse e-mail</h2>
+        <button type="button"
+          (click)="editionEmail ? annulerEmail() : editionEmail = true">
+          {{ editionEmail ? 'Annuler' : 'Modifier' }}
+        </button>
+      </div>
+
+      @if (editionEmail) {
+        <form (ngSubmit)="enregistrerEmail()">
+          <label for="email">Nouvelle adresse e-mail</label>
+          <input id="email" name="email" type="email"
+            [(ngModel)]="email" maxlength="254"
+            autocomplete="email" required>
+
+          <label for="email-password">Mot de passe actuel</label>
+          <input id="email-password" name="emailPassword"
+            type="password" [(ngModel)]="motDePasseEmail"
+            autocomplete="current-password" required>
+
+          <button class="primaire" type="submit"
+            [disabled]="enregistrement()">Enregistrer</button>
+        </form>
+      } @else {
+        <div class="information">
+          <span>Adresse e-mail</span>
+          <strong>{{ compte.email }}</strong>
+        </div>
+      }
+    </section>
+
+    <!-- Aucun mot de passe n'est affiché ou renvoyé par l'API. -->
+    <section class="carte">
+      <div class="titre-section">
+        <h2>Sécurité du compte</h2>
+        <button type="button"
+          (click)="editionMotDePasse = !editionMotDePasse">
+          {{ editionMotDePasse ? 'Annuler' : 'Changer mon mot de passe' }}
+        </button>
+      </div>
+
+      @if (editionMotDePasse) {
+        <form (ngSubmit)="enregistrerMotDePasse()">
+          <label for="ancien">Mot de passe actuel</label>
+          <input id="ancien" name="ancien" type="password"
+            [(ngModel)]="motDePasseActuel"
+            autocomplete="current-password" required>
+
+          <label for="nouveau">Nouveau mot de passe</label>
+          <input id="nouveau" name="nouveau" type="password"
+            [(ngModel)]="nouveauMotDePasse"
+            autocomplete="new-password"
+            minlength="12" maxlength="128" required>
+
+          <label for="confirmation">Confirmer le mot de passe</label>
+          <input id="confirmation" name="confirmation" type="password"
+            [(ngModel)]="confirmation"
+            autocomplete="new-password" required>
+
+          <button class="primaire" type="submit"
+            [disabled]="enregistrement()">
+            Changer mon mot de passe
+          </button>
+        </form>
+      } @else {
+        <p>Modifiez votre mot de passe pour sécuriser votre compte.</p>
+      }
+    </section>
+
+    <!-- Les informations d'autorisation restent en lecture seule. -->
+    <section class="carte">
+      <h2>Informations du compte</h2>
+      <div class="information">
+        <span>Rôle</span>
+        <strong>{{ compte.role }}</strong>
+      </div>
+      <div class="information">
+        <span>Statut</span>
+        <strong>{{ compte.actif ? 'Actif' : 'Inactif' }}</strong>
+      </div>
+    </section>
+  }
+</main>
