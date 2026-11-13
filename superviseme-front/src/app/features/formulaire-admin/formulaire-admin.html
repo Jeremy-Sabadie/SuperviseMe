@@ -42,6 +42,70 @@
     </a>
   </div>
 
+  <!-- Partage du formulaire pour cartes de visite et flyers. -->
+  <section class="partage-qr" aria-label="Partager mon formulaire">
+    <div class="partage-qr__contenu">
+      <div class="partage-qr__texte">
+
+        <p>
+          Permettez à vos futurs clients d'accéder directement
+          à votre formulaire depuis une carte de visite.
+        </p>
+
+        <label for="adresse-formulaire">Adresse du formulaire</label>
+
+        <div class="partage-qr__lien">
+          <input
+            id="adresse-formulaire"
+            type="url"
+            [value]="lienPublic"
+            readonly
+            aria-label="Adresse publique du formulaire">
+
+          <button type="button" (click)="copierLien()">
+            Copier le lien
+          </button>
+        </div>
+
+        @if (lienCopie()) {
+          <p class="partage-qr__succes" role="status">
+            Lien copié.
+          </p>
+        }
+
+        @if (!lienImprimable) {
+          <p class="partage-qr__avertissement" role="status">
+            Aperçu de développement uniquement.
+            Le téléchargement sera disponible lorsque
+            votre formulaire aura une adresse publique HTTPS.
+          </p>
+        }
+
+        <button
+          type="button"
+          class="partage-qr__telecharger"
+          [disabled]="!qrPng() || !lienImprimable"
+          (click)="telechargerQrCode()">
+          Télécharger le QR code (PNG HD)
+        </button>
+      </div>
+
+      <div class="partage-qr__visuel">
+        @if (qrPng(); as image) {
+          <img
+            [src]="image"
+            width="200"
+            height="200"
+            alt="QR code du formulaire de contact">
+        } @else if (qrErreur()) {
+          <p role="alert">{{ qrErreur() }}</p>
+        } @else {
+          <p>Génération du QR code…</p>
+        }
+      </div>
+    </div>
+  </section>
+
   <nav class="onglets" aria-label="Configuration du formulaire">
     <button type="button" [class.actif]="onglet() === 'realisations'"
             (click)="onglet.set('realisations')">Mes réalisations</button>
@@ -53,8 +117,9 @@
   @if (succes()) { <p role="status" class="succes">{{ succes() }}</p> }
 
   @if (onglet() === 'realisations') {
-    <section class="panneau">
-      <h2>Ajouter une réalisation</h2>
+    <details class="panneau ajout-compact"
+             [attr.open]="affichageLarge ? '' : null">
+      <summary>+ Ajouter une réalisation</summary>
       <p class="aide">
         Sélectionnez une photo de votre travail, ajoutez un titre
         et éventuellement une description.
@@ -76,7 +141,7 @@
           {{ chargement() ? 'Envoi...' : '+ Ajouter la réalisation' }}
         </button>
       </form>
-    </section>
+    </details>
 
     <section class="panneau">
       <h2>Réalisations publiées ({{ realisations().length }})</h2>
@@ -92,7 +157,14 @@
 
       <div class="grille">
         @for (item of realisations(); track item.id) {
-          <article class="photo">
+          <details class="photo photo-compacte"
+                   [attr.open]="affichageLarge ? '' : null">
+            <summary class="photo-compacte__resume">
+              <img [src]="item.imageUrl"
+                   [alt]="item.titre" loading="lazy">
+              <span>{{ item.titre }}</span>
+              <span class="photo-compacte__action">Modifier</span>
+            </summary>
             <img [src]="item.imageUrl" [alt]="item.titre" loading="lazy">
             <div class="champs">
               <label>Titre
@@ -112,7 +184,7 @@
                         (click)="supprimer(item)">Supprimer</button>
               </div>
             </div>
-          </article>
+          </details>
         }
       </div>
     </section>

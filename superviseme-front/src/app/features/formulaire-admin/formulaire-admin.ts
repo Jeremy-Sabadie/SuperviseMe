@@ -1,4 +1,9 @@
 import Swal from 'sweetalert2';
+import {
+  genererQrPng,
+  urlFormulaire,
+  urlPubliqueValide
+} from './contact-qr';
 
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -23,7 +28,52 @@ interface Realisation {
 export class FormulaireAdmin implements OnInit {
   private readonly http = inject(HttpClient);
 
-  readonly lienPublic = new URL('/contact', window.location.origin).href;
+  readonly lienPublic = urlFormulaire(window.location.origin);
+
+  /** Empêche d'imprimer un QR code local ou non sécurisé. */
+  readonly lienImprimable = urlPubliqueValide(this.lienPublic);
+
+  /** Affichage compact par défaut sur les petits écrans. */
+  /** Préserve l'édition immédiatement visible sur ordinateur. */
+  readonly affichageLarge = window.matchMedia(
+    '(min-width: 701px)'
+  ).matches;
+
+  readonly qrOuvertInitialement =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(min-width: 701px)').matches;
+
+
+  readonly qrPng = signal<string | null>(null);
+  readonly qrErreur = signal('');
+
+  /**
+   * Prépare l'aperçu sans transmettre l'URL à un service tiers.
+   * L'image est générée directement dans le navigateur.
+   */
+  private async preparerQrCode(): Promise<void> {
+    try {
+      this.qrPng.set(await genererQrPng(this.lienPublic));
+      this.qrErreur.set('');
+    } catch {
+      this.qrErreur.set('Impossible de générer le QR code.');
+    }
+  }
+
+  /**
+   * Déclenche le téléchargement du PNG.
+   * Un QR local ne doit pas finir sur une carte de visite.
+   */
+  telechargerQrCode(): void {
+    const image = this.qrPng();
+
+    if (!image || !this.lienImprimable) return;
+
+    const lien = document.createElement('a');
+    lien.href = image;
+    lien.download = 'superviseme-qr-formulaire-contact.png';
+    lien.click();
+  }
   readonly lienCopie = signal(false);
 
   async copierLien(): Promise<void> {
@@ -46,7 +96,10 @@ export class FormulaireAdmin implements OnInit {
   description = '';
   fichier: File | null = null;
 
-  ngOnInit(): void { this.actualiser(); }
+  ngOnInit(): void {
+    this.actualiser();
+    void this.preparerQrCode();
+  }
 
   actualiser(): void {
     this.http.get<Realisation[]>('/api/public/realisations').subscribe({
