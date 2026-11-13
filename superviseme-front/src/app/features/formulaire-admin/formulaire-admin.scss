@@ -180,3 +180,327 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     white-space: normal;
   }
 }
+
+
+/* Partage du formulaire : aperçu et téléchargement du QR code. */
+.partage-qr {
+  margin-bottom: 24px;
+  padding: 22px;
+  border: 1px solid #34415d;
+  border-radius: 12px;
+  background: #192238;
+  font-family: Arial, sans-serif;
+
+  &__contenu {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    align-items: center;
+    gap: 24px;
+  }
+
+  &__texte {
+    min-width: 0;
+  }
+
+  h2 {
+    margin: 0 0 10px;
+    color: #f1f5ff;
+  }
+
+  p {
+    color: #b9c6df;
+    line-height: 1.5;
+  }
+
+  label {
+    display: block;
+    margin: 16px 0 8px;
+    color: #dce6fa;
+  }
+
+  &__lien {
+    display: flex;
+    gap: 10px;
+  }
+
+  input {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #536381;
+    border-radius: 8px;
+    background: #101b2d;
+    color: #fff;
+  }
+
+  button {
+    padding: 12px 16px;
+    border: 1px solid #7060d2;
+    border-radius: 8px;
+    background: #7060d2;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  &__telecharger {
+    margin-top: 16px;
+  }
+
+  &__visuel {
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+    padding: 10px;
+    border-radius: 12px;
+    background: white;
+
+    img {
+      display: block;
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      image-rendering: pixelated;
+    }
+
+    p {
+      color: #182238;
+    }
+  }
+
+  &__avertissement {
+    color: #ffd79a !important;
+  }
+
+  &__succes {
+    color: #8de0c0 !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .partage-qr {
+    padding: 18px;
+
+    &__contenu {
+      grid-template-columns: 1fr;
+    }
+
+    &__lien {
+      flex-direction: column;
+    }
+
+    &__visuel {
+      max-width: 220px;
+      margin: 0 auto;
+    }
+  }
+}
+
+
+/* Panneau QR accessible, compact lorsqu'il est replié. */
+.partage-qr {
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    color: #f1f5ff;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  summary:focus-visible {
+    outline: 2px solid #64e2e2;
+    outline-offset: 4px;
+  }
+
+  &__indication {
+    flex-shrink: 0;
+    color: #aebcda;
+    font-size: 0.8rem;
+    font-weight: 400;
+  }
+
+  &__contenu {
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .partage-qr {
+    margin-bottom: 14px;
+    padding: 14px;
+
+    summary {
+      font-size: 0.95rem;
+    }
+
+    &__indication {
+      font-size: 0.7rem;
+    }
+
+    &__contenu {
+      gap: 14px;
+    }
+
+    &__visuel {
+      min-height: auto;
+      width: 160px;
+
+      img {
+        max-width: 140px;
+      }
+    }
+  }
+}
+
+
+/* mobile-compact-v1 : QR visible et réalisations condensées. */
+.photo-compacte {
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  &__resume {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    color: #f1f5ff;
+    font-weight: 600;
+
+    img {
+      flex: 0 0 60px;
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    span:nth-child(2) {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__action {
+    color: #b8aaff;
+    font-size: 0.85rem;
+  }
+
+  &[open] .champs {
+    margin-top: 16px;
+  }
+}
+
+.ajout-compact > summary {
+  cursor: pointer;
+  color: #d5cbff;
+  font-weight: 600;
+}
+
+.ajout-compact[open] > .aide {
+  margin-top: 16px;
+}
+
+@media (max-width: 700px) {
+  /* Le texte d'introduction est déjà expliqué ailleurs. */
+  .avantages {
+    display: none;
+  }
+
+  .presentation {
+    margin-bottom: 16px;
+  }
+
+  .presentation .introduction {
+    margin-bottom: 0;
+  }
+
+  .partage-qr {
+    padding: 14px;
+
+    /* QR et actions côte à côte, sans long empilement. */
+    &__contenu {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 104px;
+      align-items: center;
+      gap: 10px;
+      margin-top: 0;
+    }
+
+    &__texte > p:first-child {
+      display: none;
+    }
+
+    &__texte > p:first-of-type {
+      display: none;
+    }
+
+    &__lien {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    &__lien input {
+      font-size: 11px;
+      padding: 8px;
+    }
+
+    &__lien button,
+    &__telecharger {
+      width: 100%;
+      padding: 9px 6px;
+      font-size: 11px;
+    }
+
+    &__telecharger {
+      margin-top: 8px;
+    }
+
+    &__visuel {
+      box-sizing: border-box;
+      width: 104px;
+      max-width: 104px;
+      min-height: 104px;
+      padding: 5px;
+      margin: 0;
+
+      img {
+        width: 94px;
+        max-width: 94px;
+      }
+    }
+
+    &__avertissement {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+  }
+
+  .photo-compacte {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .ajout-compact {
+    padding: 14px;
+  }
+
+  .panneau {
+    padding: 14px;
+  }
+}
