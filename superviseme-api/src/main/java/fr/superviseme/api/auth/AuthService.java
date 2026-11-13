@@ -18,6 +18,9 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtEncoder jwtEncoder;
 
+    @Value("${superviseme.jwt.active-key-id:superviseme-1}")
+    private String jwtKeyId = "superviseme-1";
+
     private String jwtIssuer = "superviseme";
     private String jwtAudience = "superviseme-api";
 
@@ -68,7 +71,7 @@ public class AuthService {
                 .claim("roles", java.util.List.of(utilisateur.getRole().name()))
                 .build();
 
-        JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).build();
+        JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).keyId(jwtKeyId).build();
 
         return jwtEncoder.encode(
                 JwtEncoderParameters.from(header, claims)
