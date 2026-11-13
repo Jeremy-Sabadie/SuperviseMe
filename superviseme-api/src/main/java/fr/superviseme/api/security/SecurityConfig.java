@@ -25,10 +25,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                        // Récupération du mot de passe accessible sans JWT.
+                        // Les jetons seront vérifiés par le service métier.
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/contact").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/realisations",
                                 "/api/public/realisations/*/image").permitAll()
                         .requestMatchers("/api/realisations", "/api/realisations/**").hasAnyRole("OWNER", "ADMIN")
+                        .requestMatchers("/api/agenda", "/api/agenda/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/dossiers", "/api/dossiers/**").hasAnyRole("ADMIN", "USER")
                         // Consultation partagée ; création réservée à ADMIN au niveau métier.
                         .requestMatchers("/api/taches", "/api/taches/**").hasAnyRole("ADMIN", "USER")

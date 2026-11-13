@@ -5,6 +5,7 @@ import { catchError, exhaustMap, forkJoin, of, timer } from 'rxjs';
 import Swal from 'sweetalert2';
 import { DossierApi, DossierApiService } from '../../core/services/dossier-api';
 import { ClientApiService } from '../../core/services/client-api';
+import { AgendaApiService, RendezVous } from '../calendar/agenda-api.service';
 import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../core/auth/session';
 import { AuthApiService } from '../../core/services/auth-api';
@@ -54,6 +55,9 @@ export class Kanban implements OnInit {
   private readonly session = inject(SessionService);
   private readonly dossierApi = inject(DossierApiService);
   private readonly clientApi = inject(ClientApiService);
+  private readonly agendaApi = inject(AgendaApiService);
+  readonly rendezVousAgenda = signal<RendezVous[]>([]);
+  readonly erreurAgenda = signal(false);
   readonly chargement = signal(false);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthApiService);
@@ -70,8 +74,21 @@ export class Kanban implements OnInit {
   }
 
   deconnecter(): void {
+    if (!this.session.token()) {
+      this.session.deconnecter();
+      void this.router.navigateByUrl('/login');
+      return;
+    }
+
+    this.http.post<void>('/api/auth/logout', {}).subscribe({
+      next: () => this.terminerDeconnexion(),
+      error: () => this.terminerDeconnexion()
+    });
+  }
+
+  private terminerDeconnexion(): void {
     this.session.deconnecter();
-    this.router.navigateByUrl('/login');
+    void this.router.navigateByUrl('/login');
   }
 
   private readonly http = inject(HttpClient);
@@ -139,9 +156,36 @@ export class Kanban implements OnInit {
   });
 
 
+  /** Nombre de rendez-vous des sept prochains jours, aujourd'hui inclus. */
+  readonly prochainsRendezVous = computed(() => {
+    const maintenant = new Date();
+    const debut = this.dateLocale();
+    const fin = this.dateLocale(6);
+    const heure = maintenant.toTimeString().slice(0, 5);
+
+    return this.rendezVousAgenda().filter(rdv =>
+      rdv.date >= debut &&
+      rdv.date <= fin &&
+      (rdv.date !== debut || rdv.heureFin.slice(0, 5) > heure)
+    ).length;
+  });
+
+  private chargerRendezVousAgenda(): void {
+    this.agendaApi.lister()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: rdv => {
+          this.rendezVousAgenda.set(rdv);
+          this.erreurAgenda.set(false);
+        },
+        error: () => this.erreurAgenda.set(true)
+      });
+  }
+
   ngOnInit(): void {
     this.chargerStatuts();
     this.chargerDossiers();
+    this.chargerRendezVousAgenda();
     this.demarrerActualisationDemandes();
 
   }
@@ -263,6 +307,17 @@ export class Kanban implements OnInit {
 
     const dossier = event.previousContainer.data[event.previousIndex];
     if (!dossier) return;
+
+    this.changerStatutCarte(dossier.id, statut);
+  }
+
+  /**
+   * Modifie le statut depuis une carte ou un glisser-déposer.
+   * Conserve la restauration du statut si l'API refuse la modification.
+   */
+  changerStatutCarte(dossierId: string, statut: string): void {
+    const dossier = this.dossiers().find(item => item.id === dossierId);
+    if (!dossier || dossier.statut === statut) return;
 
     const ancienStatut = dossier.statut;
 

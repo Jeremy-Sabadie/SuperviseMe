@@ -374,3 +374,70 @@ h2 { font-size: 19px; margin: 0 0 8px; }
     white-space: nowrap;
   }
 }
+
+
+/* FIX HEADER RESPONSIVE DESKTOP */
+/*
+ * Navigation desktop : les onglets restent visibles sans défilement.
+ * Le retour à la ligne absorbe les variations de largeur sur laptop.
+ * Les styles mobile (<= 760 px) ne sont pas modifiés.
+ */
+@media (min-width: 761px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .ux-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    gap: 4px;
+    overflow: visible;
+    order: initial;
+    flex-basis: auto;
+  }
+
+  .ux-navigation a {
+    padding: 8px 9px;
+  }
+
+  .user {
+    flex-shrink: 0;
+  }
+}
+
+/* Libérer de l'espace pour la navigation sur les petits laptops. */
+@media (min-width: 761px) and (max-width: 1200px) {
+  .user-label {
+    display: none;
+  }
+}
+
+
+/* UX — Sélecteur compact, accessible et adapté aux cartes. */
+.ticket-statut-select {
+  box-sizing: border-box;
+  width: 145px;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: auto;
+  padding: 7px 26px 7px 12px;
+  appearance: none;
+  border: 1px solid #416180;
+  border-radius: 999px;
+  color: #d9edff;
+  background: #172e46;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: #21b8c8; }
+  &:focus-visible { outline: 2px solid #21b8c8; outline-offset: 3px; }
+  option { color: #eaf4ff; background: #172e46; }
+}

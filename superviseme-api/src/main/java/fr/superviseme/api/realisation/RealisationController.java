@@ -12,9 +12,13 @@ import java.util.UUID;
 public class RealisationController {
     private static final int MAX_IMAGE_SIZE = 5 * 1024 * 1024;
     private final RealisationRepository repository;
+    private final ImageSanitizer imageSanitizer;
 
-    public RealisationController(RealisationRepository repository) {
+    public RealisationController(
+            RealisationRepository repository,
+            ImageSanitizer imageSanitizer) {
         this.repository = repository;
+        this.imageSanitizer = imageSanitizer;
     }
 
     public record RealisationResponse(
@@ -52,15 +56,20 @@ public class RealisationController {
         @RequestParam MultipartFile fichier
     ) throws IOException {
         verifierTexte(titre, description);
+        if (fichier.isEmpty() || fichier.getSize() > MAX_IMAGE_SIZE) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Taille de fichier invalide");
+        }
         byte[] contenu = fichier.getBytes();
 
         if (contenu.length == 0 || contenu.length > MAX_IMAGE_SIZE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Taille de fichier invalide");
         }
 
-        String type = detecterType(contenu);
+        ImageSanitizer.ImageValidee image = imageSanitizer.valider(contenu);
         Realisation r = repository.save(
-            new Realisation(titre.trim(), description, type, contenu)
+            new Realisation(titre.trim(), description,
+                    image.typeMime(), image.contenu())
         );
         return toResponse(r);
     }
@@ -97,21 +106,5 @@ public class RealisationController {
             || (description != null && description.length() > 1000)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Titre ou description invalide");
         }
-    }
-
-    private String detecterType(byte[] data) {
-        if (data.length >= 8
-            && (data[0] & 255) == 137 && data[1] == 80
-            && data[2] == 78 && data[3] == 71
-            && data[4] == 13 && data[5] == 10
-            && data[6] == 26 && data[7] == 10) {
-            return "image/png";
-        }
-        if (data.length >= 4
-            && (data[0] & 255) == 255 && (data[1] & 255) == 216
-            && (data[2] & 255) == 255) {
-            return "image/jpeg";
-        }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Format image non autorise");
     }
 }

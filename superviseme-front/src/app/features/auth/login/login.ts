@@ -2,11 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthApiService } from '../../../core/services/auth-api';
 import { SessionService } from '../../../core/auth/session';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   styleUrl: './login.scss',
   templateUrl: './login.html',
 })

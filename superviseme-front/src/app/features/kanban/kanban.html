@@ -10,6 +10,7 @@
     <a routerLink="/dossiers">Dossiers</a>
     <a routerLink="/suivi">Suivi des dossiers</a>
     <a routerLink="/task">Tâches</a>
+    <a routerLink="/agenda">Agenda</a>
     <a routerLink="/demandes-clients">Demandes</a>
     @if (estAdmin()) {
       <a routerLink="/collaborateurs">Équipe</a>
@@ -28,6 +29,7 @@
     <a routerLink="/dossiers">Dossiers</a>
     <a routerLink="/suivi">Suivi des dossiers</a>
     <a routerLink="/task">Tâches</a>
+    <a routerLink="/agenda">Agenda</a>
     <a routerLink="/demandes-clients" class="menu-demandes">
       Mes demandes
       @if (demandesEnAttente() > 0) {
@@ -77,6 +79,18 @@
     <strong>{{ prochainesEcheances() }}</strong>
     <small>Dossiers à échéance dans les 7 prochains jours</small>
   </div>
+  <a class="stat" routerLink="/agenda"
+     data-testid="rdv-a-venir" style="text-decoration:none;color:inherit">
+    <span>RDV à venir</span>
+    <strong>{{ prochainsRendezVous() }}</strong>
+    <small>
+      @if (erreurAgenda()) {
+        Chargement indisponible
+      } @else {
+        Rendez-vous dans les 7 prochains jours
+      }
+    </small>
+  </a>
 </div>
 
 @if (vueSuivi) {
@@ -124,6 +138,19 @@
                   <div class="ticket-footer">
                     <span class="assignee">{{ dossier.responsable.charAt(0) }}</span>
                     <span>{{ dossier.responsable }}</span>
+                    <!-- Alternative accessible au glisser-déposer. -->
+                    <select
+                      class="ticket-statut-select"
+                      [attr.aria-label]="'Changer le statut du dossier ' + dossier.titre"
+                      [value]="dossier.statut"
+                      (pointerdown)="$event.stopPropagation()"
+                      (mousedown)="$event.stopPropagation()"
+                      (touchstart)="$event.stopPropagation()"
+                      (change)="changerStatutCarte(dossier.id, $any($event.target).value)">
+                      @for (statut of colonnes(); track statut.id) {
+                        <option [value]="statut.id">{{ statut.titre }}</option>
+                      }
+                    </select>
                     <span class="drag-hint">⠿</span>
                   </div>
                 </article>
@@ -178,7 +205,7 @@
   <span>▦ Tableau</span>
   <a class="mobile-link" routerLink="/dossiers">▤ Dossiers</a>
   <a class="mobile-link" routerLink="/task">☑ Tâches</a>
-  <span>◷ Agenda</span>
+  <a class="mobile-link" routerLink="/agenda">◷ Agenda</a>
   <a class="mobile-link" routerLink="/clients">♙ Clients</a>
 
   @if (estAdmin()) {

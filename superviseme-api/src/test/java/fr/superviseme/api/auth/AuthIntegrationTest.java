@@ -69,4 +69,48 @@ class AuthIntegrationTest {
                 .header("Authorization", "Bearer token.invalide.signature"))
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void deconnexionRevoqueJwt() throws Exception {
+        String email = "logout-" + UUID.randomUUID() + "@test.local";
+        repository.saveAndFlush(new Utilisateur(
+                email,
+                encoder.encode("MotDePasseTest123!"),
+                RoleUtilisateur.ADMIN
+        ));
+
+        String reponse = mvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(Map.of(
+                        "email", email,
+                        "motDePasse", "MotDePasseTest123!"
+                ))))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String token = mapper.readTree(reponse)
+                .get("accessToken").asText();
+
+        mvc.perform(get("/api/auth/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mvc.perform(post("/api/auth/logout")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        mvc.perform(get("/api/auth/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+
+        mvc.perform(post("/api/auth/logout")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deconnexionSansJwtRefusee() throws Exception {
+        mvc.perform(post("/api/auth/logout"))
+                .andExpect(status().isUnauthorized());
+    }
 }

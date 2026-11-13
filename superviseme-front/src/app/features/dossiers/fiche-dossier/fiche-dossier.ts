@@ -102,14 +102,25 @@ export class FicheDossier implements OnInit {
       return;
     }
 
-    forkJoin({
-      dossier: this.api.consulter(id),
-      clients: this.clientsApi.lister(),
-      responsables: this.utilisateursApi.lister(),
-      utilisateur: this.authApi.moi(),
-    statutsAvant: this.statutsApi.lister('SIGNATURE_COMMERCIALE'),
-    statutsApres: this.statutsApi.lister('APRES_SIGNATURE')
-    }).subscribe({
+    // Identifier le rôle avant de demander les données protégées.
+    // L'annuaire complet est exclusivement accessible aux ADMIN.
+    this.authApi.moi().pipe(
+      switchMap(utilisateur => {
+        const estAdmin = utilisateur.roles.includes('ADMIN');
+
+        return forkJoin({
+          dossier: this.api.consulter(id),
+          clients: this.clientsApi.lister(),
+          responsables: estAdmin
+            ? this.utilisateursApi.lister()
+            : of([] as CollaborateurResponse[]),
+          statutsAvant: this.statutsApi.lister('SIGNATURE_COMMERCIALE'),
+          statutsApres: this.statutsApi.lister('APRES_SIGNATURE')
+        }).pipe(
+          switchMap(donnees => of({ ...donnees, utilisateur }))
+        );
+      })
+    ).subscribe({
       next: ({ dossier, clients, responsables, utilisateur, statutsAvant, statutsApres }) => {
       this.statutsPersonnalises.set(
         [...statutsAvant, ...statutsApres].sort((a, b) => a.ordre - b.ordre)
@@ -191,8 +202,19 @@ export class FicheDossier implements OnInit {
 
   nomResponsable(id: string | null): string {
     if (!id) return 'Non assigné';
+    // Priorité à l'annuaire lorsqu'il est accessible (ADMIN).
     const responsable = this.responsables().find(r => r.id === id);
-    if (!responsable) return 'Responsable indisponible';
+
+    // Pour un USER, l'API du dossier fournit l'identité minimale
+    // du responsable sans exposer l'annuaire complet.
+    if (!responsable) {
+      const dossier = this.dossier();
+      if (dossier?.responsableId === id && dossier.responsableNom) {
+        return dossier.responsableNom;
+      }
+
+      return 'Responsable indisponible';
+    }
     return responsable.prenom && responsable.nom
       ? `${responsable.prenom} ${responsable.nom}`
       : 'Identité à renseigner';

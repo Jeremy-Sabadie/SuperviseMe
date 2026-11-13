@@ -4,6 +4,19 @@ import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'agenda',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./layout/main-layout/main-layout').then(m => m.MainLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/calendar/calendar/calendar').then(m => m.Calendar)
+      }
+    ]
+  },
+  {
     path: 'suivi',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -96,6 +109,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/formulaire-admin/formulaire-admin')
         .then(m => m.FormulaireAdmin)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword)
   },
   {
     path: 'login',
