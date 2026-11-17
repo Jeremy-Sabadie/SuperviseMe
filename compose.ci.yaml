@@ -1,0 +1,62 @@
+services:
+
+  # Base de données temporaire utilisée par l'API
+  postgres:
+    image: postgres:17-alpine
+
+    environment:
+      POSTGRES_DB: superviseme
+      POSTGRES_USER: superviseme
+      POSTGRES_PASSWORD: ci_test_password
+
+    # Attendre que PostgreSQL accepte les connexions
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superviseme -d superviseme"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+    networks:
+      - interne
+
+  # API Java Spring Boot
+  api:
+    build:
+      context: ./superviseme-api
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/superviseme
+      SPRING_DATASOURCE_USERNAME: superviseme
+      SPRING_DATASOURCE_PASSWORD: ci_test_password
+
+      # Clés RSA générées par GitHub Actions
+      SUPERVISEME_JWT_PRIVATE_KEY: ${SUPERVISEME_JWT_PRIVATE_KEY:?Missing CI RSA private key}
+      SUPERVISEME_JWT_PUBLIC_KEY: ${SUPERVISEME_JWT_PUBLIC_KEY:?Missing CI RSA public key}
+
+    # Ne démarrer qu'après disponibilité de PostgreSQL
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - interne
+
+  # Frontend Angular servi par Nginx
+  front:
+    build:
+      context: ./superviseme-front
+
+    # Port de test local, distinct de la production
+    ports:
+      - "127.0.0.1:18093:80"
+
+    depends_on:
+      - api
+
+    networks:
+      - interne
+
+# Réseau virtuel partagé par les trois conteneurs
+networks:
+  interne:
+    driver: bridge

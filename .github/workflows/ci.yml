@@ -76,20 +76,83 @@ jobs:
           cache: maven
           cache-dependency-path: superviseme-api/pom.xml
 
+      - name: Generate ephemeral CI RSA keys
+        run: |
+          key_file="$(mktemp)"
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$key_file" 2>/dev/null
+          echo "SUPERVISEME_JWT_PRIVATE_KEY=$(openssl pkcs8 -topk8 -nocrypt -in "$key_file" -outform DER | base64 -w0)" >> "$GITHUB_ENV"
+          echo "SUPERVISEME_JWT_PUBLIC_KEY=$(openssl pkey -in "$key_file" -pubout -outform DER | base64 -w0)" >> "$GITHUB_ENV"
+          rm -f "$key_file"
+
       - name: Run JUnit tests and build
         run: ./mvnw -B clean verify
 
   docker:
-    name: Docker - Build Stack
+    name: Docker - Stack Integration
     runs-on: ubuntu-latest
+
+    # Attendre les validations Angular et Spring Boot
     needs: [frontend, backend]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build API Docker image
-        run: docker build -t superviseme-api:ci ./superviseme-api
+      - name: Generate ephemeral CI RSA keys
+        run: |
+          key_file="$(mktemp)"
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$key_file" 2>/dev/null
+          echo "SUPERVISEME_JWT_PRIVATE_KEY=$(openssl pkcs8 -topk8 -nocrypt -in "$key_file" -outform DER | base64 -w0)" >> "$GITHUB_ENV"
+          echo "SUPERVISEME_JWT_PUBLIC_KEY=$(openssl pkey -in "$key_file" -pubout -outform DER | base64 -w0)" >> "$GITHUB_ENV"
+          rm -f "$key_file"
 
-      - name: Build Angular Docker image
-        run: docker build -t superviseme-front:ci ./superviseme-front
+      # Vérifier la syntaxe et les variables Docker Compose
+      - name: Validate Docker Compose
+        run: docker compose -f compose.ci.yaml config --quiet
+
+      # Construire les images et démarrer les trois services
+      - name: Build and start the three containers
+        run: |
+          docker compose -p superviseme-ci -f compose.ci.yaml up             -d --build --wait --wait-timeout 180
+
+      # Tester le frontend et le routage Nginx vers l'API
+      - name: Verify frontend and API through Nginx
+        run: |
+          success=0
+
+          # Attendre au maximum 180 secondes
+          for i in $(seq 1 60); do
+
+            # La route Angular doit répondre HTTP 200
+            front=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18093/login || true)
+
+            # Une route API protégée doit refuser l'accès anonyme
+            api=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18093/api/auth/me || true)
+
+            echo "Attempt $i: frontend=$front API=$api"
+
+            if [ "$front" = "200" ] && { [ "$api" = "401" ] || [ "$api" = "403" ]; }; then
+              success=1
+              break
+            fi
+
+            sleep 3
+          done
+
+          # Échouer si les vérifications ne passent pas
+          if [ "$success" != "1" ]; then
+            echo "ERREUR : vérification HTTP de la stack"
+            exit 1
+          fi
+
+          docker compose -p superviseme-ci -f compose.ci.yaml ps
+
+      # Afficher les journaux si une étape échoue
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose -p superviseme-ci -f compose.ci.yaml logs --tail=100
+
+      # Toujours supprimer les conteneurs et volumes temporaires
+      - name: Stop and remove test stack
+        if: always()
+        run: docker compose -p superviseme-ci -f compose.ci.yaml down -v --remove-orphans
