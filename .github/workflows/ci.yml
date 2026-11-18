@@ -147,6 +147,28 @@ jobs:
 
           docker compose -p superviseme-ci -f compose.ci.yaml ps
 
+      # Tester les endpoints API après le démarrage de la stack.
+      # Une assertion Newman en échec fait échouer ce job.
+      - name: Run Newman API tests
+        run: |
+          mkdir -p reports
+
+          npx --yes newman@6.2.1 run \
+            tests/newman/superviseme.postman_collection.json \
+            --reporters cli,junit \
+            --reporter-junit-export reports/newman-results.xml \
+            --timeout-request 10000
+
+      # Conserver les résultats même lorsque les tests échouent.
+      # Le rapport JUnit sera téléchargeable depuis GitHub Actions.
+      - name: Upload Newman test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-api-results
+          path: reports/newman-results.xml
+          if-no-files-found: ignore
+
       # Afficher les journaux si une étape échoue
       - name: Show logs on failure
         if: failure()

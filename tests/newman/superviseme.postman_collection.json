@@ -1,0 +1,165 @@
+{
+  "info": {
+    "name": "SuperviseMe - API CI",
+    "description": "Tests automatisés non destructifs pour GitHub Actions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:18093/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - API publiques",
+      "description": "Contrôle des endpoints publics.",
+      "item": [
+        {
+          "name": "Consulter les réalisations",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/public/realisations"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Vérifie le contrat HTTP de cette route.",
+                  "pm.test('HTTP 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Sécurité",
+      "description": "Tests négatifs sans JWT.",
+      "item": [
+        {
+          "name": "Consulter mon identité",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 401 : non authentifié ; 403 : accès interdit.",
+                  "pm.test('Accès anonyme refusé', () => {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consulter les clients",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 401 : non authentifié ; 403 : accès interdit.",
+                  "pm.test('Accès anonyme refusé', () => {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consulter les dossiers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dossiers"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 401 : non authentifié ; 403 : accès interdit.",
+                  "pm.test('Accès anonyme refusé', () => {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Authentification",
+      "description": "Contrôle de sécurité de la connexion.",
+      "item": [
+        {
+          "name": "Refuser des identifiants invalides",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"inconnu@example.invalid\", \"motDePasse\": \"invalid-ci-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Vérifie le contrat HTTP de cette route.",
+                  "pm.test('HTTP 401', () => {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Une connexion refusée ne doit jamais retourner de jeton.",
+                  "pm.test('Aucun JWT délivré', () => {",
+                  "    pm.expect(pm.response.json()).not.to.have.property('accessToken');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
